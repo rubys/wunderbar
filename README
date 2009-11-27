@@ -1,0 +1,23 @@
+Provides the following globals:
+  $cgi    - Common Gateway Interface
+  $params - Access to parameters
+  $x      - XmlBuilder instance
+
+  $USER   - user
+  $HOME   - user's home directory
+  $HOST   - server host
+
+  $HTTP_GET   - request is an HTTP GET
+  $HTTP_POST  - request is an HTTP POST
+  $XHR_JSON   - request is XmlHttpRequest for JSON
+
+Helper methods:
+  submit: runs command (or block) as a deamon process
+
+MonkeyPatches to Builder:
+  indented_text: matches text indentation to markup
+  indented_data: useful for script and styles in HTML syntax
+  traceback!   : formats an exception traceback
+
+  method_missing: patched to ensure open tags are closed
+

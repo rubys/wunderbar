@@ -1,0 +1,5 @@
+Manifest
+README
+Rakefile
+lib/cgi-spa.rb
+lib/version.rb
