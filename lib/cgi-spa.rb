@@ -9,9 +9,12 @@ $cgi = CGI.new
 $param = $cgi.params
 $x = Builder::XmlMarkup.new :indent => 2
 
+# get arguments if CGI couldn't find any... 
+$param.merge!(CGI.parse(ARGV.join('&'))) if $param.empty?
+
 # fast path for accessing CGI parameters
 def $param.method_missing(name)
-  self[name.to_s].join 
+  self[name.to_s].join if has_key? name.to_s
 end
 
 # environment objects

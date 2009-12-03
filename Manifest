@@ -1,5 +1,6 @@
 Manifest
 README
 Rakefile
+cgi-spa.gemspec
 lib/cgi-spa.rb
 lib/version.rb
