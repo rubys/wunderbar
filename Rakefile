@@ -2,7 +2,7 @@ require 'rubygems'
 require 'rake'
 require 'echoe'
 
-require File.expand_path(File.dirname(__FILE__) + "/lib/version")
+require File.expand_path(File.dirname(__FILE__) + "/lib/cgi-spa/version")
 
 Echoe.new('cgi-spa', CgiSpa::VERSION::STRING) do |p|
   p.summary    = "CGI Single Page Applications"

@@ -1,23 +1,55 @@
-Provides the following globals:
-  $cgi    - Common Gateway Interface
-  $params - Access to parameters
-  $x      - XmlBuilder instance
+= cgi-spa: Common Gateway Interface for Single Page Applications
 
-  $USER   - user
-  $HOME   - user's home directory
-  $HOST   - server host
+CGI-SPA provides a number of globals, helper methods, and monkey patches which
+simplify the development of single page applications in the form of CGI
+scripts.
 
-  $HTTP_GET   - request is an HTTP GET
-  $HTTP_POST  - request is an HTTP POST
-  $XHR_JSON   - request is XmlHttpRequest for JSON
+== Globals provided
+* $cgi   - Common Gateway Interface
+* $param - Access to parameters (read-only OpenStruct like interface)
+* $x     - XmlBuilder instance
+* $USER  - Host user id
+* $HOME  - Home directory
+* $SERVER- Server name
+* SELF   - Request URI
+* SELF?  - Request URI with '?' appended (avoids spoiling the cache)
 
-Helper methods:
-  submit: runs command (or block) as a deamon process
+* $USER   - user
+* $HOME   - user's home directory
+* $HOST   - server host
 
-MonkeyPatches to Builder:
-  indented_text: matches text indentation to markup
-  indented_data: useful for script and styles in HTML syntax
-  traceback!   : formats an exception traceback
+* $HTTP_GET   - request is an HTTP GET
+* $HTTP_POST  - request is an HTTP POST
+* $XHR_JSON   - request is XmlHttpRequest for JSON
+* $XHTML      - user agent accepts XHTML responses
 
-  method_missing: patched to ensure open tags are closed
+== HTML methods
+* style!  - argument is indented text/data
+* script! - argument is indented text/data
 
+== CGI methods
+* json    - produce JSON output using the block specified
+* json!   - produce JSON output using the block specified and exit
+* html    - produce HTML output using the block specified
+* html!   - produce HTML output using the block specified and exit
+* post    - execute block only if method is POST
+* post!   - if POST, produce HTML output using the block specified and exit
+
+== Helper methods
+* submit: runs command (or block) as a deamon process
+
+== Builder extensions
+* indented_text: matches text indentation to markup
+* indented_data: useful for script and styles in HTML syntax
+* traceback!: formats an exception traceback
+* method_missing: patched to ensure open tags are closed
+
+== Command line options
+When run from the command line, CGI name=value pairs can be specified.
+Additionally, the following options are supported:
+* --html: HTML (HTTP GET) output is expected
+* --post: HTML (HTTP POST) output is expected
+* --json: JSON (XML HTTP Request) output is expected
+* --xhtml: XHTML output is expected
+* --prompt: prompt for key/value pairs using stdin
+* --install=path: produce an suexec-callable wrapper script
