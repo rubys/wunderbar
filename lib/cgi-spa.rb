@@ -17,6 +17,12 @@ def $param.method_missing(name)
   self[name.to_s].join if has_key? name.to_s
 end
 
+# quick access to request_uri
+SELF = ENV['REQUEST_URI'].to_s
+def SELF?
+  SELF + "?" # avoids spoiling the cache
+end
+
 # environment objects
 $USER = ENV['USER'] ||
   if RUBY_PLATFORM =~ /darwin/
