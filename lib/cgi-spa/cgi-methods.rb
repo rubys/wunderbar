@@ -42,10 +42,10 @@ end
 
 # post specific logic (doesn't produce output)
 def $cgi.post
-  yield unless $HTML_POST
+  yield unless $HTTP_POST
 end
 
 # post specific content (produces output)
 def $cgi.post! &block
-  html!(&block) unless $HTML_POST
+  html!(&block) unless $HTTP_POST
 end
