@@ -2,11 +2,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{cgi-spa}
-  s.version = "0.3.2"
+  s.version = "0.3.3"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 1.2") if s.respond_to? :required_rubygems_version=
   s.authors = ["Sam Ruby"]
-  s.date = %q{2009-12-22}
+  s.date = %q{2009-12-27}
   s.description = %q{    Provides a number of globals, helper methods, and monkey patches which
     simplify the development of single page applications in the form of
     CGI scripts.

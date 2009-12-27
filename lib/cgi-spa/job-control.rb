@@ -14,6 +14,11 @@ def submit(cmd=nil)
     STDOUT.reopen '/dev/null', 'a'
     STDERR.reopen STDOUT
 
+    # clear environment of cgi cruft
+    ENV.keys.to_a.each do |key|
+      ENV.delete(key) if key =~ /HTTP/ or $cgi.respond_to? key.downcase
+    end
+
     # setup environment
     ENV['USER'] ||= $USER
     ENV['HOME'] ||= $HOME
