@@ -23,7 +23,7 @@ module Builder
           self << data
         end
 
-        _newline unless data =~ /\s$/
+        _newline unless data =~ /\n\Z/
       end
     end
 
