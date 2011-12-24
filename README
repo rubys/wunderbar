@@ -26,6 +26,7 @@ scripts.
 
 == HTML methods
 * style!  - argument is indented text/data
+* system! - run command and capture output
 * script! - argument is indented text/data
 * body?   - capture exceptions, and produce a stack traceback
 
