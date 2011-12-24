@@ -26,6 +26,7 @@ scripts.
 == HTML methods
 * style!  - argument is indented text/data
 * script! - argument is indented text/data
+* body?   - capture exceptions, and produce a stack traceback
 
 == CGI methods
 * json    - produce JSON output using the block specified
