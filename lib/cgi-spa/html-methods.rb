@@ -34,6 +34,7 @@ def $x.system!(command, opts={})
 
   $x.pre command, :class=>stdin unless opts[:echo] == false
 
+  require 'thread'
   semaphore = Mutex.new
   Open3.popen3(command) do |pin, pout, perr|
     [
