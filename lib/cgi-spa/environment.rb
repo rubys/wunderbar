@@ -22,9 +22,32 @@ $XHTML     ||= ($cgi.accept.to_s =~ /xhtml/)
 # get arguments if CGI couldn't find any... 
 $param.merge!(CGI.parse(ARGV.join('&'))) if $param.empty?
 
+module CgiSpa
+  module Untaint
+    def untaint_if_match regexp
+      self.untaint if regexp.match(self)
+    end
+  end
+end
+
 # fast path for accessing CGI parameters
 def $param.method_missing(name)
-  self[name.to_s].join if has_key? name.to_s
+  if has_key? name.to_s
+    if self[name.to_s].length == 1
+      self[name.to_s].first.extend(CgiSpa::Untaint)
+    else
+      self[name.to_s].join 
+    end
+  end
+end
+
+$env = {}
+def $env.method_missing(name)
+  delete name.to_s if ENV[name.to_s] != self[name.to_s]
+  unless has_key?(name.to_s)
+    self[name.to_s]=ENV[name.to_s].dup.extend(CgiSpa::Untaint)
+  end
+  self[name.to_s]
 end
 
 # quick access to request_uri

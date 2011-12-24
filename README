@@ -7,6 +7,7 @@ scripts.
 == Globals provided
 * $cgi   - Common Gateway Interface
 * $param - Access to parameters (read-only OpenStruct like interface)
+* $env   - Access to environment variables (read-only OpenStruct like interface)
 * $x     - XmlBuilder instance
 * $USER  - Host user id
 * $HOME  - Home directory
@@ -38,6 +39,9 @@ scripts.
 
 == Helper methods
 * submit: runs command (or block) as a deamon process
+
+== OpenStruct methods (for $params and $env)
+* untaint_if_match: untaints value if it matches a regular expression
 
 == Builder extensions
 * indented_text: matches text indentation to markup
