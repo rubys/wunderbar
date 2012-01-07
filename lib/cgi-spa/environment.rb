@@ -55,7 +55,11 @@ end
 # quick access to request_uri
 SELF = ENV['REQUEST_URI'].to_s
 def SELF?
-  SELF + "?" # avoids spoiling the cache
+  if SELF.include? '?'
+    SELF
+  else
+    SELF + "?" # avoids spoiling the cache
+  end
 end
 
 # environment objects
