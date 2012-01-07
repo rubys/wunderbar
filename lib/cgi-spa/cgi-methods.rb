@@ -1,8 +1,23 @@
 # produce json
 def $cgi.json
   return unless $XHR_JSON
-  $cgi.out 'type' => 'application/json', 'Cache-Control' => 'no-cache' do
-    JSON.pretty_generate(yield)+ "\n"
+  output = yield
+rescue Exception => exception
+  Kernel.print "Status: 500 Internal Error\r\n"
+  output = {
+    :exception => exception.inspect,
+    :backtrace => exception.backtrace
+  }
+ensure
+  if $XHR_JSON
+    Kernel.print "Status: 404 Not Found\r\n" unless output
+    $cgi.out 'type' => 'application/json', 'Cache-Control' => 'no-cache' do
+      begin
+        JSON.pretty_generate(output)+ "\n"
+      rescue
+        output.to_json + "\n"
+      end
+    end
   end
 end
 
@@ -13,9 +28,46 @@ def $cgi.json! &block
   Process.exit
 end
 
+# produce text
+def $cgi.text &block
+  return unless $TEXT
+  @output = []
+  def $cgi.puts(line='')
+    @output << line + "\n"
+  end
+  def $cgi.print(line=nil)
+    @output << line
+  end
+  self.instance_eval &block
+rescue Exception => exception
+  Kernel.print "Status: 500 Internal Error\r\n"
+  @output << "\n" unless @output.empty?
+  @output << exception.inspect + "\n"
+  exception.backtrace.each {|frame| @output << "  #{frame}\n"}
+ensure
+  class << $cgi
+    undef puts
+    undef print
+  end
+  if $TEXT
+    Kernel.print "Status: 404 Not Found\r\n" if @output.empty?
+    $cgi.out 'type' => 'text/plain', 'Cache-Control' => 'no-cache' do
+      @output.join
+    end
+    @output = nil
+  end
+end
+
+# produce text and quit
+def $cgi.text! &block
+  return unless $TEXT
+  json(&block)
+  Process.exit
+end
+
 # produce html/xhtml
 def $cgi.html
-  return if $XHR_JSON
+  return if $XHR_JSON or $TEXT
   if $XHTML
     $cgi.out 'type' => 'application/xhtml+xml', 'charset' => 'UTF-8' do
       $x.declare! :DOCTYPE, :html
@@ -35,7 +87,7 @@ end
 
 # produce html and quit
 def $cgi.html! &block
-  return if $XHR_JSON
+  return if $XHR_JSON or $TEXT
   html(&block)
   Process.exit
 end

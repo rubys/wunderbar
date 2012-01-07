@@ -3,6 +3,7 @@ $HTTP_GET  = ARGV.delete('--html')
 $HTTP_POST = ARGV.delete('--post')
 $XHR_JSON  = ARGV.delete('--json')
 $XHTML     = ARGV.delete('--xhtml')
+$TEXT      = ARGV.delete('--text')
 
 # Only prompt if explicitly asked for
 ARGV.push '' if ARGV.empty?
@@ -18,6 +19,7 @@ $HTTP_GET  ||= ($cgi.request_method == 'GET')
 $HTTP_POST ||= ($cgi.request_method == 'POST')
 $XHR_JSON  ||= ($cgi.accept.to_s =~ /json/)
 $XHTML     ||= ($cgi.accept.to_s =~ /xhtml/)
+$TEXT      ||= ($cgi.accept.to_s =~ /plain/ and $cgi.accept.to_s !~ /html/)
 
 # get arguments if CGI couldn't find any... 
 $param.merge!(CGI.parse(ARGV.join('&'))) if $param.empty?
@@ -66,3 +68,7 @@ $USER = ENV['USER'] ||
 
 $HOME   = ENV['HOME'] || File.expand_path('~' + $USER)
 $SERVER = ENV['HTTP_HOST'] || `hostname`.chomp
+
+# more implied request types
+$XHR_JSON  ||= ($env.REQUEST_URI.to_s =~ /\?json$/)
+$TEXT      ||= ($env.REQUEST_URI.to_s =~ /\?text$/)
