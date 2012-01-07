@@ -63,12 +63,14 @@ def SELF?
 end
 
 # environment objects
-$USER = ENV['USER'] ||
+$USER = ENV['REMOTE_USER'] || ENV['USER'] ||
   if RUBY_PLATFORM =~ /darwin/
     `dscl . -search /Users UniqueID #{Process.uid}`.split.first
   else
     `getent passwd #{Process.uid}`.split(':').first
   end
+
+ENV['REMOTE_USER'] ||= $USER
 
 $HOME   = ENV['HOME'] || File.expand_path('~' + $USER)
 $SERVER = ENV['HTTP_HOST'] || `hostname`.chomp
