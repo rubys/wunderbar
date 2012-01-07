@@ -46,7 +46,7 @@ end
 $env = {}
 def $env.method_missing(name)
   delete name.to_s if ENV[name.to_s] != self[name.to_s]
-  unless has_key?(name.to_s)
+  if ENV[name.to_s] and not has_key?(name.to_s)
     self[name.to_s]=ENV[name.to_s].dup.extend(CgiSpa::Untaint)
   end
   self[name.to_s]
