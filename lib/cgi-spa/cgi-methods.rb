@@ -11,7 +11,7 @@ rescue Exception => exception
 ensure
   if $XHR_JSON
     Kernel.print "Status: 404 Not Found\r\n" unless output
-    $cgi.out 'type' => 'application/json', 'Cache-Control' => 'no-cache' do
+    $cgi.out? 'type' => 'application/json', 'Cache-Control' => 'no-cache' do
       begin
         JSON.pretty_generate(output)+ "\n"
       rescue
@@ -51,7 +51,7 @@ ensure
   end
   if $TEXT
     Kernel.print "Status: 404 Not Found\r\n" if @output.empty?
-    $cgi.out 'type' => 'text/plain', 'Cache-Control' => 'no-cache' do
+    $cgi.out? 'type' => 'text/plain', 'Cache-Control' => 'no-cache' do
       @output.join
     end
     @output = nil
@@ -65,18 +65,33 @@ def $cgi.text! &block
   Process.exit
 end
 
+# Conditionally provide output, based on ETAG
+def $cgi.out?(headers, &block)
+  content = block.call
+  require 'digest/md5'
+  etag = Digest::MD5.hexdigest(content)
+
+  if ENV['HTTP_IF_NONE_MATCH'] == etag.inspect
+    print "Status: 304 Not Modified\r\n\r\n"
+  else
+    $cgi.out headers.merge('Etag' => etag.inspect) do
+      content
+    end
+  end
+end
+
 # produce html/xhtml
 def $cgi.html
   return if $XHR_JSON or $TEXT
   if $XHTML
-    $cgi.out 'type' => 'application/xhtml+xml', 'charset' => 'UTF-8' do
+    $cgi.out? 'type' => 'application/xhtml+xml', 'charset' => 'UTF-8' do
       $x.declare! :DOCTYPE, :html
       $x.html :xmlns => 'http://www.w3.org/1999/xhtml' do
         yield $x
       end
     end
   else
-    $cgi.out 'type' => 'text/html', 'charset' => 'UTF-8' do
+    $cgi.out? 'type' => 'text/html', 'charset' => 'UTF-8' do
       $x.declare! :DOCTYPE, :html
       $x.html do
         yield $x

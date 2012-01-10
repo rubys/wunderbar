@@ -2,11 +2,11 @@
 
 Gem::Specification.new do |s|
   s.name = "cgi-spa"
-  s.version = "0.6.0"
+  s.version = "0.7.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 1.2") if s.respond_to? :required_rubygems_version=
   s.authors = ["Sam Ruby"]
-  s.date = "2012-01-07"
+  s.date = "2012-01-10"
   s.description = "    Provides a number of globals, helper methods, and monkey patches which\n    simplify the development of single page applications in the form of\n    CGI scripts.\n"
   s.email = "rubys@intertwingly.net"
   s.extra_rdoc_files = ["COPYING", "README", "lib/cgi-spa.rb", "lib/cgi-spa/builder.rb", "lib/cgi-spa/cgi-methods.rb", "lib/cgi-spa/environment.rb", "lib/cgi-spa/html-methods.rb", "lib/cgi-spa/installation.rb", "lib/cgi-spa/job-control.rb", "lib/cgi-spa/version.rb"]
