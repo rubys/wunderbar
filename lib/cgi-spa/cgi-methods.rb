@@ -72,7 +72,7 @@ def $cgi.out?(headers, &block)
   etag = Digest::MD5.hexdigest(content)
 
   if ENV['HTTP_IF_NONE_MATCH'] == etag.inspect
-    print "Status: 304 Not Modified\r\n\r\n"
+    Kernel.print "Status: 304 Not Modified\r\n\r\n"
   else
     $cgi.out headers.merge('Etag' => etag.inspect) do
       content
