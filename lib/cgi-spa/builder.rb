@@ -10,12 +10,13 @@ module Builder
     unless method_defined? :indented_data!
       def indented_data!(data)
         return if data.strip.length == 0
-        lines = data.gsub(/\n\s*\n/,"\n")
-        unindent = lines.scan(/^ */).map {|str| str.length}.min
+        data.sub! /\n\s*\Z/, ''
+        data.sub! /\A\s*\n/, ''
+        unindent = data.sub(/s+\Z/,'').scan(/^ +/).map(&:length).min || 0
 
         before  = Regexp.new('^'.ljust(unindent+1))
         after   =  " " * (@level * @indent)
-        data = data.gsub(before, after)
+        data.gsub! before, after
 
         if block_given?
           yield data 
