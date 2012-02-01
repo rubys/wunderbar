@@ -78,3 +78,12 @@ $SERVER = ENV['HTTP_HOST'] || `hostname`.chomp
 # more implied request types
 $XHR_JSON  ||= ($env.REQUEST_URI.to_s =~ /\?json$/)
 $TEXT      ||= ($env.REQUEST_URI.to_s =~ /\?text$/)
+
+# set encoding to UTF-8
+ENV['LANG'] ||= "en_US.UTF-8"
+if defined? Encoding
+  Encoding.default_external = Encoding::UTF_8
+  Encoding.default_internal = Encoding::UTF_8
+else
+  $KCODE = 'U'
+end
