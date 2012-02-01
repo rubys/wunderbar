@@ -14,15 +14,12 @@ module Builder
         data.sub! /\A\s*\n/, ''
         unindent = data.sub(/s+\Z/,'').scan(/^ +/).map(&:length).min || 0
 
-        before  = Regexp.new('^'.ljust(unindent+1))
+        before  = ::Regexp.new('^'.ljust(unindent+1))
         after   =  " " * (@level * @indent)
         data.gsub! before, after
 
-        if block_given?
-          yield data 
-        else
-          self << data
-        end
+
+        self << data
 
         _newline unless data =~ /\n\Z/
       end

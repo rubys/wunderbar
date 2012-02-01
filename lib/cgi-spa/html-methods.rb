@@ -73,7 +73,7 @@ def $x.body? args={}
   $x.body(args) do
     begin
       yield
-    rescue Exception => exception
+    rescue ::Exception => exception
       text = exception.inspect
       exception.backtrace.each {|frame| text += "\n  #{frame}"}
 
