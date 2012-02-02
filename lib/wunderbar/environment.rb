@@ -24,7 +24,7 @@ $TEXT      ||= ($cgi.accept.to_s =~ /plain/ and $cgi.accept.to_s !~ /html/)
 # get arguments if CGI couldn't find any... 
 $param.merge!(CGI.parse(ARGV.join('&'))) if $param.empty?
 
-module CgiSpa
+module Wunderbar
   module Untaint
     def untaint_if_match regexp
       self.untaint if regexp.match(self)
@@ -36,7 +36,7 @@ end
 def $param.method_missing(name)
   if has_key? name.to_s
     if self[name.to_s].length == 1
-      self[name.to_s].first.extend(CgiSpa::Untaint)
+      self[name.to_s].first.extend(Wunderbar::Untaint)
     else
       self[name.to_s].join 
     end
@@ -47,7 +47,7 @@ $env = {}
 def $env.method_missing(name)
   delete name.to_s if ENV[name.to_s] != self[name.to_s]
   if ENV[name.to_s] and not has_key?(name.to_s)
-    self[name.to_s]=ENV[name.to_s].dup.extend(CgiSpa::Untaint)
+    self[name.to_s]=ENV[name.to_s].dup.extend(Wunderbar::Untaint)
   end
   self[name.to_s]
 end

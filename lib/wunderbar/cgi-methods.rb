@@ -115,3 +115,19 @@ end
 def $cgi.post! &block
   html!(&block) if $HTTP_POST
 end
+
+# canonical interface
+module Wunderbar
+  def self.html(*args, &block)
+    $cgi.html!(*args, &block)
+  end
+
+  def self.json(*args, &block)
+    $cgi.json!(*args, &block)
+  end
+
+  def self.text(*args, &block)
+    $cgi.text!(*args, &block)
+  end
+end
+

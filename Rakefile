@@ -2,16 +2,17 @@ require 'rubygems'
 require 'rake'
 require 'echoe'
 
-require File.expand_path(File.dirname(__FILE__) + "/lib/cgi-spa/version")
+require File.expand_path(File.dirname(__FILE__) + "/lib/wunderbar/version")
 
-Echoe.new('cgi-spa', CgiSpa::VERSION::STRING) do |p|
-  p.summary    = "CGI Single Page Applications"
+mkdir_p 'pkg' unless File.exist? 'pkg'
+
+Echoe.new('wunderbar', Wunderbar::VERSION::STRING) do |p|
+  p.summary    = "HTML Generator and CGI application support"
   p.description    = <<-EOF
     Provides a number of globals, helper methods, and monkey patches which
-    simplify the development of single page applications in the form of
-    CGI scripts.
+    simplify the generation of HTML and the development of CGI scripts.
   EOF
-  p.url            = "http://github.com/rubys/cgi-spa"
+  p.url            = "http://github.com/rubys/wunderbar"
   p.author         = "Sam Ruby"
   p.email          = "rubys@intertwingly.net"
   p.dependencies   = %w(

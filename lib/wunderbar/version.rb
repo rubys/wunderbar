@@ -1,9 +1,9 @@
-module CgiSpa
+module Wunderbar
   module VERSION #:nodoc:
     MAJOR = 0
-    MINOR = 7
+    MINOR = 8
     TINY  = 1
 
     STRING = [MAJOR, MINOR, TINY].join('.')
   end
-end unless defined?(CgiSpa::VERSION)
+end unless defined?(Wunderbar::VERSION)

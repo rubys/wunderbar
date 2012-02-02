@@ -1,6 +1,6 @@
-= cgi-spa: Common Gateway Interface for Single Page Applications
+= Wunderbar: Common Gateway Interface for Single Page Applications
 
-CGI-SPA provides a number of globals, helper methods, and monkey patches which
+Wunder provides a number of globals, helper methods, and monkey patches which
 simplify the development of single page applications in the form of CGI
 scripts.
 

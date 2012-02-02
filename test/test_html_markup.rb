@@ -1,6 +1,6 @@
 require 'test/unit'
 require 'rubygems'
-require 'cgi-spa'
+require 'wunderbar'
 
 class HtmlMarkupTest < Test::Unit::TestCase
   def setup

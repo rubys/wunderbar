@@ -164,7 +164,7 @@ class HtmlMarkup
         rescue ::Exception => exception
           text = exception.inspect
           exception.backtrace.each do |frame| 
-            next if frame =~ %r{/cgi-spa/}
+            next if frame =~ %r{/wunderbar/}
             next if frame =~ %r{/gems/.*/builder/}
             text += "\n  #{frame}"
           end
