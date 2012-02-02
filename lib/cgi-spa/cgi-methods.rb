@@ -81,21 +81,20 @@ def $cgi.out?(headers, &block)
 end
 
 # produce html/xhtml
-def $cgi.html
+def $cgi.html(&block)
   return if $XHR_JSON or $TEXT
+  x = HtmlMarkup.new
   if $XHTML
     $cgi.out? 'type' => 'application/xhtml+xml', 'charset' => 'UTF-8' do
-      $x.declare! :DOCTYPE, :html
-      $x.html :xmlns => 'http://www.w3.org/1999/xhtml' do
-        yield $x
-      end
+      x._! "\xEF\xBB\xBF"
+      x.declare! :DOCTYPE, :html
+      x.html :xmlns => 'http://www.w3.org/1999/xhtml', &block
     end
   else
     $cgi.out? 'type' => 'text/html', 'charset' => 'UTF-8' do
-      $x.declare! :DOCTYPE, :html
-      $x.html do
-        yield $x
-      end
+      x._! "\xEF\xBB\xBF"
+      x.declare! :DOCTYPE, :html
+      x.html &block
     end
   end
 end

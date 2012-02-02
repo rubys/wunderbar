@@ -8,18 +8,25 @@ module Builder
     end
 
     unless method_defined? :indented_data!
-      def indented_data!(data)
+      def indented_data!(data, &block)
         return if data.strip.length == 0
-        data.sub! /\n\s*\Z/, ''
-        data.sub! /\A\s*\n/, ''
-        unindent = data.sub(/s+\Z/,'').scan(/^ +/).map(&:length).min || 0
 
-        before  = ::Regexp.new('^'.ljust(unindent+1))
-        after   =  " " * (@level * @indent)
-        data.gsub! before, after
+        if @indent > 0
+          data.sub! /\n\s*\Z/, ''
+          data.sub! /\A\s*\n/, ''
 
+          unindent = data.sub(/s+\Z/,'').scan(/^ +/).map(&:length).min || 0
 
-        self << data
+          before  = ::Regexp.new('^'.ljust(unindent+1))
+          after   =  " " * (@level * @indent)
+          data.gsub! before, after
+        end
+
+        if block
+          block.call(data)
+        else
+          self << data
+        end
 
         _newline unless data =~ /\n\Z/
       end
