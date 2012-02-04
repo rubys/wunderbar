@@ -15,9 +15,9 @@ module Builder
           data.sub! /\n\s*\Z/, ''
           data.sub! /\A\s*\n/, ''
 
-          unindent = data.sub(/s+\Z/,'').scan(/^ +/).map(&:length).min || 0
+          unindent = data.sub(/s+\Z/,'').scan(/^ *\S/).map(&:length).min || 1
 
-          before  = ::Regexp.new('^'.ljust(unindent+1))
+          before  = ::Regexp.new('^'.ljust(unindent))
           after   =  " " * (@level * @indent)
           data.gsub! before, after
         end
