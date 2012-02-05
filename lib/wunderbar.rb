@@ -8,4 +8,5 @@ require 'wunderbar/html-methods'
 require 'wunderbar/job-control'
 require 'wunderbar/installation'
 require 'wunderbar/builder'
+require 'wunderbar/logger'
 

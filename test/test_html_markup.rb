@@ -5,6 +5,12 @@ require 'wunderbar'
 class HtmlMarkupTest < Test::Unit::TestCase
   def setup
     $x = nil # until this hack is removed html-methods.rb
+    @original_log_level = Wunderbar.logger.level
+    Wunderbar.log_level = :fatal
+  end
+
+  def teardown
+    Wunderbar.logger.level = @original_log_level
   end
 
   def test_html

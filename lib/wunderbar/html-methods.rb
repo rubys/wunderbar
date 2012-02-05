@@ -163,9 +163,11 @@ class HtmlMarkup
           block.call
         rescue ::Exception => exception
           text = exception.inspect
+          Wunderbar.warn text
           exception.backtrace.each do |frame| 
             next if frame =~ %r{/wunderbar/}
             next if frame =~ %r{/gems/.*/builder/}
+            Wunderbar.warn "  #{frame}"
             text += "\n  #{frame}"
           end
     
