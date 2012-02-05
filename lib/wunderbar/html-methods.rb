@@ -202,6 +202,13 @@ class HtmlMarkup
     @x.declare!(*args)
   end
 
+  def _coffeescript(text)
+    require 'coffee-script'
+    _script CoffeeScript.compile(text)
+  rescue LoadError
+    _script text, :lang => 'text/coffeescript'
+  end
+
   def target!
     @x.target!
   end

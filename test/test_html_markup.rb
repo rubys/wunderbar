@@ -117,4 +117,17 @@ class HtmlMarkupTest < Test::Unit::TestCase
     x.declare! :DOCTYPE, 'html'
     assert_equal %{<!DOCTYPE "html">\n}, x.target!
   end
+
+  begin
+    require 'coffee-script'
+
+    def test_coffeescript
+      x = HtmlMarkup.new
+      x.html {_coffeescript 'alert "foo"'}
+      assert_match %r[<script\slang="text/javascript">\s+\(function\(\)\s
+        \{\s+alert\("foo"\);\s+\}\).call\(this\);\s+</script>]x, x.target!
+    end
+  rescue LoadError
+  end
+    
 end
