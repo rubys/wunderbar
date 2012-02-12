@@ -3,7 +3,7 @@ require 'logger'
 module Wunderbar
   def self.logger
     return @logger if @logger
-    @logger = Logger.new(STDOUT)
+    @logger = Logger.new(STDERR)
     @logger.level = Logger::WARN
     @logger.formatter = proc { |severity, datetime, progname, msg|
       "_#{severity} #{msg}\n"
