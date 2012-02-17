@@ -40,7 +40,17 @@ if install and ARGV.delete(install)
     file.puts "Dir.chdir #{File.dirname(main).inspect}"
 
     # Optional data from the script (after __END__)
-    file.puts DATA.read if Object.const_defined? :DATA
+    if Object.const_defined? :DATA
+      data = DATA.read 
+
+      # process argument overrides
+      data.scan(/^\s*([A-Z]\w*)\s*=\s*(['"]).*\2$/).each do |name, q|
+        override = ARGV.find {|arg| arg =~ /--#{name}=(.*)/}
+        data[/^\s*#{name}\s*=\s*(.*)/,1] = $1.inspect if override
+      end
+
+      file.puts "\n#{data}\n"
+    end
 
     # Load script
     file.puts "require #{File.basename(main).sub(/\.rb$/,'').inspect}"
