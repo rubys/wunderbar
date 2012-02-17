@@ -72,7 +72,7 @@ $USER = ENV['REMOTE_USER'] || ENV['USER'] ||
 
 ENV['REMOTE_USER'] ||= $USER
 
-$HOME   = ENV['HOME'] || File.expand_path('~' + $USER)
+$HOME = ENV['HOME'] ||= File.expand_path('~' + $USER)
 $SERVER = ENV['HTTP_HOST'] || `hostname`.chomp
 
 # more implied request types
