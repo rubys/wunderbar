@@ -53,7 +53,22 @@ if install and ARGV.delete(install)
     end
 
     # Load script
-    file.puts "require #{File.basename(main).sub(/\.rb$/,'').inspect}"
+    require = "require #{"./#{File.basename(main).sub(/\.rb$/,'')}".inspect}"
+    if ARGV.delete('--rescue') or ARGV.delete('--backtrace')
+      file.puts <<-EOF.gsub(/^ {8}/,'')
+        begin
+          #{require}
+        rescue ::Exception => exception
+          print "Content-Type: text/plain\\r\\n\\r\\n"
+          puts exception.inspect
+          exception.backtrace.each do |frame|
+            puts "  \#{frame}"
+          end
+        end
+      EOF
+    else
+      file.puts require
+    end
   end
 
   # Mark wrapper as executable
