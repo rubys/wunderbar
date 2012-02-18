@@ -4,6 +4,45 @@ Wunder provides a number of globals, helper methods, and monkey patches which
 simplify the development of single page applications in the form of CGI
 scripts.
 
+Basic interface
+===============
+
+A typical main program produces one or more of HTML, JSON, or plain text
+output.  This is accomplished by providing one or more of the following:
+
+  Wunderbar.html do
+    code
+  end
+  
+  Wunderbar.json do
+    expression
+  end
+
+  Wunderbar.text do
+    code
+  end
+ 
+Arbitrary Ruby code can be placed in each.  
+
+== Methods provided to Wunderbar.html
+
+Invoking methods that start with a Unicode "low line" character ("_") will
+generate a HTML tag.  As with builder on which this library is based, these
+tags can have text content and attributes.  Tags can also be nested.  Logic
+can be freely intermixed.
+
+Wunderbar knows which HTML tags need to be explicitly closed with separate end
+tags (example: textarea), and which should never be closed with separate end
+tags (example: br).  It also takes care of HTML quoting and escaping of
+arguments and text.
+
+The "_" method serves a number of purposes.  Calling it with a single argument
+produces text nodes.  Inserting markup verbatim is done by "_ << text".  A
+number of other convenience methods are defined:
+
+  _.post?  -- was this invoked via HTTP POST?
+  _.system -- invokes a shell command, captures stdin, stdout, and stderr
+
 == Globals provided
 * $cgi   - Common Gateway Interface
 * $param - Access to parameters (read-only OpenStruct like interface)
