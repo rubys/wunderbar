@@ -1,7 +1,8 @@
 # produce json
-def $cgi.json
+def $cgi.json(&block)
   return unless $XHR_JSON
-  output = yield
+  $param.each {|key,value| instance_variable_set "@#{key}", value.first}
+  output = instance_eval(&block)
 rescue Exception => exception
   Kernel.print "Status: 500 Internal Error\r\n"
   output = {
@@ -38,6 +39,7 @@ def $cgi.text &block
   def $cgi.print(line=nil)
     @output << line
   end
+  $param.each {|key,value| instance_variable_set "@#{key}", value.first}
   self.instance_eval &block
 rescue Exception => exception
   Kernel.print "Status: 500 Internal Error\r\n"
