@@ -86,6 +86,11 @@ def $x.body? args={}
   end
 end
 
+# was this invoked via HTTP POST?
+def $x.post?
+  $HTTP_POST
+end
+
 # Wrapper class that understands HTML
 class HtmlMarkup
   VOID = %w(
