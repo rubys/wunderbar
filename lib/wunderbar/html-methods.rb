@@ -1,29 +1,3 @@
-# smart style, knows that the content is indented text/data
-def $x.style!(text)
-  text.slice! /^\n/
-  text.slice! /[ ]+\z/
-  $x.style :type => "text/css" do
-    if $XHTML
-      indented_text! text
-    else
-      indented_data! text
-    end
-  end
-end
-
-# smart script, knows that the content is indented text/data
-def $x.script!(text)
-  text.slice! /^\n/
-  text.slice! /[ ]+\z/
-  $x.script :lang => "text/javascript" do
-    if $XHTML
-      indented_text! text
-    else
-      indented_data! text
-    end
-  end
-end
-
 # execute a system command, echoing stdin, stdout, and stderr
 def $x.system(command, opts={})
   ::Kernel.require 'open3'
@@ -62,27 +36,6 @@ def $x.system(command, opts={})
         pin.close
       end
     ].each {|thread| thread.join}
-  end
-end
-
-def $x.body? args={}
-  traceback_class = args.delete('traceback_class')
-  traceback_style = args.delete('traceback_style')
-  traceback_style ||= 'background-color:#ff0; margin: 1em 0; padding: 1em; ' +
-    'border: 4px solid red; border-radius: 1em'
-  $x.body(args) do
-    begin
-      yield
-    rescue ::Exception => exception
-      text = exception.inspect
-      exception.backtrace.each {|frame| text += "\n  #{frame}"}
-
-      if traceback_class
-        $x.pre text, :class=>traceback_class
-      else
-        $x.pre text, :style=>traceback_style
-      end
-    end
   end
 end
 
