@@ -106,7 +106,10 @@ class HtmlMarkup
   end
 
   def html(*args, &block)
-    @x.html(*args) { instance_exec(@x, &block) }
+    @x.html(*args) do 
+      $param.each {|key,value| instance_variable_set "@#{key}", value.first}
+      instance_exec(@x, &block)
+    end
   end
 
   def method_missing(name, *args, &block)
