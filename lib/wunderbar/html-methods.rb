@@ -25,34 +25,34 @@ def $x.script!(text)
 end
 
 # execute a system command, echoing stdin, stdout, and stderr
-def $x.system!(command, opts={})
-  require 'open3'
+def $x.system(command, opts={})
+  ::Kernel.require 'open3'
   output_class = opts[:class] || {}
-  stdin  = output_class[:stdin]  || 'stdin'
-  stdout = output_class[:stdout] || 'stdout'
-  stderr = output_class[:stderr] || 'stderr'
+  stdin  = output_class[:stdin]  || '_stdin'
+  stdout = output_class[:stdout] || '_stdout'
+  stderr = output_class[:stderr] || '_stderr'
 
   $x.pre command, :class=>stdin unless opts[:echo] == false
 
-  require 'thread'
-  semaphore = Mutex.new
-  Open3.popen3(command) do |pin, pout, perr|
+  ::Kernel.require 'thread'
+  semaphore = ::Mutex.new
+  ::Open3.popen3(command) do |pin, pout, perr|
     [
-      Thread.new do
+      ::Thread.new do
         until pout.eof?
           out_line = pout.readline.chomp
           semaphore.synchronize { $x.pre out_line, :class=>stdout }
         end
       end,
 
-      Thread.new do
+      ::Thread.new do
         until perr.eof?
           err_line = perr.readline.chomp
           semaphore.synchronize { $x.pre err_line, :class=>stderr }
         end
       end,
 
-      Thread.new do
+      ::Thread.new do
         if opts[:stdin].respond_to? :read
           require 'fileutils'
           FileUtils.copy_stream opts[:stdin], pin
