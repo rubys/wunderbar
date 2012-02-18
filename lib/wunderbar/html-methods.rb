@@ -60,7 +60,9 @@ class HtmlMarkup
 
   def html(*args, &block)
     @x.html(*args) do 
-      $param.each {|key,value| instance_variable_set "@#{key}", value.first}
+      $param.each do |key,value| 
+        instance_variable_set "@#{key}", value.first if key =~ /^\w+$/
+      end
       instance_exec(@x, &block)
     end
   end
