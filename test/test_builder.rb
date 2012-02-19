@@ -20,4 +20,16 @@ class BuilderTest < Test::Unit::TestCase
     x.script { x.indented_text! "      alert('danger');" }
     assert_equal %{<script>\n  alert('danger');\n</script>\n}, x.target!
   end
+
+  def test_exception
+    x = Builder::XmlMarkup.new :indent => 2
+    x.body do
+      begin
+        x.p { raise Exception.new('boom') }
+      rescue Exception => e
+        x.pre e
+      end
+    end
+    assert x.target!.include? '<p>' and x.target!.include? '</p>'
+  end
 end
