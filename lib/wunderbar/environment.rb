@@ -12,7 +12,6 @@ ARGV.delete('--prompt') or ARGV.delete('--offline')
 # standard objects
 $cgi = CGI.new
 $param = $cgi.params
-$x = Builder::XmlMarkup.new :indent => 2
 
 # implied request types
 $HTTP_GET  ||= ($cgi.request_method == 'GET')

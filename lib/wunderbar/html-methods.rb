@@ -1,49 +1,3 @@
-# execute a system command, echoing stdin, stdout, and stderr
-def $x.system(command, opts={})
-  ::Kernel.require 'open3'
-  output_class = opts[:class] || {}
-  stdin  = output_class[:stdin]  || '_stdin'
-  stdout = output_class[:stdout] || '_stdout'
-  stderr = output_class[:stderr] || '_stderr'
-
-  $x.pre command, :class=>stdin unless opts[:echo] == false
-
-  ::Kernel.require 'thread'
-  semaphore = ::Mutex.new
-  ::Open3.popen3(command) do |pin, pout, perr|
-    [
-      ::Thread.new do
-        until pout.eof?
-          out_line = pout.readline.chomp
-          semaphore.synchronize { $x.pre out_line, :class=>stdout }
-        end
-      end,
-
-      ::Thread.new do
-        until perr.eof?
-          err_line = perr.readline.chomp
-          semaphore.synchronize { $x.pre err_line, :class=>stderr }
-        end
-      end,
-
-      ::Thread.new do
-        if opts[:stdin].respond_to? :read
-          require 'fileutils'
-          FileUtils.copy_stream opts[:stdin], pin
-        elsif opts[:stdin]
-          pin.write opts[:stdin].to_s
-        end
-        pin.close
-      end
-    ].each {|thread| thread.join}
-  end
-end
-
-# was this invoked via HTTP POST?
-def $x.post?
-  $HTTP_POST
-end
-
 # Wrapper class that understands HTML
 class HtmlMarkup
   VOID = %w(
@@ -52,10 +6,7 @@ class HtmlMarkup
   )
 
   def initialize(*args, &block)
-    # as a migration aide, use the global variable, but consider that
-    # to be deprecated.
-    $x ||= Builder::XmlMarkup.new :indent => 2
-    @x = $x
+    @x = Wunderbar::XmlMarkup.new :indent => 2
   end
 
   def html(*args, &block)
@@ -135,9 +86,9 @@ class HtmlMarkup
           end
     
           if traceback_class
-            $x.pre text, :class=>traceback_class
+            @x.pre text, :class=>traceback_class
           else
-            $x.pre text, :style=>traceback_style
+            @x.pre text, :style=>traceback_style
           end
         end
       end
