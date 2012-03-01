@@ -2,6 +2,7 @@
 require 'wunderbar'
 require 'rdiscount'
 require 'shellwords'
+require 'digest/md5'
 
 Dir.chdir WIKIDATA
 
@@ -38,24 +39,31 @@ Wunderbar.html do
 
     # determine markup
     if _.post? and @markup
-      File.open(file, 'w') {|fh| fh.write @markup}
       _header class: 'status' do
         _h1 'Status'
-        _.system 'git init' unless Dir.exist? '.git'
-        if `git status --porcelain #{file}`.empty?
-          _p 'Nothing changed'
+        if File.exist?(file) and Digest::MD5.hexdigest(File.read(file)) != @hash
+          _p 'Write conflict'
         else
-          _.system "git add #{file}"
-          _.system "git commit -m #{@comment.shellescape} #{file}"
+          File.open(file, 'w') {|fh| fh.write @markup}
+          _.system 'git init' unless Dir.exist? '.git'
+          if `git status --porcelain #{file}`.empty?
+            _p 'Nothing changed'
+          else
+            _.system "git add #{file}"
+            _.system "git commit -m #{@comment.shellescape} #{file}"
+          end
         end
       end
+
     elsif File.exist? file
+      # existing file
       if !rev or rev.empty?
         @markup = File.read(file) 
       else
         @markup = `git show #{rev}:#{file}`
         flag = nil
       end
+
     else
       # new file: go directly into edit mode
       @markup = "#{file}\n#{'-'*file.length}\n\nEnter your text here..."
@@ -63,7 +71,23 @@ Wunderbar.html do
     end
 
     # produce HTML
-    if flag == '?'
+    if file == '_index'
+
+      # index
+      index = Hash[`git ls-tree HEAD --name-only`.scan(/(\w+)()/)].
+        merge Hash[*`git status --porcelain`.scan(/(..) (\w+)/).flatten.reverse]
+      _table do
+        _tbody do
+          index.sort.each do |name, status|
+            _tr do
+              _td status
+              _td {_a name, href: name}
+            end
+          end
+        end
+      end
+
+    elsif flag == '?'
 
       # edit mode
       _header do
@@ -74,6 +98,8 @@ Wunderbar.html do
 
       _form action: file, method: 'post' do
         _textarea @markup, name: 'markup', class: 'input'
+        _input type: 'hidden', name: 'hash', 
+          value: Digest::MD5.hexdigest(@markup)
         _div class: 'output' do
           _ << RDiscount.new(@markup).to_html
         end
@@ -118,18 +144,36 @@ Wunderbar.html do
       setInterval(function() {
         if (!dirty) return;
         dirty = false;
-        var markup = $('textarea[name=markup]').val();
-        $.getJSON("#{SELF}", {markup: markup}, function(response) {
-          var time = new Date(response.time).toLocaleTimeString();
-          $('.message').text("Autosaved at " + time).show().fadeOut(5000);
+
+        var params = {
+          markup: $('textarea[name=markup]').val(),
+          hash:   $('input[name=hash]').val()
+        };
+
+        $.getJSON("#{SELF}", params, function(_) {
+          $('input[name=hash]').val(_.hash);
+          if (_.time) {
+            var time = new Date(_.time).toLocaleTimeString();
+            $('.message').text("Autosaved at " + time).show().fadeOut(5000);
+          } else {
+            $('.input').val(_.markup).attr('readonly', 'readonly');
+            $('.message').css({'font-weight': 'bold'}).text(_.error).show();
+          }
         });
       }, 10000);
+
+      // regenerate output every 0.5 seconds
+      var updated = false;
+      setInterval(function() {
+        if (!updated) return;
+        updated = false;
+        $('.output').html(converter.makeHtml($('.input').val()));
+      }, 500);
 
       // update output pane and mark dirty whenever input changes
       var converter = new Showdown.converter();
       $('.input').bind('input', function() {
-        dirty = true;
-        $('.output').html(converter.makeHtml($(this).val()));
+        updated = dirty = true;
       }).trigger('input');
 
       // resize based on window size
@@ -143,8 +187,13 @@ end
 
 # process autosave requests
 Wunderbar.json do
-  File.open(file, 'w') {|fh| fh.write @markup}
-  {time: Time.now.to_i*1000}
+  hash = Digest::MD5.hexdigest(@markup)
+  if File.exist?(file) and Digest::MD5.hexdigest(File.read(file)) != @hash
+    {error: "Write conflict", markup: File.read(file), hash: hash}
+  else
+    File.open(file, 'w') {|fh| fh.write @markup} unless @hash == hash
+    {time: Time.now.to_i*1000, hash: hash}
+  end
 end
 
 __END__
