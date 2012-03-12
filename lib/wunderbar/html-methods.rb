@@ -10,7 +10,7 @@ class HtmlMarkup
   end
 
   def html(*args, &block)
-    @x.html(*args) do 
+    @x.tag! :html, *args do 
       $param.each do |key,value| 
         instance_variable_set "@#{key}", value.first if key =~ /^\w+$/
       end
@@ -55,15 +55,8 @@ class HtmlMarkup
     end
 
     if flag == '!'
-      # turn off indentation
-      indent, level = @x.instance_eval { [@indent, @level] }
-      begin
-        @x.instance_eval { [@indent=0, @level=0] }
-        @x.text! " "*indent*level
+      @x.disable_indendation! do
         @x.tag! name, *args, &block
-      ensure
-        @x.text! "\n"
-        @x.instance_eval { [@indent=indent, @level=level] }
       end
     elsif flag == '?'
       # capture exceptions, produce filtered tracebacks
@@ -86,9 +79,9 @@ class HtmlMarkup
           end
     
           if traceback_class
-            @x.pre text, :class=>traceback_class
+            @x.tag! :pre, text, :class=>traceback_class
           else
-            @x.pre text, :style=>traceback_style
+            @x.tag! :pre, text, :style=>traceback_style
           end
         end
       end
@@ -99,7 +92,7 @@ class HtmlMarkup
 
   def _head(*args, &block)
     @x.tag!('head', *args) do
-      @x.meta :charset => 'utf-8' unless $XHTML
+      @x.tag! :meta, :charset => 'utf-8' unless $XHTML
       block.call if block
     end
   end

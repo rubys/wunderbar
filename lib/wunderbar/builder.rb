@@ -1,6 +1,5 @@
-# add indented_text!, indented_data!, system, and post? methods to builder
-module Wunderbar
-  class XmlMarkup < Builder::XmlMarkup
+module Builder
+  class XmlMarkup < XmlBase
     unless method_defined? :indented_text!
       def indented_text!(text)
         indented_data!(text) {|data| text! data}
@@ -32,6 +31,44 @@ module Wunderbar
       end
     end
 
+    unless method_defined? :disable_indentation!
+      def disable_indendation!(&block)
+        indent, level = @indent, @level
+        @indent = @level = 0
+        text! " "*indent*level
+        block.call
+      ensure
+        text! "\n"
+        @indent, @level = indent, level
+      end
+    end
+  end
+end
+
+module Wunderbar
+  class XmlMarkup
+    def initialize(*args)
+      @x = Builder::XmlMarkup.new(*args)
+    end
+
+    # forward to either Wunderbar or XmlMarkup
+    def method_missing(method, *args, &block)
+      if Wunderbar.respond_to? method
+        Wunderbar.send method, *args, &block
+      elsif Builder::XmlMarkup.public_instance_methods.include? method
+        @x.__send__ method, *args, &block
+      elsif Builder::XmlMarkup.public_instance_methods.include? method.to_s
+        @x.__send__ method, *args, &block
+      else
+        super
+      end
+    end
+
+    # avoid method_missing overhead for the most common case
+    def tag!(*args, &block)
+      @x.__send__ :tag!, *args, &block
+    end
+
     # execute a system command, echoing stdin, stdout, and stderr
     def system(command, opts={})
       ::Kernel.require 'open3'
@@ -41,7 +78,7 @@ module Wunderbar
       stdout = output_class[:stdout] || '_stdout'
       stderr = output_class[:stderr] || '_stderr'
 
-      tag! tag, command, :class=>stdin unless opts[:echo] == false
+      @x.tag! tag, command, :class=>stdin unless opts[:echo] == false
 
       ::Kernel.require 'thread'
       semaphore = ::Mutex.new
@@ -50,14 +87,14 @@ module Wunderbar
           ::Thread.new do
             until pout.eof?
               out_line = pout.readline.chomp
-              semaphore.synchronize { tag! tag, out_line, :class=>stdout }
+              semaphore.synchronize { @x.tag! tag, out_line, :class=>stdout }
             end
           end,
 
           ::Thread.new do
             until perr.eof?
               err_line = perr.readline.chomp
-              semaphore.synchronize { tag! tag, err_line, :class=>stderr }
+              semaphore.synchronize { @x.tag! tag, err_line, :class=>stderr }
             end
           end,
 

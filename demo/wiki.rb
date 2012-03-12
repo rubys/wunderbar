@@ -13,7 +13,6 @@ file ||= 'index'
 
 Wunderbar.html do
   _head do
-    _.warn 'hi'
     _title file
     _style %{
       body {background-color: #{(flag=='?') ? '#E0D8D8' : '#FFF'}}
