@@ -97,6 +97,20 @@ class HtmlMarkup
     end
   end
 
+  def _svg(*args, &block)
+    args.push {} if args.empty?
+    args.first['xmlns'] = 'http://www.w3.org/2000/svg' if Hash === args.first
+    super
+  end
+
+  def _math(*args, &block)
+    args.push {} if args.empty?
+    if Hash == args.first
+      args.first['xmlns'] = 'http://www.w3.org/1998/Math/MathML'
+    end
+    super
+  end
+
   def _(text=nil)
     @x.indented_text! text if text
     @x
@@ -105,10 +119,6 @@ class HtmlMarkup
   def _!(text=nil)
     @x.text! text if text
     @x
-  end
-
-  def declare!(*args)
-    @x.declare!(*args)
   end
 
   def _coffeescript(text)

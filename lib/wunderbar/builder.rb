@@ -111,6 +111,16 @@ module Wunderbar
       end
     end
 
+    # declaration (DOCTYPE, etc)
+    def declare(*args)
+      declare!(*args)
+    end
+
+    # comment
+    def comment(*args)
+      comment! *args
+    end
+
     # was this invoked via HTTP POST?
     def post?
       $HTTP_POST
