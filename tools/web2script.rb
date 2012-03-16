@@ -206,7 +206,6 @@ else
   puts "require 'rubygems'"
 end
 
-puts "$:.unshift '/home/rubys/git/wunderbar/lib'"
 puts "require 'wunderbar'\n\n"
 
 # main output
