@@ -133,7 +133,7 @@ def code(element, indent='')
         next if text.empty?
         flow_text "#{indent}  _ #{text.enquote}", "\" +\n    #{indent}\""
       elsif child.comment?
-        flow_text "#{indent}  _.comment #{child.text.enquote}", 
+        flow_text "#{indent}  _.comment #{child.text.strip.enquote}", 
           "\" +\n    #{indent}\""
       else
         code(child, indent + '  ')

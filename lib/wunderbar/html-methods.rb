@@ -98,17 +98,17 @@ class HtmlMarkup
   end
 
   def _svg(*args, &block)
-    args.push {} if args.empty?
+    args << {} if args.empty?
     args.first['xmlns'] = 'http://www.w3.org/2000/svg' if Hash === args.first
-    super
+    @x.tag! :svg, *args, &block
   end
 
   def _math(*args, &block)
-    args.push {} if args.empty?
-    if Hash == args.first
+    args << {} if args.empty?
+    if Hash === args.first
       args.first['xmlns'] = 'http://www.w3.org/1998/Math/MathML'
     end
-    super
+    @x.tag! :math, *args, &block
   end
 
   def _(text=nil)

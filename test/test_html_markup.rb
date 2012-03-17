@@ -119,8 +119,26 @@ class HtmlMarkupTest < Test::Unit::TestCase
 
   def test_declare
     x = HtmlMarkup.new
-    x.declare! :DOCTYPE, 'html'
+    x._.declare :DOCTYPE, 'html'
     assert_equal %{<!DOCTYPE "html">\n}, x.target!
+  end
+
+  def test_comment
+    x = HtmlMarkup.new
+    x._.comment 'foo'
+    assert_equal %{<!DOCTYPE "html">\n}, x.target!
+  end
+
+  def test_svg
+    x = HtmlMarkup.new
+    x.html {_svg}
+    assert_match %r[^  <svg xmlns="http://www.w3.org/2000/svg"/>], x.target!
+  end
+
+  def test_math
+    x = HtmlMarkup.new
+    x.html {_math}
+    assert_match %r[^  <math xmlns="http://www.w3.org/1998/Math/MathML"/>], x.target!
   end
 
   begin
