@@ -85,7 +85,7 @@ end
 # produce html/xhtml
 def $cgi.html(*args, &block)
   return if $XHR_JSON or $TEXT
-  args.push {} if args.empty?
+  args << {} if args.empty?
   args.first[:xmlns] ||= 'http://www.w3.org/1999/xhtml' if Hash === args.first
   mimetype = ($XHTML ? 'application/xhtml+xml' : 'text/html')
   x = HtmlMarkup.new

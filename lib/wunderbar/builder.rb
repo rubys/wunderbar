@@ -43,7 +43,7 @@ module Wunderbar
       @indent, @level = indent, level
     end
 
-    def _margin
+    def margin!
       _newline unless @first_tag
       @pending_newline = false
       @pending_margin = true

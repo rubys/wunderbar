@@ -28,7 +28,7 @@ class HtmlMarkup
     end
 
     if name.sub!(/_$/,'')
-      @x._margin
+      @x.margin!
     end
 
     if flag != '!'
