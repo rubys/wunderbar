@@ -16,59 +16,59 @@ Quick Start
 
 Simple element:
 
-        _br
+    _br
 
 Nested elements:
 
-        _div do
-          _hr
-        end
+    _div do
+      _hr
+    end
 
 Element with text:
 
-        _h1 "My weblog"
+    _h1 "My weblog"
 
 Element with attributes:
 
-        _img src: '/img/logo.jpg', alt: 'site logo'
+    _img src: '/img/logo.jpg', alt: 'site logo'
 
 Element with both text and attributes:
 
-        _a 'search', href: 'http://google.com'
+    _a 'search', href: 'http://google.com'
 
 Text:
 
-        _ "hello"
+    _ "hello"
 
 Mixed content (autospaced):
 
-        _p do
-          _ 'It is a'
-          _em 'very'
-          _ 'nice day.'
-        end
+    _p do
+      _ 'It is a'
+      _em 'very'
+      _ 'nice day.'
+    end
 
 Mixed content (space controlled):
 
-        _p! do
-          _ 'Source is on '
-          _a 'github', href: 'https://github.com/'
-          _ '.'
-        end
+    _p! do
+      _ 'Source is on '
+      _a 'github', href: 'https://github.com/'
+      _ '.'
+    end
 
 Insert blank lines between rows in the HTML produced:
 
-        _tbody do
-          _tr_ do
-            _td 1
-          end
-          _tr_ do
-            _td 2
-          end
-          _tr_ do
-            _td 3
-          end
-        end
+    _tbody do
+      _tr_ do
+        _td 1
+      end
+      _tr_ do
+        _td 2
+      end
+      _tr_ do
+        _td 3
+      end
+    end
 
 Capture exceptions:
 
@@ -83,13 +83,13 @@ Basic interface
 A typical main program produces one or more of HTML, JSON, or plain text
 output.  This is accomplished by providing one or more of the following:
 
-        Wunderbar.html do
-         code
-        end
-  
-        Wunderbar.json do
-          expression
-        end
+    Wunderbar.html do
+     code
+    end
+ 
+    Wunderbar.json do
+      expression
+    end
 
         Wunderbar.text do
           code
@@ -100,14 +100,15 @@ Arbitrary Ruby code can be placed in each.  For html, use the `_` methods descri
 Methods provided to Wunderbar.html
 ---
 
-Invoking methods that start with a Unicode "low line" character ("_") will
-generate a HTML tag.  As with builder on which this library is based, these
-tags can have text content and attributes.  Tags can also be nested.  Logic
-can be freely intermixed.
+Invoking methods that start with a Unicode 
+[low line](http://www.fileformat.info/info/unicode/char/5f/index.htm) 
+character ("_") will generate a HTML tag.  As with builder on which this
+library is based, these tags can have text content and attributes.  Tags can
+also be nested.  Logic can be freely intermixed.
 
 Wunderbar knows which HTML tags need to be explicitly closed with separate end
-tags (example: textarea), and which should never be closed with separate end
-tags (example: br).  It also takes care of HTML quoting and escaping of
+tags (example: `textarea`), and which should never be closed with separate end
+tags (example: `br`).  It also takes care of HTML quoting and escaping of
 arguments and text.
 
 Suffixes after the tag name will modify the processing.
@@ -120,9 +121,9 @@ The "`_`" method serves a number of purposes.  Calling it with a single argument
 produces text nodes.  Inserting markup verbatim is done by "`_ << text`".  A
 number of other convenience methods are defined:
 
-* _.`post?`  -- was this invoked via HTTP POST?
-* _.`system` -- invokes a shell command, captures stdin, stdout, and stderr
-* _.`submit`: runs command (or block) as a deamon process
+* `_.post?`  -- was this invoked via HTTP POST?
+* `_.system` -- invokes a shell command, captures stdin, stdout, and stderr
+* `_.submit`: runs command (or block) as a deamon process
 
 Access to all of the builder _defined_ methods (typically these end in an esclamation mark) and all of the Wunderbar module methods can be accessed in this way.  Examples:
 
@@ -189,24 +190,24 @@ Builder extensions
 
 Logging:
 ---
-* _.`debug`: debug messages
-* _.`info`: informational messages
-* _.`warn`: warning messages
-* _.`error`: error messages
-* _.`fatal`: fatal error messages
-* _.`log_level`=: set logging level (default: `:warn`)
-* _.`logger`: return [Logger](http://www.ruby-doc.org/stdlib-1.9.3/libdoc/logger/rdoc/Logger.html) instance
+* `_.debug`: debug messages
+* `_.info`: informational messages
+* `_.warn`: warning messages
+* `_.error`: error messages
+* `_.fatal`: fatal error messages
+* `_.log_level`=: set logging level (default: `:warn`)
+* `_.logger`: return [Logger](http://www.ruby-doc.org/stdlib-1.9.3/libdoc/logger/rdoc/Logger.html) instance
 
 Command line options
 ---
 When run from the command line, CGI name=value pairs can be specified.
 Additionally, the following options are supported:
 
-* --`html`: HTML (HTTP GET) output is expected
-* --`post`: HTML (HTTP POST) output is expected
-* --`json`: JSON (XML HTTP Request) output is expected
-* --`xhtml`: XHTML output is expected
-* --`prompt` or --`offline`: prompt for key/value pairs using stdin
-* --`debug`, --`info`,--`warn`, --`error`, --`fatal`: set log level
-* --`install`=path: produce an suexec-callable wrapper script
-* --`rescue` or --`backtrace` cause wrapper script to capture errors
+* `--html`: HTML (HTTP GET) output is expected
+* `--post`: HTML (HTTP POST) output is expected
+* `--json`: JSON (XML HTTP Request) output is expected
+* `--xhtml`: XHTML output is expected
+* `--prompt` or `--offline`: prompt for key/value pairs using stdin
+* `--debug`, `--info`, `--warn`, `--error`, `--fatal`: set log level
+* `--install=`path: produce an suexec-callable wrapper script
+* `--rescue` or `--backtrace` cause wrapper script to capture errors
