@@ -1,63 +1,83 @@
-module Builder
-  class XmlMarkup < XmlBase
-    unless method_defined? :indented_text!
-      def indented_text!(text)
-        indented_data!(text) {|data| text! data}
-      end
+module Wunderbar
+  # XmlMarkup handles indentation of elements beautifully, this class extends
+  # that support to text, data, and spacing between elements
+  class SpacedMarkup < Builder::XmlMarkup
+    def indented_text!(text)
+      indented_data!(text) {|data| text! data}
     end
 
-    unless method_defined? :indented_data!
-      def indented_data!(data, &block)
-        return if data.strip.length == 0
+    def indented_data!(data, &block)
+      return if data.strip.length == 0
 
-        if @indent > 0
-          data.sub! /\n\s*\Z/, ''
-          data.sub! /\A\s*\n/, ''
+      if @indent > 0
+        data.sub! /\n\s*\Z/, ''
+        data.sub! /\A\s*\n/, ''
 
-          unindent = data.sub(/s+\Z/,'').scan(/^ *\S/).map(&:length).min || 1
+        unindent = data.sub(/s+\Z/,'').scan(/^ *\S/).map(&:length).min || 1
 
-          before  = Regexp.new('^'.ljust(unindent))
-          after   =  " " * (@level * @indent)
-          data.gsub! before, after
-        end
+        before  = ::Regexp.new('^'.ljust(unindent))
+        after   =  " " * (@level * @indent)
+        data.gsub! before, after
 
-        if block
-          block.call(data)
-        else
-          self << data
-        end
-
-        _newline unless data =~ /\n\Z/
+        _newline if @pending_newline and not @first_tag
+        @pending_newline = @pending_margin
+        @first_tag = @pending_margin = false
       end
+
+      if block
+        block.call(data)
+      else
+        self << data
+      end
+
+      _newline unless data =~ /\n\Z/
     end
 
-    unless method_defined? :disable_indentation!
-      def disable_indendation!(&block)
-        indent, level = @indent, @level
-        @indent = @level = 0
-        text! " "*indent*level
-        block.call
-      ensure
-        text! "\n"
-        @indent, @level = indent, level
-      end
+    def disable_indendation!(&block)
+      indent, level = @indent, @level
+      @indent = @level = 0
+      text! " "*indent*level
+      block.call
+    ensure
+      text! "\n"
+      @indent, @level = indent, level
+    end
+
+    def _margin
+      _newline unless @first_tag
+      @pending_newline = false
+      @pending_margin = true
+    end
+
+    def _nested_structures(*args)
+      pending_newline = @pending_newline
+      @pending_newline = false
+      @first_tag = true
+      super
+      @first_tag = @pending_margin = false
+      @pending_newline = pending_newline
+    end
+
+    def tag!(*args)
+      _newline if @pending_newline
+      @pending_newline = @pending_margin
+      @first_tag = @pending_margin = false
+      super
     end
   end
-end
 
-module Wunderbar
   class XmlMarkup
     def initialize(*args)
-      @x = Builder::XmlMarkup.new(*args)
+      @x = SpacedMarkup.new(*args)
     end
 
     # forward to either Wunderbar or XmlMarkup
     def method_missing(method, *args, &block)
       if Wunderbar.respond_to? method
         Wunderbar.send method, *args, &block
-      elsif Builder::XmlMarkup.public_instance_methods.include? method
+      elsif SpacedMarkup.public_instance_methods.include? method
         @x.__send__ method, *args, &block
-      elsif Builder::XmlMarkup.public_instance_methods.include? method.to_s
+      elsif SpacedMarkup.public_instance_methods.include? method.to_s
         @x.__send__ method, *args, &block
       else
         super

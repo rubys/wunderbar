@@ -74,6 +74,20 @@ class HtmlMarkupTest < Test::Unit::TestCase
     assert_match %r[<div>one <strong>two</strong> three</div>], x.target!
   end
 
+  def test_spaced_embedded
+    x = HtmlMarkup.new
+    x.html {_div {_p 'one'; _hr_; _p 'two'}}
+    assert_match %r[<div>\n +<p>one</p>\n\n +<hr/>\n\n +<p>two</p>\n +</div>], 
+      x.target!
+  end
+
+  def test_spaced_collapsed
+    x = HtmlMarkup.new
+    x.html {_div {_p_ 'one'; _hr_; _p_ 'two'}}
+    assert_match %r[<div>\n +<p>one</p>\n\n +<hr/>\n\n +<p>two</p>\n +</div>], 
+      x.target!
+  end
+
   def test_traceback
     x = HtmlMarkup.new
     x.html {_body? {boom}}
@@ -126,7 +140,7 @@ class HtmlMarkupTest < Test::Unit::TestCase
   def test_comment
     x = HtmlMarkup.new
     x._.comment 'foo'
-    assert_equal %{<!DOCTYPE "html">\n}, x.target!
+    assert_equal %{<!-- foo -->\n}, x.target!
   end
 
   def test_svg

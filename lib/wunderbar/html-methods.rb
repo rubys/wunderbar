@@ -27,6 +27,10 @@ class HtmlMarkup
       raise error
     end
 
+    if name.sub!(/_$/,'')
+      @x._margin
+    end
+
     if flag != '!'
       if %w(script style).include?(name)
         if String === args.first and not block

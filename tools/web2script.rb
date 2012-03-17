@@ -141,6 +141,7 @@ def code(element, indent='')
 
       # insert a blank line if either this or the previous block was large
       if $group and start + $group < $q.length
+        $q[start].sub! /^(\s+_\w+) /, '\1_ \2'
         $q.insert(start,'')  if not first
         blank = true
       else
