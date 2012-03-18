@@ -96,7 +96,7 @@ class HtmlMarkup
 
   def _head(*args, &block)
     @x.tag!('head', *args) do
-      @x.tag! :meta, :charset => 'utf-8' unless $XHTML
+      @x.tag! :meta, :charset => 'utf-8'
       block.call if block
     end
   end

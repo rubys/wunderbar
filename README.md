@@ -84,16 +84,20 @@ A typical main program produces one or more of HTML, JSON, or plain text
 output.  This is accomplished by providing one or more of the following:
 
     Wunderbar.html do
-     code
+      code
+    end
+ 
+    Wunderbar.xhtml do
+      code
     end
  
     Wunderbar.json do
       expression
     end
 
-        Wunderbar.text do
-          code
-        end
+    Wunderbar.text do
+      code
+    end
  
 Arbitrary Ruby code can be placed in each.  For html, use the `_` methods described here.  For json, the results (typically a hash or array) are converted to JSON.  For text, use `puts` and `print` statements to produce the desired results.
 
@@ -203,10 +207,10 @@ Command line options
 When run from the command line, CGI name=value pairs can be specified.
 Additionally, the following options are supported:
 
-* `--html`: HTML (HTTP GET) output is expected
+* `--get`:  HTML (HTTP GET) output is expected
 * `--post`: HTML (HTTP POST) output is expected
 * `--json`: JSON (XML HTTP Request) output is expected
-* `--xhtml`: XHTML output is expected
+* `--html`: force HTML output
 * `--prompt` or `--offline`: prompt for key/value pairs using stdin
 * `--debug`, `--info`, `--warn`, `--error`, `--fatal`: set log level
 * `--install=`path: produce an suexec-callable wrapper script

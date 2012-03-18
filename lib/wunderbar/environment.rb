@@ -1,8 +1,7 @@
 # explicit request types
-$HTTP_GET  = ARGV.delete('--html')
+$HTTP_GET  = ARGV.delete('--get')
 $HTTP_POST = ARGV.delete('--post')
 $XHR_JSON  = ARGV.delete('--json')
-$XHTML     = ARGV.delete('--xhtml')
 $TEXT      = ARGV.delete('--text')
 
 # Only prompt if explicitly asked for
@@ -17,8 +16,8 @@ $param = $cgi.params
 $HTTP_GET  ||= ($cgi.request_method == 'GET')
 $HTTP_POST ||= ($cgi.request_method == 'POST')
 $XHR_JSON  ||= ($cgi.accept.to_s =~ /json/)
-$XHTML     ||= ($cgi.accept.to_s =~ /xhtml/)
 $TEXT      ||= ($cgi.accept.to_s =~ /plain/ and $cgi.accept.to_s !~ /html/)
+$XHTML     = ($cgi.accept.to_s =~ /xhtml/ or $cgi.accept == nil)
 
 # get arguments if CGI couldn't find any... 
 $param.merge!(CGI.parse(ARGV.join('&'))) if $param.empty?

@@ -116,6 +116,12 @@ end
 # canonical interface
 module Wunderbar
   def self.html(*args, &block)
+    $XHTML = false unless ARGV.delete('--xhtml')
+    $cgi.html!(*args, &block)
+  end
+
+  def self.xhtml(*args, &block)
+    $XHTML = false if ARGV.delete('--html')
     $cgi.html!(*args, &block)
   end
 
@@ -127,4 +133,3 @@ module Wunderbar
     $cgi.text!(*args, &block)
   end
 end
-
