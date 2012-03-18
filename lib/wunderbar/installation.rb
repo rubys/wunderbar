@@ -58,6 +58,7 @@ if install and ARGV.delete(install)
       file.puts <<-EOF.gsub(/^ {8}/,'')
         begin
           #{require}
+        rescue ::SystemExit => exception
         rescue ::Exception => exception
           print "Content-Type: text/plain\\r\\n\\r\\n"
           puts exception.inspect
