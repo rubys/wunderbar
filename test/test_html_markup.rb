@@ -119,6 +119,24 @@ class HtmlMarkupTest < Test::Unit::TestCase
     assert_match %r[<head>\s*<meta charset="utf-8"/>\s*</head>], x.target!
   end
 
+  def test_nil_attribute
+    x = HtmlMarkup.new
+    x.html {_div :class => nil}
+    assert_match %r[^  <div></div>], x.target!
+  end
+
+  def test_boolean_attribute_false
+    x = HtmlMarkup.new
+    x.html {_option :selected => false}
+    assert_match %r[^  <option></option>], x.target!
+  end
+
+  def test_boolean_attribute_true
+    x = HtmlMarkup.new
+    x.html {_option :selected => true}
+    assert_match %r[^  <option selected="selected"></option>], x.target!
+  end
+
   def test_indented_text
     x = HtmlMarkup.new
     x.html {_div {_ 'text'}}

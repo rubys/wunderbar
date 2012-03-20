@@ -54,8 +54,13 @@ class HtmlMarkup
         args.unshift '' if not VOID.include?(name) and not block
       end
 
-      # remove attributes with nil values
-      args.last.delete_if {|key, value| value == nil} if Hash === args.last
+      if Hash === args.last
+        # remove attributes with nil, false values
+        args.last.delete_if {|key, value| !value}
+
+        # replace boolean 'true' attributes with the name of the attribute
+        args.last.each {|key, value| args.last[key]=key if value == true}
+      end
     end
 
     if flag == '!'

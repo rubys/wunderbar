@@ -36,6 +36,14 @@ Element with both text and attributes:
 
     _a 'search', href: 'http://google.com'
 
+Element with boolean attributes:
+
+    _input 'Cheese', type: 'checkbox', name: 'cheese', checked: true
+
+Element with optional (omitted) attributes:
+
+    _tr class: nil
+
 Text:
 
     _ "hello"
