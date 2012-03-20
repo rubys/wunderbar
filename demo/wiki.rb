@@ -11,8 +11,8 @@ Dir.chdir WIKIDATA
 flag ||= '?' if $env.REQUEST_URI.include? '?'
 file ||= 'index'
 
-Wunderbar.html do
-  _head do
+W_.html do
+  _head_ do
     _title file
     _style %{
       body {background-color: #{(flag=='?') ? '#E0D8D8' : '#FFF'}}
@@ -95,7 +95,7 @@ Wunderbar.html do
         _span 'Output', style: 'float: right; margin-right: 2em'
       end
 
-      _form action: file, method: 'post' do
+      _form_ action: file, method: 'post' do
         _textarea @markup, name: 'markup', class: 'input'
         _input type: 'hidden', name: 'hash', 
           value: Digest::MD5.hexdigest(@markup)
@@ -125,7 +125,7 @@ Wunderbar.html do
 
       #display
       _ << RDiscount.new(@markup).to_html
-      _div class: 'buttons' do
+      _div_ class: 'buttons' do
         if !rev or rev.empty?
           _form action: "#{file}?", method: 'post' do
             _input type: 'submit', value: 'edit'
@@ -185,7 +185,7 @@ Wunderbar.html do
 end
 
 # process autosave requests
-Wunderbar.json do
+W_.json do
   hash = Digest::MD5.hexdigest(@markup)
   if File.exist?(file) and Digest::MD5.hexdigest(File.read(file)) != @hash
     {error: "Write conflict", markup: File.read(file), hash: hash}

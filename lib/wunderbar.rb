@@ -10,3 +10,4 @@ require 'wunderbar/installation'
 require 'wunderbar/builder'
 require 'wunderbar/logger'
 
+W_ = Wunderbar

@@ -1,6 +1,6 @@
 require 'wunderbar'
 
-Wunderbar.html do
+W_.html do
   _head_ do
     _title 'CGI Environment'
     _style %{
@@ -12,6 +12,7 @@ Wunderbar.html do
       tr:hover {background-color: #FF8}
     }
   end
+
   _body? do
     _h1 'Environment Variables'
     _table do
@@ -21,6 +22,7 @@ Wunderbar.html do
           _th 'Value'
         end
       end
+
       _tbody do
         ENV.sort.each do |name, value|
           _tr_ do
