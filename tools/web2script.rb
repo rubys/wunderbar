@@ -64,6 +64,13 @@ def flow_attrs(line, attributes, indent)
 end
 
 def code(element, indent='')
+  # restore namespaces that Nokogiri::HTML dropped
+  element_name = element.name
+  if $namespaced[element.name]
+    element_name = $namespaced[element.name]
+    element_name += ',' unless element.attributes.empty?
+  end
+
   attributes = []
   element.attributes.keys.each do |key|
     value = element[key]
@@ -74,7 +81,11 @@ def code(element, indent='')
     end
 
     if key =~ /^\w+$/
-      if key == 'xmlns' and %w(html svg mathml).include? element.name
+      if key == 'id' and value =~ /^\w+$/
+        element_name += ".#{value}!"
+      elsif key == 'class' and value =~ /^\w+$/
+        element_name += ".#{value}"
+      elsif key == 'xmlns' and %w(html svg mathml).include? element.name
         # drop xmlns attributes from these elements
       elsif key == 'type' and element.name == 'style' and value == 'text/css'
         # drop type attributes from script elements
@@ -88,13 +99,6 @@ def code(element, indent='')
     else
       attributes << " #{key.enquote} => #{value.enquote}"
     end
-  end
-
-  # restore namespaces that Nokogiri::HTML dropped
-  element_name = element.name
-  if $namespaced[element.name]
-    element_name = $namespaced[element.name]
-    element_name += ',' unless attributes.empty?
   end
 
   line = "#{indent}_#{element_name}#{attributes.join(',')}"
@@ -117,7 +121,7 @@ def code(element, indent='')
         end
       end
     end
-    line.sub!(/(\w)( |$)/, '\1!\2') if flatten
+    line.sub!(/(\w)( |\.|$)/, '\1!\2') if flatten
 
     q "#{line} do"
 
@@ -141,7 +145,7 @@ def code(element, indent='')
 
       # insert a blank line if either this or the previous block was large
       if $group and start + $group < $q.length
-        $q[start].sub! /^(\s+_\w+) /, '\1_ \2'
+        $q[start].sub! /^(\s+_\w+)([ .])/, '\1_\2'
         $q.insert(start,'')  if not first
         blank = true
       else

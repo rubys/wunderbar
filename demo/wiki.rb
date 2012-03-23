@@ -21,7 +21,7 @@ W_.html do
       .input {float: left; left: 1.5%}
       .output {float: right; right: 1.5%; background-color: #6C6666; color: #FFF}
       .buttons {clear: both; text-align: center; padding-top: 0.5em}
-      .message {position: fixed; left: 2%; color: #9400d3}
+      #message {position: fixed; left: 2%; color: #9400d3}
       h1 {text-align: center; margin: 0}
       form {clear: both}
       .buttons form {display: inline}
@@ -38,7 +38,7 @@ W_.html do
 
     # determine markup
     if _.post? and @markup
-      _header class: 'status' do
+      _header.status do
         _h1 'Status'
         if File.exist?(file) and Digest::MD5.hexdigest(File.read(file)) != @hash
           _p 'Write conflict'
@@ -96,15 +96,15 @@ W_.html do
       end
 
       _form_ action: file, method: 'post' do
-        _textarea @markup, name: 'markup', class: 'input'
+        _textarea.input @markup, name: 'markup'
         _input type: 'hidden', name: 'hash', 
           value: Digest::MD5.hexdigest(@markup)
-        _div class: 'output' do
+        _div.output do
           _ << RDiscount.new(@markup).to_html
         end
 
-        _div class: 'buttons' do
-          _span class: 'message'
+        _div.buttons do
+          _span.message!
           _input name: 'comment', placeholder: 'commit message'
           _input type: 'submit', value: 'save'
         end
@@ -125,7 +125,7 @@ W_.html do
 
       #display
       _ << RDiscount.new(@markup).to_html
-      _div_ class: 'buttons' do
+      _div_.buttons do
         if !rev or rev.empty?
           _form action: "#{file}?", method: 'post' do
             _input type: 'submit', value: 'edit'
@@ -153,10 +153,10 @@ W_.html do
           $('input[name=hash]').val(_.hash);
           if (_.time) {
             var time = new Date(_.time).toLocaleTimeString();
-            $('.message').text("Autosaved at " + time).show().fadeOut(5000);
+            $('#message').text("Autosaved at " + time).show().fadeOut(5000);
           } else {
             $('.input').val(_.markup).attr('readonly', 'readonly');
-            $('.message').css({'font-weight': 'bold'}).text(_.error).show();
+            $('#message').css({'font-weight': 'bold'}).text(_.error).show();
           }
         });
       }, 10000);

@@ -125,6 +125,18 @@ class HtmlMarkupTest < Test::Unit::TestCase
     assert_match %r[^  <div></div>], x.target!
   end
 
+  def test_class_attribute
+    x = HtmlMarkup.new
+    x.html {_div.header {_span.text 'foo'}}
+    assert_match %r[<div class="header">.*</div>]m, x.target!
+  end
+
+  def test_id_attribute
+    x = HtmlMarkup.new
+    x.html {_h1.content! 'Content'}
+    assert_match %r[^  <h1 id="content">Content</h1>], x.target!
+  end
+
   def test_boolean_attribute_false
     x = HtmlMarkup.new
     x.html {_option :selected => false}

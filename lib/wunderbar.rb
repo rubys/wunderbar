@@ -4,6 +4,7 @@ require 'json'
 
 require 'wunderbar/environment'
 require 'wunderbar/cgi-methods'
+require 'wunderbar/cssproxy'
 require 'wunderbar/html-methods'
 require 'wunderbar/job-control'
 require 'wunderbar/installation'

@@ -34,13 +34,21 @@ module Wunderbar
     end
 
     def disable_indendation!(&block)
-      indent, level = @indent, @level
-      @indent = @level = 0
+      indent, level, pending_newline, pending_margin = 
+        indentation_state! [0, 0, @pending_newline, @pending_margin]
       text! " "*indent*level
       block.call
     ensure
-      text! "\n"
-      @indent, @level = indent, level
+      indentation_state! [indent, level, pending_newline, pending_margin]
+    end
+
+    def indentation_state! new_state=nil
+      result = [@indent, @level, @pending_newline, @pending_margin]
+      if new_state
+        text! "\n" if @indent == 0 and new_state.first > 0
+        @indent, @level, @pending_newline, @pending_margin = new_state
+      end
+      result
     end
 
     def margin!
@@ -58,7 +66,7 @@ module Wunderbar
       @pending_newline = pending_newline
     end
 
-    def tag!(*args)
+    def tag!(sym, *args, &block)
       _newline if @pending_newline
       @pending_newline = @pending_margin
       @first_tag = @pending_margin = false
@@ -85,8 +93,12 @@ module Wunderbar
     end
 
     # avoid method_missing overhead for the most common case
-    def tag!(*args, &block)
-      @x.tag! *args, &block
+    def tag!(sym, *args, &block)
+      if !block and (args.empty? or args == [''])
+        CssProxy.new(@x, @x.target!, sym, args)
+      else
+        @x.tag! sym, *args, &block
+      end
     end
 
     # execute a system command, echoing stdin, stdout, and stderr

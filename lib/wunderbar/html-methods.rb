@@ -6,7 +6,7 @@ class HtmlMarkup
   )
 
   def initialize(*args, &block)
-    @x = Wunderbar::XmlMarkup.new :indent => 2
+    @x = Wunderbar::XmlMarkup.new :indent => 2, :target => []
   end
 
   def html(*args, &block)
@@ -138,6 +138,6 @@ class HtmlMarkup
   end
 
   def target!
-    @x.target!
+    @x.target!.join
   end
 end
