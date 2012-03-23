@@ -9,7 +9,10 @@ the emerging results from the [XML Error Recovery Community
 Group](http://www.w3.org/community/xml-er/wiki/Main_Page).
 
 Wunderbar is both inspired by, and builds upon Jim Weirich's 
-[Builder](https://github.com/jimweirich/builder#readme).
+[Builder](https://github.com/jimweirich/builder#readme), and provides 
+the element id and class id syntax and based on the implementation from
+[Markaby](http://markaby.rubyforge.org/).
+.
 
 Quick Start
 ---
@@ -84,6 +87,15 @@ Capture exceptions:
       raise NotImplementedError.new('page')
     end
 
+Class attribute shortcut (equivalent to class="front"):
+
+    div.front do
+    end
+
+Id attributes shortcut (equivalent to id="search"):
+
+    div.search! do
+    end
 
 Basic interface
 ---
