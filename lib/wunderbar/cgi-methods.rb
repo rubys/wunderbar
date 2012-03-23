@@ -69,7 +69,7 @@ end
 
 # Conditionally provide output, based on ETAG
 def $cgi.out?(headers, &block)
-  content = block.call.join
+  content = block.call
   require 'digest/md5'
   etag = Digest::MD5.hexdigest(content)
 
