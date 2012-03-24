@@ -1,7 +1,6 @@
 #!/usr/bin/ruby
 require 'wunderbar'
 require 'rdiscount'
-require 'shellwords'
 require 'digest/md5'
 
 Dir.chdir WIKIDATA
@@ -49,7 +48,13 @@ W_.html do
             _p 'Nothing changed'
           else
             _.system "git add #{file}"
-            _.system "git commit -m #{@comment.shellescape} #{file}"
+
+            commit = %w(git commit) 
+            commit << '--author' << $EMAIL if defined? $EMAIL and $EMAIL
+            commit << '--message' << @comment
+            commit << file 
+
+            _.system commit
           end
         end
       end
@@ -198,3 +203,12 @@ end
 __END__
 # Customize where the wiki data is stored
 WIKIDATA = '/full/path/to/data/directory'
+
+# git author e-mail address override
+require 'etc'
+begin
+  name = Etc.getpwnam($USER).gecos.split(',').first
+  $EMAIL = "#{name} <#{$USER}@#{$env.SERVER_NAME}>"
+  $EMAIL = nil if %w(www-data _www).include?($USER)
+rescue
+end

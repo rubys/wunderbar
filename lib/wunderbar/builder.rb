@@ -103,6 +103,18 @@ module Wunderbar
 
     # execute a system command, echoing stdin, stdout, and stderr
     def system(command, opts={})
+      if command.respond_to? :join
+        begin
+          # if available, use escape as it does prettier quoting
+          require 'escape'
+          command = Escape.shell_command(command)
+        rescue LoadError
+          # std-lib function that gets the job done
+          require 'shellwords'
+          command = Shellwords.join(command)
+        end
+      end
+
       require 'open3'
       tag  = opts[:tag]  || 'pre'
       output_class = opts[:class] || {}

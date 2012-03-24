@@ -48,6 +48,8 @@ typically <code>www-data</code> on Unix or <code>www</code> on Mac OS/X.</li>
     AddHandler cgi-script .cgi
 </code></pre>
 
+<blockquote><p>Optionally configure <a href="http://httpd.apache.org/docs/2.4/howto/auth.html">Authentication</a> for multiple users.</p></blockquote>
+
 <p>Install scripts:</p>
 
 <ul>
@@ -60,6 +62,8 @@ document root</li>
 
 <pre><code>    ruby wiki.rb --install=/var/www/wikiname.cgi --WIKIDATA="/full/path/to/data/directory"
 </code></pre>
+
+<blockquote><p>Optionally tailor the setting of the $EMAIL variable in the script.  The current default logic is based on a Unix like operating system (such as Linux, Mac OS/X) with users having email addresses on this machine.  Replace as needed.</p></blockquote>
 
 <p>Access your wiki:</p>
 
