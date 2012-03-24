@@ -205,6 +205,7 @@ __END__
 WIKIDATA = '/full/path/to/data/directory'
 
 # git author e-mail address override
+require 'wunderbar'
 require 'etc'
 begin
   name = Etc.getpwnam($USER).gecos.split(',').first
