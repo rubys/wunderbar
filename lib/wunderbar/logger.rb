@@ -25,6 +25,14 @@ module Wunderbar
     end
   end
 
+  def self.log_level
+    return 'debug' if logger.level == Logger::DEBUG
+    return 'info'  if logger.level == Logger::INFO
+    return 'warn'  if logger.level == Logger::WARN
+    return 'error' if logger.level == Logger::ERROR
+    return 'fatal' if logger.level == Logger::FATAL
+  end
+
   # convenience methods
   def self.debug(*args, &block)
     logger.debug *args, &block

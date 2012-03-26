@@ -141,4 +141,8 @@ class HtmlMarkup
   def target!
     @x.target!.join
   end
+
+  def clear!
+    @x.target!.clear
+  end
 end

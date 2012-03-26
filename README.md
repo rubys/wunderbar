@@ -192,15 +192,6 @@ HTML methods
 Note that adding an exclamation mark to the end of the tag name disables this
 behavior.
 
-CGI methods (deprecated?)
----
-* `json`    - produce JSON output using the block specified
-* `json!`   - produce JSON output using the block specified and exit
-* `html`    - produce HTML output using the block specified
-* `html!`   - produce HTML output using the block specified and exit
-* `post`    - execute block only if method is POST
-* `post!`   - if POST, produce HTML output using the block specified and exit
-
 OpenStruct methods (for $params and $env)
 ---
 * `untaint_if_match`: untaints value if it matches a regular expression
