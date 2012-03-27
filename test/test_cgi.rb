@@ -18,7 +18,8 @@ class CGITest < Test::Unit::TestCase
       _body
     end
 
-    assert_raise(SystemExit) { Wunderbar.evaluate }
+    Wunderbar.evaluate
+
     assert_match %r{^Content-Type: text/html; charset=UTF-8\r\n}, $stdout.string
     assert_match %r{^Etag: "\w+"\r\n}, $stdout.string
     assert_match %r{^\s+<body></body>$}, $stdout.string
@@ -33,7 +34,8 @@ class CGITest < Test::Unit::TestCase
       end
     end
 
-    assert_raise(SystemExit) { Wunderbar.evaluate }
+    Wunderbar.evaluate
+
     assert_match %r{Status: 500 Internal Error\r\n}, $stdout.string
     assert_match %r{^Content-Type: text/html; charset=UTF-8\r\n}, $stdout.string
     assert_match %r{^\s+<h1>Internal Error</h1>$}, $stdout.string
@@ -49,7 +51,8 @@ class CGITest < Test::Unit::TestCase
       _body
     end
 
-    assert_raise(SystemExit) { Wunderbar.evaluate }
+    Wunderbar.evaluate
+
     assert_match %r{^Content-Type: application/xhtml\+xml; charset=UTF-8\r\n},
       $stdout.string
     assert_match %r{^\s+<body></body>$}, $stdout.string
@@ -64,7 +67,8 @@ class CGITest < Test::Unit::TestCase
       _body
     end
 
-    assert_raise(SystemExit) { Wunderbar.evaluate }
+    Wunderbar.evaluate
+
     assert_match %r{^Content-Type: text/html; charset=UTF-8\r\n}, $stdout.string
     assert_match %r{^\s+<body></body>$}, $stdout.string
   ensure
@@ -78,7 +82,8 @@ class CGITest < Test::Unit::TestCase
       {:response => 'It Worked!'}
     end
 
-    assert_raise(SystemExit) { Wunderbar.evaluate }
+    Wunderbar.evaluate
+
     assert_match %r{^Content-Type: application/json\r\n}, $stdout.string
     assert_match %r{^\s+"response": "It Worked!"}, $stdout.string
   ensure
@@ -91,7 +96,8 @@ class CGITest < Test::Unit::TestCase
     Wunderbar.json do
     end
 
-    assert_raise(SystemExit) { Wunderbar.evaluate }
+    Wunderbar.evaluate
+
     assert_match %r{Status: 404 Not Found\r\n}, $stdout.string
     assert_match %r{^Content-Type: application/json\r\n}, $stdout.string
     assert_match %r{^null$}, $stdout.string
@@ -106,7 +112,8 @@ class CGITest < Test::Unit::TestCase
       error_undefined
     end
 
-    assert_raise(SystemExit) { Wunderbar.evaluate }
+    Wunderbar.evaluate
+
     assert_match %r{Status: 500 Internal Error\r\n}, $stdout.string
     assert_match %r{^Content-Type: application/json\r\n}, $stdout.string
     assert_match %r{^\s+"exception": ".*NameError.*error_undefined}, 
@@ -122,7 +129,8 @@ class CGITest < Test::Unit::TestCase
       puts 'It Worked!'
     end
 
-    assert_raise(SystemExit) { Wunderbar.evaluate }
+    Wunderbar.evaluate
+
     assert_match %r{^Content-Type: text/plain\r\n}, $stdout.string
     assert_match %r{\r\n\r\nIt Worked!\n\Z}, $stdout.string
   ensure
@@ -135,7 +143,8 @@ class CGITest < Test::Unit::TestCase
     Wunderbar.text do
     end
 
-    assert_raise(SystemExit) { Wunderbar.evaluate }
+    Wunderbar.evaluate
+
     assert_match %r{Status: 404 Not Found\r\n}, $stdout.string
     assert_match %r{^Content-Type: text/plain\r\n}, $stdout.string
     assert_match %r{\r\n\r\n\Z}, $stdout.string
@@ -150,7 +159,8 @@ class CGITest < Test::Unit::TestCase
       error_undefined
     end
 
-    assert_raise(SystemExit) { Wunderbar.evaluate }
+    Wunderbar.evaluate
+
     assert_match %r{Status: 500 Internal Error\r\n}, $stdout.string
     assert_match %r{^Content-Type: text/plain\r\n}, $stdout.string
     assert_match %r{NameError.*error_undefined}, $stdout.string

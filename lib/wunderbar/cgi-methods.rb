@@ -135,23 +135,23 @@ module Wunderbar
         unless $XHR_JSON or $TEXT
           $XHTML = false unless xhtml
           CGI.html(*args, &block)
-          Process.exit
+          break
         end
       when :xhtml
         unless $XHR_JSON or $TEXT
           $XHTML = false if html
           CGI.html(*args, &block)
-          Process.exit
+          break
         end
       when :json
         if $XHR_JSON
           CGI.json(*args, &block)
-          Process.exit
+          break
         end
       when :text
         if $TEXT
           CGI.text(*args, &block)
-          Process.exit
+          break
         end
       end
     end
