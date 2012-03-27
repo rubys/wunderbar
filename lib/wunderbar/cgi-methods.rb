@@ -103,16 +103,6 @@ module Wunderbar
         output
       end
     end
-
-    # post specific logic (doesn't produce output)
-    def self.post
-      yield if $HTTP_POST
-    end
-
-    # post specific content (produces output)
-    def self.post! &block
-      html!(&block) if $HTTP_POST
-    end
   end
 
   @queue = []
