@@ -4,7 +4,6 @@ module Wunderbar
 
     # produce json
     def self.json(&block)
-      return unless $XHR_JSON
       $param.each do |key,value| 
         instance_variable_set "@#{key}", value.first if key =~ /^\w+$/
       end
@@ -16,29 +15,19 @@ module Wunderbar
         :backtrace => exception.backtrace
       }
     ensure
-      if $XHR_JSON
-        Kernel.print "Status: 404 Not Found\r\n" unless output
-        out? 'type' => 'application/json', 'Cache-Control' => 'no-cache' do
-          begin
-            JSON.pretty_generate(output)+ "\n"
-          rescue
-            output.to_json + "\n"
-          end
+      Kernel.print "Status: 404 Not Found\r\n" unless output
+      out? 'type' => 'application/json', 'Cache-Control' => 'no-cache' do
+        begin
+          JSON.pretty_generate(output)+ "\n"
+        rescue
+          output.to_json + "\n"
         end
       end
-    end
-
-    # produce json and quit
-    def self.json! &block
-      return unless $XHR_JSON
-      json(&block)
-      Process.exit
     end
 
     # produce text
     def self.text &block
       require 'stringio'
-      return unless $TEXT
       buffer = StringIO.new
       $param.each do |key,value| 
         instance_variable_set "@#{key}", value.first if key =~ /^\w+$/
@@ -50,19 +39,10 @@ module Wunderbar
       buffer << exception.inspect + "\n"
       exception.backtrace.each {|frame| buffer << "  #{frame}\n"}
     ensure
-      if $TEXT
-        Kernel.print "Status: 404 Not Found\r\n" if buffer.size == 0
-        out? 'type' => 'text/plain', 'Cache-Control' => 'no-cache' do
-          buffer.string
-        end
+      Kernel.print "Status: 404 Not Found\r\n" if buffer.size == 0
+      out? 'type' => 'text/plain', 'Cache-Control' => 'no-cache' do
+        buffer.string
       end
-    end
-
-    # produce text and quit
-    def self.text! &block
-      return unless $TEXT
-      text(&block)
-      Process.exit
     end
 
     # Conditionally provide output, based on ETAG
@@ -83,7 +63,6 @@ module Wunderbar
 
     # produce html/xhtml
     def self.html(*args, &block)
-      return if $XHR_JSON or $TEXT
       args << {} if args.empty?
       if Hash === args.first
         args.first[:xmlns] ||= 'http://www.w3.org/1999/xhtml'
@@ -125,13 +104,6 @@ module Wunderbar
       end
     end
 
-    # produce html and quit
-    def self.html! *args, &block
-      return if $XHR_JSON or $TEXT
-      html(*args, &block)
-      Process.exit
-    end
-
     # post specific logic (doesn't produce output)
     def self.post
       yield if $HTTP_POST
@@ -143,22 +115,59 @@ module Wunderbar
     end
   end
 
+  @queue = []
+
   # canonical interface
   def self.html(*args, &block)
-    $XHTML = false unless ARGV.delete('--xhtml')
-    CGI.html!(*args, &block)
+    @queue << [:html, args, block]
   end
 
   def self.xhtml(*args, &block)
-    $XHTML = false if ARGV.delete('--html')
-    CGI.html!(*args, &block)
+    @queue << [:xhtml, args, block]
   end
 
   def self.json(*args, &block)
-    CGI.json!(*args, &block)
+    @queue << [:json, args, block]
   end
 
   def self.text(*args, &block)
-    CGI.text!(*args, &block)
+    @queue << [:text, args, block]
   end
+
+  def self.evaluate
+    queue, @queue = @queue, []
+    xhtml = ARGV.delete('--xhtml')
+    html  = ARGV.delete('--html')
+
+    queue.each do |type, args, block|
+      case type
+      when :html
+        unless $XHR_JSON or $TEXT
+          $XHTML = false unless xhtml
+          CGI.html(*args, &block)
+          Process.exit
+        end
+      when :xhtml
+        unless $XHR_JSON or $TEXT
+          $XHTML = false if html
+          CGI.html(*args, &block)
+          Process.exit
+        end
+      when :json
+        if $XHR_JSON
+          CGI.json(*args, &block)
+          Process.exit
+        end
+      when :text
+        if $TEXT
+          CGI.text(*args, &block)
+          Process.exit
+        end
+      end
+    end
+  end
+end
+
+at_exit do
+  Wunderbar.evaluate
 end
