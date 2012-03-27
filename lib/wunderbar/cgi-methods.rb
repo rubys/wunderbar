@@ -94,13 +94,13 @@ module Wunderbar
       x._.declare :DOCTYPE, :html
 
       begin
-        x.html *args, &block
+        output = x.html *args, &block
       rescue ::Exception => exception
         Kernel.print "Status: 500 Internal Error\r\n"
         x.clear!
         x._! "\xEF\xBB\xBF"
         x._.declare :DOCTYPE, :html
-        x.html(*args) do
+        output = x.html(*args) do
           _head do
             _title 'Internal Error'
           end
@@ -121,7 +121,7 @@ module Wunderbar
       end
 
       out? 'type' => mimetype, 'charset' => 'UTF-8' do
-        x.target!
+        output
       end
     end
 

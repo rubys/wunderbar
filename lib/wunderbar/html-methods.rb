@@ -16,7 +16,7 @@ class HtmlMarkup
       end
       instance_exec(@x, &block)
     end
-    target!
+    @x.target!.join
   end
 
   def method_missing(name, *args, &block)
@@ -136,10 +136,6 @@ class HtmlMarkup
     _script CoffeeScript.compile(text)
   rescue LoadError
     _script text, :lang => 'text/coffeescript'
-  end
-
-  def target!
-    @x.target!.join
   end
 
   def clear!
