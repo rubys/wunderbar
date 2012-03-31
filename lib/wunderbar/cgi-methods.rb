@@ -28,21 +28,23 @@ module Wunderbar
 
     # produce text
     def self.text &block
-      require 'stringio'
-      buffer = StringIO.new
-      $param.each do |key,value| 
-        instance_variable_set "@#{key}", value.first if key =~ /^\w+$/
-      end
-      buffer.instance_eval &block
+      builder = TextBuilder.new
+      output = builder.encode($param, &block)
+      Kernel.print "Status: 404 Not Found\r\n" if output == ''
     rescue Exception => exception
+      Wunderbar.error exception.inspect
       Kernel.print "Status: 500 Internal Error\r\n"
-      buffer << "\n" unless buffer.size == 0
-      buffer << exception.inspect + "\n"
-      exception.backtrace.each {|frame| buffer << "  #{frame}\n"}
+      builder.puts unless builder.size == 0
+      builder.puts exception.inspect
+      exception.backtrace.each do |frame| 
+        next if frame =~ %r{/wunderbar/}
+        next if frame =~ %r{/gems/.*/builder/}
+        Wunderbar.warn "  #{frame}"
+        builder.puts "  #{frame}"
+      end
     ensure
-      Kernel.print "Status: 404 Not Found\r\n" if buffer.size == 0
       out? 'type' => 'text/plain', 'Cache-Control' => 'no-cache' do
-        buffer.string
+        builder.target!
       end
     end
 

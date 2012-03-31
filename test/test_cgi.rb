@@ -150,7 +150,22 @@ class CGITest < Test::Unit::TestCase
     text, $TEXT = $TEXT, true
 
     Wunderbar.text do
-      puts 'It Worked!'
+      _ 'It Worked!'
+    end
+
+    Wunderbar.evaluate
+
+    assert_match %r{^Content-Type: text/plain\r\n}, $stdout.string
+    assert_match %r{\r\n\r\nIt Worked!\n\Z}, $stdout.string
+  ensure
+    $TEXT = text
+  end
+
+  def test_text_methods
+    text, $TEXT = $TEXT, true
+
+    Wunderbar.text do
+      _.printf "%s Worked!\n", 'It'
     end
 
     Wunderbar.evaluate
@@ -188,7 +203,23 @@ class CGITest < Test::Unit::TestCase
     assert_match %r{Status: 500 Internal Error\r\n}, $stdout.string
     assert_match %r{^Content-Type: text/plain\r\n}, $stdout.string
     assert_match %r{NameError.*error_undefined}, $stdout.string
+    assert_match %r{^_ERROR.*NameError.*error_undefined}, $stderr.string
   ensure
     $TEXT = text
   end
+
+  def test_text_log
+    text, $TEXT = $TEXT, true
+
+    Wunderbar.text do
+      _.fatal 'oh, dear'
+    end
+
+    Wunderbar.evaluate
+
+    assert_equal "_FATAL oh, dear\n", $stderr.string
+  ensure
+    $TEXT = text
+  end
+
 end

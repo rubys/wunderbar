@@ -171,6 +171,42 @@ module Wunderbar
     end
   end
 
+  class TextBuilder
+    def initialize
+      require 'stringio'
+      @_target = StringIO.new
+    end
+
+    def encode(params = {}, &block)
+      params.each do |key,value|
+        instance_variable_set "@#{key}", value.first if key =~ /^\w+$/
+      end
+
+      self.instance_eval(&block)
+      @_target.string
+    end
+
+    def _(*args)
+      @_target.puts *args if args.length > 0 
+      self
+    end
+
+    # forward to either Wunderbar or @_target
+    def method_missing(method, *args, &block)
+      if Wunderbar.respond_to? method
+        return Wunderbar.send method, *args, &block
+      elsif @_target.respond_to? method
+        return @_target.send method, *args, &block
+      else
+        super
+      end
+    end
+
+    def target!
+      @_target.string
+    end
+  end
+
   class JsonBuilder
     def initialize
       @_target = {}
