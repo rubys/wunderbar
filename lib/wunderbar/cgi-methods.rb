@@ -4,24 +4,25 @@ module Wunderbar
 
     # produce json
     def self.json(&block)
-      $param.each do |key,value| 
-        instance_variable_set "@#{key}", value.first if key =~ /^\w+$/
-      end
-      output = instance_eval(&block)
+      builder = JsonBuilder.new
+      output = builder.encode($param, &block)
+      Kernel.print "Status: 404 Not Found\r\n" if output == {}
     rescue Exception => exception
       Kernel.print "Status: 500 Internal Error\r\n"
-      output = {
-        :exception => exception.inspect,
-        :backtrace => exception.backtrace
-      }
+      Wunderbar.error exception.inspect
+      backtrace = []
+      exception.backtrace.each do |frame| 
+        next if frame =~ %r{/wunderbar/}
+        next if frame =~ %r{/gems/.*/builder/}
+        Wunderbar.warn "  #{frame}"
+        backtrace << frame 
+      end
+      builder = JsonBuilder.new
+      builder._exception exception.inspect
+      builder._backtrace backtrace
     ensure
-      Kernel.print "Status: 404 Not Found\r\n" unless output
       out? 'type' => 'application/json', 'Cache-Control' => 'no-cache' do
-        begin
-          JSON.pretty_generate(output)+ "\n"
-        rescue
-          output.to_json + "\n"
-        end
+        builder.target!
       end
     end
 

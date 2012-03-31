@@ -3,12 +3,16 @@ require 'logger'
 module Wunderbar
   def self.logger
     return @logger if @logger
-    @logger = Logger.new(STDERR)
+    @logger = Logger.new($stderr)
     @logger.level = Logger::WARN
     @logger.formatter = proc { |severity, datetime, progname, msg|
       "_#{severity} #{msg}\n"
     }
     @logger
+  end
+
+  def self.logger= new_logger
+    @logger = new_logger
   end
 
   def self.log_level=(level)

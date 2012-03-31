@@ -170,4 +170,108 @@ module Wunderbar
       $HTTP_POST
     end
   end
+
+  class JsonBuilder
+    def initialize
+      @_target = {}
+    end
+
+    def encode(params = {}, &block)
+      params.each do |key,value|
+        instance_variable_set "@#{key}", value.first if key =~ /^\w+$/
+      end
+
+      self.instance_eval(&block)
+      @_target
+    end
+
+    # forward to either Wunderbar or @_target
+    def method_missing(method, *args, &block)
+
+      if method.to_s =~ /^_(\w*)$/
+        name = $1
+      elsif Wunderbar.respond_to? method
+        return Wunderbar.send method, *args, &block
+      elsif @_target.respond_to? method
+        return @_target.send method, *args, &block
+      else
+        super
+      end
+
+      if args.length == 0
+        return self unless block
+        result = JsonBuilder.new.encode(&block)
+      elsif args.length == 1
+        result = args.first
+
+        if block
+          if Symbol === result or String === result
+            result = {result.to_s => JsonBuilder.new.encode(&block)}
+          else
+            target = @_target
+            result = result.map {|n| @_target = {}; block.call(n); @_target} 
+            @_target = target
+          end
+        end
+      elsif block
+        ::Kernel::raise ::ArgumentError, "can't mix arguments with a block"
+      else
+        object = args.shift
+
+        if not Enumerable === object or String === object or Struct === object
+          result = {}
+          args.each {|arg| result[arg.to_s] = object.send arg}
+        else
+          result = object.map do |item|
+            args.inject({}) {|hash, arg| hash[arg.to_s] = item.send arg; hash}
+          end
+        end
+      end
+
+      if name != ''
+        unless Hash === @_target or @_target.empty?
+          ::Kernel::raise ::ArgumentError, "named values after literal" + 
+            ' ' + @_target.inspect
+        end
+
+        @_target[name] = result
+      else
+        unless Hash === @_target and @_target.empty?
+          if Hash === result
+            result = @_target.merge(result)
+          else
+            ::Kernel::raise ::ArgumentError, "literal after named values"
+          end
+        end
+
+        @_target = result
+      end
+
+      self
+    end
+
+    def <<(object)
+      @_target = [] if @_target == {}
+      @_target << object
+    end
+
+    def push!(*args, &block)
+      if block
+        if args.length > 0
+          ::Kernel::raise ::ArgumentError, "can't mix arguments with a block"
+        end
+        self << JsonBuilder.new.encode(&block)
+      else
+        args.each {|arg| self << arg}
+      end
+    end
+
+    def target!
+      begin
+        JSON.pretty_generate(@_target)+ "\n"
+      rescue
+        @_target.to_json + "\n"
+      end
+    end
+  end
 end

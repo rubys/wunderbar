@@ -5,12 +5,14 @@ require 'stringio'
 
 class CGITest < Test::Unit::TestCase
   def setup
-    @stdout = $stdout
-    $stdout = StringIO.new
+    @stdout, @stderr = $stdout, $stderr
+    $stdout, $stderr = StringIO.new, StringIO.new
+    Wunderbar.logger = nil
   end
 
   def teardown
-    $stdout = @stdout
+    $stdout, $stderr = @stdout, @stderr
+    Wunderbar.logger = nil
   end
 
   def test_html_success
@@ -26,8 +28,6 @@ class CGITest < Test::Unit::TestCase
   end
 
   def test_html_failure
-    log_level, Wunderbar.log_level = Wunderbar.log_level, 'fatal'
-
     Wunderbar.html do
       _body do
         error_undefined
@@ -40,8 +40,17 @@ class CGITest < Test::Unit::TestCase
     assert_match %r{^Content-Type: text/html; charset=UTF-8\r\n}, $stdout.string
     assert_match %r{^\s+<h1>Internal Error</h1>$}, $stdout.string
     assert_match %r{^\s+<pre>.*NameError.*error_undefined}, $stdout.string
-  ensure
-    Wunderbar.log_level = log_level
+    assert_match %r{^_ERROR.*NameError.*error_undefined}, $stderr.string
+  end
+
+  def test_html_log
+    Wunderbar.html do
+      _.fatal 'oh, dear'
+    end
+
+    Wunderbar.evaluate
+
+    assert_equal "_FATAL oh, dear\n", $stderr.string
   end
 
   def test_xhtml_success
@@ -79,7 +88,7 @@ class CGITest < Test::Unit::TestCase
     json, $XHR_JSON = $XHR_JSON, true
 
     Wunderbar.json do
-      {:response => 'It Worked!'}
+      _ :response => 'It Worked!'
     end
 
     Wunderbar.evaluate
@@ -100,7 +109,7 @@ class CGITest < Test::Unit::TestCase
 
     assert_match %r{Status: 404 Not Found\r\n}, $stdout.string
     assert_match %r{^Content-Type: application/json\r\n}, $stdout.string
-    assert_match %r{^null$}, $stdout.string
+    assert_match /^\{\s*\}\s*$/, $stdout.string
   ensure
     $XHR_JSON = json
   end
@@ -118,6 +127,21 @@ class CGITest < Test::Unit::TestCase
     assert_match %r{^Content-Type: application/json\r\n}, $stdout.string
     assert_match %r{^\s+"exception": ".*NameError.*error_undefined}, 
       $stdout.string
+    assert_match %r{^_ERROR.*NameError.*error_undefined}, $stderr.string
+  ensure
+    $XHR_JSON = json
+  end
+
+  def test_json_log
+    json, $XHR_JSON = $XHR_JSON, true
+
+    Wunderbar.json do
+      _.fatal 'oh, dear'
+    end
+
+    Wunderbar.evaluate
+
+    assert_equal "_FATAL oh, dear\n", $stderr.string
   ensure
     $XHR_JSON = json
   end

@@ -12,9 +12,11 @@ Wunderbar is both inspired by, and builds upon Jim Weirich's
 [Builder](https://github.com/jimweirich/builder#readme), and provides 
 the element id and class id syntax and based on the implementation from
 [Markaby](http://markaby.rubyforge.org/).
-.
 
-Quick Start
+Wunderbar's JSON support is inspired by David Heinemeier Hansson's
+[jbuilder](https://github.com/rails/jbuilder).
+
+Quick Start (HTML)
 ---
 
 Simple element:
@@ -112,14 +114,15 @@ output.  This is accomplished by providing one or more of the following:
     end
  
     Wunderbar.json do
-      expression
+      code
     end
 
     Wunderbar.text do
       code
     end
  
-Arbitrary Ruby code can be placed in each.  For html, use the `_` methods described here.  For json, the results (typically a hash or array) are converted to JSON.  For text, use `puts` and `print` statements to produce the desired results.
+Arbitrary Ruby code can be placed in each.  To append to the output produced,
+use the `_` methods described here.
 
 Methods provided to Wunderbar.html
 ---
@@ -153,6 +156,70 @@ Access to all of the builder _defined_ methods (typically these end in an esclam
 
 * `_.tag! :foo`
 * `_.error 'Log message'`
+
+Methods provided to Wunderbar.json
+---
+
+The default is to return a JSON encoded Hash.
+
+``` ruby
+W_.json do
+  _content format_content(@message.content)
+  _ @message, :created_at, :updated_at 
+
+  _author do
+    _name @message.creator.name.familiar
+    _email_address @message.creator.email_address_with_name
+    _url url_for(@message.creator, format: :json)
+  end
+
+  if current_user.admin?
+    _visitors calculate_visitors(@message)
+  end
+
+  _comments @message.comments, :content, :created_at
+  
+  _attachments @message.attachments do |attachment|
+    _filename attachment.filename
+    _url url_for(attachment)
+  end
+end
+```
+
+Invoking methods that start with a Unicode 
+[low line](http://www.fileformat.info/info/unicode/char/5f/index.htm) 
+character ("_") will add a key/value pair to that hash.  Hashes can
+also be nested.  Logic can be freely intermixed.
+
+The "`_`" method serves a number of purposes.
+
+* calling it with a single Hash argument will merge the values into the result
+    * Example: `_ status: 200, body: "Hello World!"`
+
+* calling it with multiple arguments will cause the first argument to be
+treated as the object, and the remainder as the attributes to be extracted
+    * Example: `_ File.stat('foo'), :mtime, :size, :mode`
+
+* calling it with a single non-Hash argument will establish that value as the
+result to be returned.  Useful for returning arrays.  Can't preceed or follow
+any setting of Hash values.
+    * Example: `_ [1,2,3]`
+
+* calling it with a single Enumerable object and a block will cause an array
+to be returned based on mapping each objection from the enumeration against
+the block
+   * Example: `_([1,2,3]) {|n| n*n}`
+
+Special methods for arrays:
+
+* Building simple arrays can be done with `<<` methods:
+        _ << 1
+        _ << 2
+
+* The precedence rules make this difficult for more complex structures, so a
+`push!` method is provided:
+        _.push! { _name 'foo' }
+        _.push! { _name 'bar' }
 
 Globals provided
 ---
