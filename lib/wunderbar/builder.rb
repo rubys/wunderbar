@@ -244,13 +244,12 @@ module Wunderbar
           if Symbol === result or String === result
             result = {result.to_s => JsonBuilder.new.encode(&block)}
           else
-            target = @_target
             result = result.map {|n| @_target = {}; block.call(n); @_target} 
-            @_target = target
           end
         end
       elsif block
-        ::Kernel::raise ::ArgumentError, "can't mix arguments with a block"
+        ::Kernel::raise ::ArgumentError, 
+          "can't mix multiple arguments with a block"
       else
         object = args.shift
 
@@ -266,40 +265,27 @@ module Wunderbar
 
       if name != ''
         unless Hash === @_target or @_target.empty?
-          ::Kernel::raise ::ArgumentError, "named values after literal" + 
-            ' ' + @_target.inspect
+          ::Kernel::raise ::ArgumentError, "mixed array and hash calls"
         end
 
-        @_target[name] = result
+        @_target[name.to_s] = result
+      elsif args.length == 0 or (args.length == 1 and not block)
+        @_target = [] if @_target == {}
+
+        if Hash === @_target 
+          ::Kernel::raise ::ArgumentError, "mixed hash and array calls"
+        end
+
+        @_target << result
       else
-        unless Hash === @_target and @_target.empty?
-          if Hash === result
-            result = @_target.merge(result)
-          else
-            ::Kernel::raise ::ArgumentError, "literal after named values"
-          end
-        end
-
         @_target = result
       end
 
       self
     end
 
-    def <<(object)
-      @_target = [] if @_target == {}
-      @_target << object
-    end
-
-    def push!(*args, &block)
-      if block
-        if args.length > 0
-          ::Kernel::raise ::ArgumentError, "can't mix arguments with a block"
-        end
-        self << JsonBuilder.new.encode(&block)
-      else
-        args.each {|arg| self << arg}
-      end
+    def _!(object)
+      @_target = object
     end
 
     def target!

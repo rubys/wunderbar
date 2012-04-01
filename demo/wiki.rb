@@ -193,11 +193,13 @@ end
 W_.json do
   hash = Digest::MD5.hexdigest(@markup)
   if File.exist?(file) and Digest::MD5.hexdigest(File.read(file)) != @hash
-    _ error: "Write conflict", markup: File.read(file), hash: hash
+    _error "Write conflict"
+    _markup File.read(file)
   else
     File.open(file, 'w') {|fh| fh.write @markup} unless @hash == hash
-    _ time: Time.now.to_i*1000, hash: hash
+    _time Time.now.to_i*1000
   end
+  _hash hash
 end
 
 __END__

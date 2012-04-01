@@ -16,6 +16,37 @@ the element id and class id syntax and based on the implementation from
 Wunderbar's JSON support is inspired by David Heinemeier Hansson's
 [jbuilder](https://github.com/rails/jbuilder).
 
+Overview
+---
+
+The premise of Wunderbar is that output of various types are typically formed
+by appending either a series of key/value pairs or simple values, and those
+operations should be optimized for.  Appending a key/value pair is done via:
+
+    _key value
+
+... and appending a simple value is done thus:
+
+    _ value
+
+For HTML, key/value is used for element nodes, and simple values are used for
+text nodes.  For JSON, key/value is used for Hashes and simple values are used
+for arrays.  For text, simple values are output via puts, and key/value pairs
+are not used.
+
+Nesting is performed using blocks.
+
+The underscore method, when passed no arguments, returns an object that can be
+used to perform a number of special functions.  Some of those functions are
+unique to the output method.  Others like logging methods are common.
+
+The underscore method when passed multiple arguments or a combination of
+arguments and a block may do other common functions, depending on the types of
+the arguments passed.
+
+Question mark, exclamation mark, and underscore suffixes to the method name
+may modify the results.
+
 Quick Start (HTML)
 ---
 
@@ -157,13 +188,18 @@ Access to all of the builder _defined_ methods (typically these end in an esclam
 * `_.tag! :foo`
 * `_.error 'Log message'`
 
+XHTML differs from HTML in the escaping of inline style and script elements.
+XHTML will also fall back to HTML output unless the user agent indicates it
+supports XHTML via the HTTP Accept header.
+
 Methods provided to Wunderbar.json
 ---
 
-The default is to return a JSON encoded Hash.
+Common operations are to return a Hash or an Array of values.  Hashes are
+a series of name/value pairs, and Arrays are a series of values.
 
 ``` ruby
-W_.json do
+Wunderbar.json do
   _content format_content(@message.content)
   _ @message, :created_at, :updated_at 
 
@@ -193,33 +229,34 @@ also be nested.  Logic can be freely intermixed.
 
 The "`_`" method serves a number of purposes.
 
-* calling it with a single Hash argument will merge the values into the result
-    * Example: `_ status: 200, body: "Hello World!"`
-
 * calling it with multiple arguments will cause the first argument to be
 treated as the object, and the remainder as the attributes to be extracted
     * Example: `_ File.stat('foo'), :mtime, :size, :mode`
-
-* calling it with a single non-Hash argument will establish that value as the
-result to be returned.  Useful for returning arrays.  Can't preceed or follow
-any setting of Hash values.
-    * Example: `_ [1,2,3]`
 
 * calling it with a single Enumerable object and a block will cause an array
 to be returned based on mapping each objection from the enumeration against
 the block
    * Example: `_([1,2,3]) {|n| n*n}`
 
-Special methods for arrays:
+* arrays can be also be built using the `_` method:
+        _ 1
+        _ 2
 
-* Building simple arrays can be done with `<<` methods:
-        _ << 1
-        _ << 2
+The `_` method returns a proxy to the object being constructed.  This is often
+handy when called with no arguments.  Examples:
 
-* The precedence rules make this difficult for more complex structures, so a
-`push!` method is provided:
-        _.push! { _name 'foo' }
-        _.push! { _name 'bar' }
+        _.sort!
+        _['foo'] = 'bar'
+
+Methods provided to Wunderbar.text
+---
+
+Appending to the output stream is done using the `_` method, which is
+equivalent to `puts`.  The `_` method returns an object which proxies the
+output stream, which provides access to other useful methods, for example:
+
+        _.print 'foo'
+        _.printf "Hello %s!\n", 'world'
 
 Globals provided
 ---

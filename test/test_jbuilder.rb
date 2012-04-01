@@ -6,12 +6,6 @@ require 'wunderbar'
 # functional parity:
 #   https://github.com/rails/jbuilder/blob/master/test/jbuilder_test.rb
 
-class Array
-  def second
-    self[1]
-  end
-end
-
 class JbuilderTest < Test::Unit::TestCase
   def setup
     @j = Wunderbar::JsonBuilder.new
@@ -78,13 +72,13 @@ class JbuilderTest < Test::Unit::TestCase
   def test_nesting_multiple_children_with_block
     parsed = @j.encode do
       _comments do
-        _.push! { _content "hello" }
-        _.push! { _content "world" }
+        _ { _content "hello" }
+        _ { _content "world" }
       end
     end
 
-    assert_equal "hello", parsed["comments"].first["content"]
-    assert_equal "world", parsed["comments"].second["content"]
+    assert_equal "hello", parsed["comments"][0]["content"]
+    assert_equal "world", parsed["comments"][1]["content"]
   end
   
   def test_nesting_single_child_with_inline_extract
@@ -105,15 +99,16 @@ class JbuilderTest < Test::Unit::TestCase
   end
   
   def test_nesting_multiple_children_from_array
-    comments = [ Struct.new(:content, :id).new("hello", 1), Struct.new(:content, :id).new("world", 2) ]
+    comments = [ Struct.new(:content, :id).new("hello", 1), 
+                 Struct.new(:content, :id).new("world", 2) ]
     
     parsed = @j.encode do
       _comments comments, :content
     end
     
     assert_equal ["content"], parsed["comments"].first.keys
-    assert_equal "hello", parsed["comments"].first["content"]
-    assert_equal "world", parsed["comments"].second["content"]
+    assert_equal "hello", parsed["comments"][0]["content"]
+    assert_equal "world", parsed["comments"][1]["content"]
   end
   
   def test_nesting_multiple_children_from_array_when_child_array_is_empty
@@ -129,7 +124,8 @@ class JbuilderTest < Test::Unit::TestCase
   end
   
   def test_nesting_multiple_children_from_array_with_inline_loop
-    comments = [ Struct.new(:content, :id).new("hello", 1), Struct.new(:content, :id).new("world", 2) ]
+    comments = [ Struct.new(:content, :id).new("hello", 1), 
+                 Struct.new(:content, :id).new("world", 2) ]
     
     parsed = @j.encode do
       _comments comments do |comment|
@@ -138,8 +134,8 @@ class JbuilderTest < Test::Unit::TestCase
     end
     
     assert_equal ["content"], parsed["comments"].first.keys
-    assert_equal "hello", parsed["comments"].first["content"]
-    assert_equal "world", parsed["comments"].second["content"]
+    assert_equal "hello", parsed["comments"][0]["content"]
+    assert_equal "world", parsed["comments"][1]["content"]
   end
 
   def test_nesting_multiple_children_from_array_with_inline_loop_on_root
@@ -151,8 +147,8 @@ class JbuilderTest < Test::Unit::TestCase
       end
     end
     
-    assert_equal "hello", parsed.first["content"]
-    assert_equal "world", parsed.second["content"]
+    assert_equal "hello", parsed[0]["content"]
+    assert_equal "world", parsed[1]["content"]
   end
   
   def test_array_nested_inside_nested_hash
@@ -162,22 +158,22 @@ class JbuilderTest < Test::Unit::TestCase
         _age  32
         
         _comments do
-          _.push! { _content "hello" }
-          _.push! { _content "world" }
+          _ { _content "hello" }
+          _ { _content "world" }
         end
       end
     end
     
-    assert_equal "hello", parsed["author"]["comments"].first["content"]
-    assert_equal "world", parsed["author"]["comments"].second["content"]
+    assert_equal "hello", parsed["author"]["comments"][0]["content"]
+    assert_equal "world", parsed["author"]["comments"][1]["content"]
   end
   
   def test_array_nested_inside_array
     parsed = @j.encode do
       _comments do
-        _.push! do
+        _ do
           _authors do
-            _.push! do
+            _ do
               _name "david"
             end
           end
@@ -189,7 +185,8 @@ class JbuilderTest < Test::Unit::TestCase
   end
   
   def test_top_level_array
-    comments = [ Struct.new(:content, :id).new("hello", 1), Struct.new(:content, :id).new("world", 2) ]
+    comments = [ Struct.new(:content, :id).new("hello", 1), 
+                 Struct.new(:content, :id).new("world", 2) ]
 
     parsed = @j.encode do
       _ comments do |comment|
@@ -197,8 +194,8 @@ class JbuilderTest < Test::Unit::TestCase
       end
     end
     
-    assert_equal "hello", parsed.first["content"]
-    assert_equal "world", parsed.second["content"]
+    assert_equal "hello", parsed[0]["content"]
+    assert_equal "world", parsed[1]["content"]
   end 
   
   def test_empty_top_level_array
@@ -215,7 +212,7 @@ class JbuilderTest < Test::Unit::TestCase
   
   def test_dynamically_set_a_key_value
     parsed = @j.encode do
-      _ "each" =>  "stuff"
+      _["each"] = "stuff"
     end
     
     assert_equal "stuff", parsed["each"]
