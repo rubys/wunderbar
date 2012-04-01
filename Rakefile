@@ -71,3 +71,6 @@ end
 #  - building the gem without rake (i.e. gem build blah.gemspec)
 #  - maybe others?
 task :package => :gemspec
+
+require 'rake/clean'
+CLEAN.include('pkg')
