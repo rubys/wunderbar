@@ -128,6 +128,8 @@ module Wunderbar
   end
 
   def self.call(env)
+    $USER = ENV['REMOTE_USER'] ||= ENV['USER'] || Etc.getlogin
+
     request_method = $env.REQUEST_METHOD.to_s
     accept         = $env.HTTP_ACCEPT.to_s
     request_uri    = $env.REQUEST_URI.to_s
