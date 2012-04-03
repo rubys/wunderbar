@@ -9,11 +9,13 @@ class CGITest < Test::Unit::TestCase
     $stdout, $stderr = StringIO.new, StringIO.new
     Wunderbar.clear!
     Wunderbar.logger = nil
+    @accept = ENV['HTTP_ACCEPT']
   end
 
   def teardown
     $stdout, $stderr = @stdout, @stderr
     Wunderbar.logger = nil
+    ENV['HTTP_ACCEPT'] = @accept
   end
 
   def test_html_success
@@ -55,7 +57,7 @@ class CGITest < Test::Unit::TestCase
   end
 
   def test_xhtml_success
-    xhtml, $XHTML = $XHTML, true
+    ENV['HTTP_ACCEPT'] = 'application/xhtml+xml'
 
     Wunderbar.xhtml do
       _body
@@ -66,12 +68,10 @@ class CGITest < Test::Unit::TestCase
     assert_match %r{^Content-Type: application/xhtml\+xml; charset=UTF-8\r\n},
       $stdout.string
     assert_match %r{^\s+<body></body>$}, $stdout.string
-  ensure
-    $XHTML = xhtml
   end
 
   def test_xhtml_fallback
-    xhtml, $XHTML = $XHTML, false
+    ENV['HTTP_ACCEPT'] = 'text/html'
 
     Wunderbar.xhtml do
       _body
@@ -81,12 +81,10 @@ class CGITest < Test::Unit::TestCase
 
     assert_match %r{^Content-Type: text/html; charset=UTF-8\r\n}, $stdout.string
     assert_match %r{^\s+<body></body>$}, $stdout.string
-  ensure
-    $XHTML = xhtml
   end
 
   def test_json_success
-    json, $XHR_JSON = $XHR_JSON, true
+    ENV['HTTP_ACCEPT'] = 'application/json'
 
     Wunderbar.json do
       _ :response => 'It Worked!'
@@ -96,12 +94,10 @@ class CGITest < Test::Unit::TestCase
 
     assert_match %r{^Content-Type: application/json\r\n}, $stdout.string
     assert_match %r{^\s+"response": "It Worked!"}, $stdout.string
-  ensure
-    $XHR_JSON = json
   end
 
   def test_json_missing
-    json, $XHR_JSON = $XHR_JSON, true
+    ENV['HTTP_ACCEPT'] = 'application/json'
 
     Wunderbar.json do
     end
@@ -111,12 +107,10 @@ class CGITest < Test::Unit::TestCase
     assert_match %r{Status: 404 Not Found\r\n}, $stdout.string
     assert_match %r{^Content-Type: application/json\r\n}, $stdout.string
     assert_match /^\{\s*\}\s*$/, $stdout.string
-  ensure
-    $XHR_JSON = json
   end
 
   def test_json_failure
-    json, $XHR_JSON = $XHR_JSON, true
+    ENV['HTTP_ACCEPT'] = 'application/json'
 
     Wunderbar.json do
       error_undefined
@@ -129,12 +123,10 @@ class CGITest < Test::Unit::TestCase
     assert_match %r{^\s+"exception": ".*NameError.*error_undefined}, 
       $stdout.string
     assert_match %r{^_ERROR.*NameError.*error_undefined}, $stderr.string
-  ensure
-    $XHR_JSON = json
   end
 
   def test_json_log
-    json, $XHR_JSON = $XHR_JSON, true
+    ENV['HTTP_ACCEPT'] = 'application/json'
 
     Wunderbar.json do
       _.fatal 'oh, dear'
@@ -143,12 +135,10 @@ class CGITest < Test::Unit::TestCase
     Wunderbar.call(ENV)
 
     assert_equal "_FATAL oh, dear\n", $stderr.string
-  ensure
-    $XHR_JSON = json
   end
 
   def test_text_success
-    text, $TEXT = $TEXT, true
+    ENV['HTTP_ACCEPT'] = 'text/plain'
 
     Wunderbar.text do
       _ 'It Worked!'
@@ -158,12 +148,10 @@ class CGITest < Test::Unit::TestCase
 
     assert_match %r{^Content-Type: text/plain\r\n}, $stdout.string
     assert_match %r{\r\n\r\nIt Worked!\n\Z}, $stdout.string
-  ensure
-    $TEXT = text
   end
 
   def test_text_methods
-    text, $TEXT = $TEXT, true
+    ENV['HTTP_ACCEPT'] = 'text/plain'
 
     Wunderbar.text do
       _.printf "%s Worked!\n", 'It'
@@ -173,12 +161,10 @@ class CGITest < Test::Unit::TestCase
 
     assert_match %r{^Content-Type: text/plain\r\n}, $stdout.string
     assert_match %r{\r\n\r\nIt Worked!\n\Z}, $stdout.string
-  ensure
-    $TEXT = text
   end
 
   def test_text_missing
-    text, $TEXT = $TEXT, true
+    ENV['HTTP_ACCEPT'] = 'text/plain'
 
     Wunderbar.text do
     end
@@ -188,12 +174,10 @@ class CGITest < Test::Unit::TestCase
     assert_match %r{Status: 404 Not Found\r\n}, $stdout.string
     assert_match %r{^Content-Type: text/plain\r\n}, $stdout.string
     assert_match %r{\r\n\r\n\Z}, $stdout.string
-  ensure
-    $TEXT = text
   end
 
   def test_text_failure
-    text, $TEXT = $TEXT, true
+    ENV['HTTP_ACCEPT'] = 'text/plain'
 
     Wunderbar.text do
       error_undefined
@@ -205,12 +189,10 @@ class CGITest < Test::Unit::TestCase
     assert_match %r{^Content-Type: text/plain\r\n}, $stdout.string
     assert_match %r{NameError.*error_undefined}, $stdout.string
     assert_match %r{^_ERROR.*NameError.*error_undefined}, $stderr.string
-  ensure
-    $TEXT = text
   end
 
   def test_text_log
-    text, $TEXT = $TEXT, true
+    ENV['HTTP_ACCEPT'] = 'text/plain'
 
     Wunderbar.text do
       _.fatal 'oh, dear'
@@ -219,8 +201,5 @@ class CGITest < Test::Unit::TestCase
     Wunderbar.call(ENV)
 
     assert_equal "_FATAL oh, dear\n", $stderr.string
-  ensure
-    $TEXT = text
   end
-
 end

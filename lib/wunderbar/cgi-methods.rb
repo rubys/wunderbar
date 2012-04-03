@@ -128,6 +128,23 @@ module Wunderbar
   end
 
   def self.call(env)
+    request_method = $env.REQUEST_METHOD.to_s
+    accept         = $env.HTTP_ACCEPT.to_s
+    request_uri    = $env.REQUEST_URI.to_s
+
+    # implied request types
+    $HTTP_GET  = Wunderbar::Options::HTTP_GET  || (request_method == 'GET')
+    $HTTP_POST = Wunderbar::Options::HTTP_POST || (request_method == 'POST')
+    $XHR_JSON  = Wunderbar::Options::XHR_JSON  || (accept =~ /json/)
+    $XHTML     = (accept =~ /xhtml/ or accept == '')
+    $TEXT      = Wunderbar::Options::TEXT ||
+      (accept =~ /plain/ and accept !~ /html/)
+
+    # overrides via the uri query parameter
+    $XHR_JSON  ||= (request_uri =~ /\?json$/)
+    $TEXT      ||= (request_uri =~ /\?text$/)
+
+    # overrides via the command line
     xhtml = ARGV.include?('--xhtml')
     html  = ARGV.include?('--html')
 

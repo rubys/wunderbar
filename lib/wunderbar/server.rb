@@ -1,4 +1,10 @@
 at_exit do
+  # Only prompt if explicitly asked for
+  ARGV.push '' if ARGV.empty?
+  ARGV.delete('--prompt') or ARGV.delete('--offline')
+
+  $cgi = CGI.new
+
   port = ARGV.find {|arg| arg =~ /--port=(.*)/}
   if port and ARGV.delete(port)
     port = $1.to_i
@@ -8,7 +14,7 @@ at_exit do
       @request = Rack::Request.new(env)
       @response = Rack::Response.new
       $env = OpenStruct.new(env)
-      $param = @request.params
+      $params = @request.params
 
       Wunderbar.call(env)
       @response.finish
@@ -29,6 +35,23 @@ at_exit do
     app = Rack::ShowExceptions.new(Rack::Lint.new($cgi))
     Rack::Server.start :app => app, :Port => port
   else
+    # standard objects
+    $params = $cgi.params
+
+    # get arguments if CGI couldn't find any... 
+    $params.merge!(CGI.parse(ARGV.join('&'))) if $params.empty?
+
+    # fast path for accessing CGI parameters
+    def $params.method_missing(name)
+      if has_key? name.to_s
+        if self[name.to_s].length == 1
+          self[name.to_s].first.extend(Wunderbar::Untaint)
+        else
+          self[name.to_s].join 
+        end
+      end
+    end
+
     # CGI or command line
     Wunderbar.call(ENV)
   end

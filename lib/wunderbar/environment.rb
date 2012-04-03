@@ -1,42 +1,17 @@
 # explicit request types
-$HTTP_GET  = ARGV.delete('--get')
-$HTTP_POST = ARGV.delete('--post')
-$XHR_JSON  = ARGV.delete('--json')
-$TEXT      = ARGV.delete('--text')
-
-# Only prompt if explicitly asked for
-ARGV.push '' if ARGV.empty?
-ARGV.delete('--prompt') or ARGV.delete('--offline')
-
-# standard objects
-$cgi = CGI.new
-$params = $cgi.params
-
-# implied request types
-$HTTP_GET  ||= ($cgi.request_method == 'GET')
-$HTTP_POST ||= ($cgi.request_method == 'POST')
-$XHR_JSON  ||= ($cgi.accept.to_s =~ /json/)
-$TEXT      ||= ($cgi.accept.to_s =~ /plain/ and $cgi.accept.to_s !~ /html/)
-$XHTML     = ($cgi.accept.to_s =~ /xhtml/ or $cgi.accept == nil)
-
-# get arguments if CGI couldn't find any... 
-$params.merge!(CGI.parse(ARGV.join('&'))) if $params.empty?
+module Wunderbar
+  module Options
+    HTTP_GET  = ARGV.delete('--get')
+    HTTP_POST = ARGV.delete('--post')
+    XHR_JSON  = ARGV.delete('--json')
+    TEXT      = ARGV.delete('--text')
+  end
+end
 
 module Wunderbar
   module Untaint
     def untaint_if_match regexp
       self.untaint if regexp.match(self)
-    end
-  end
-end
-
-# fast path for accessing CGI parameters
-def $params.method_missing(name)
-  if has_key? name.to_s
-    if self[name.to_s].length == 1
-      self[name.to_s].first.extend(Wunderbar::Untaint)
-    else
-      self[name.to_s].join 
     end
   end
 end
@@ -77,10 +52,6 @@ ENV['REMOTE_USER'] ||= $USER
 
 $HOME = ENV['HOME'] ||= File.expand_path('~' + $USER)
 $SERVER = ENV['HTTP_HOST'] || `hostname`.chomp
-
-# more implied request types
-$XHR_JSON  ||= ($env.REQUEST_URI.to_s =~ /\?json$/)
-$TEXT      ||= ($env.REQUEST_URI.to_s =~ /\?text$/)
 
 # set encoding to UTF-8
 ENV['LANG'] ||= "en_US.UTF-8"
