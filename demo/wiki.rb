@@ -154,7 +154,7 @@ W_.html do
           hash:   $('input[name=hash]').val()
         };
 
-        $.getJSON("#{SELF}", params, function(_) {
+        $.getJSON("#{_.SELF}", params, function(_) {
           $('input[name=hash]').val(_.hash);
           if (_.time) {
             var time = new Date(_.time).toLocaleTimeString();

@@ -127,40 +127,39 @@ module Wunderbar
     @queue << [:text, args, block]
   end
 
-  def self.evaluate
-    queue, @queue = @queue, []
-    xhtml = ARGV.delete('--xhtml')
-    html  = ARGV.delete('--html')
+  def self.call(env)
+    xhtml = ARGV.include?('--xhtml')
+    html  = ARGV.include?('--html')
 
-    queue.each do |type, args, block|
+    @queue.each do |type, args, block|
       case type
       when :html
         unless $XHR_JSON or $TEXT
           $XHTML = false unless xhtml
           CGI.html(*args, &block)
-          break
+          return
         end
       when :xhtml
         unless $XHR_JSON or $TEXT
           $XHTML = false if html
           CGI.html(*args, &block)
-          break
+          return
         end
       when :json
         if $XHR_JSON
           CGI.json(*args, &block)
-          break
+          return
         end
       when :text
         if $TEXT
           CGI.text(*args, &block)
-          break
+          return
         end
       end
     end
   end
-end
 
-at_exit do
-  Wunderbar.evaluate
+  def self.clear!
+    @queue.clear
+  end
 end

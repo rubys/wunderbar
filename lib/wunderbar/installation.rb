@@ -1,3 +1,18 @@
+module Wunderbar
+  # Extract data from the script (after __END__)
+  def self.data
+    data = DATA.read 
+
+    # process argument overrides
+    data.scan(/^\s*([A-Z]\w*)\s*=\s*(['"]).*\2$/).each do |name, q|
+      override = ARGV.find {|arg| arg =~ /--#{name}=(.*)/i}
+      data[/^\s*#{name}\s*=\s*(.*)/,1] = $1.inspect if override
+    end
+
+    data
+  end
+end
+
 # option to create an suexec callable wrapper
 install = ARGV.find {|arg| arg =~ /--install=(.*)/}
 if install and ARGV.delete(install)
@@ -40,17 +55,7 @@ if install and ARGV.delete(install)
     file.puts "Dir.chdir #{File.dirname(main).inspect}"
 
     # Optional data from the script (after __END__)
-    if Object.const_defined? :DATA
-      data = DATA.read 
-
-      # process argument overrides
-      data.scan(/^\s*([A-Z]\w*)\s*=\s*(['"]).*\2$/).each do |name, q|
-        override = ARGV.find {|arg| arg =~ /--#{name}=(.*)/}
-        data[/^\s*#{name}\s*=\s*(.*)/,1] = $1.inspect if override
-      end
-
-      file.puts "\n#{data}\n"
-    end
+    file.puts "\n#{Wunderbar.data}\n" if Object.const_defined? :DATA
 
     # Load script
     require = "require #{"./#{File.basename(main).sub(/\.rb$/,'')}".inspect}"

@@ -51,12 +51,17 @@ def $env.method_missing(name)
 end
 
 # quick access to request_uri
-SELF = ENV['REQUEST_URI'].to_s
-def SELF?
-  if SELF.include? '?'
-    SELF
-  else
-    SELF + "?" # avoids spoiling the cache
+module Wunderbar
+  def self.SELF 
+    $env.REQUEST_URI
+  end
+
+  def self.SELF?
+    if SELF '?'
+      self.self
+    else
+      SELF + "?" # avoids spoiling the cache
+    end
   end
 end
 
