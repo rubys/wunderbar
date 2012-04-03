@@ -262,12 +262,12 @@ output stream, which provides access to other useful methods, for example:
 
 Globals provided
 ---
-* `$cgi`   - Common Gateway Interface
-* `$param` - Access to parameters (read-only OpenStruct like interface)
-* `$env`  - Access to environment variables (read-only OpenStruct like interface)
-* `$USER`  - Host user id
-* `$HOME`  - Home directory
-* `$SERVER`- Server name
+* `$cgi`    - Common Gateway Interface
+* `$params` - Access to parameters (read-only OpenStruct like interface)
+* `$env`    - Access to environment variables (read-only OpenStruct like interface)
+* `$USER`   - Host user id
+* `$HOME`   - Home directory
+* `$SERVER` - Server name
 * `$HOME`   - user's home directory
 * `$HOST`   - server host
 * `$HTTP_GET`   - request is an HTTP GET

@@ -10,7 +10,7 @@ ARGV.delete('--prompt') or ARGV.delete('--offline')
 
 # standard objects
 $cgi = CGI.new
-$param = $cgi.params
+$params = $cgi.params
 
 # implied request types
 $HTTP_GET  ||= ($cgi.request_method == 'GET')
@@ -20,7 +20,7 @@ $TEXT      ||= ($cgi.accept.to_s =~ /plain/ and $cgi.accept.to_s !~ /html/)
 $XHTML     = ($cgi.accept.to_s =~ /xhtml/ or $cgi.accept == nil)
 
 # get arguments if CGI couldn't find any... 
-$param.merge!(CGI.parse(ARGV.join('&'))) if $param.empty?
+$params.merge!(CGI.parse(ARGV.join('&'))) if $params.empty?
 
 module Wunderbar
   module Untaint
@@ -31,7 +31,7 @@ module Wunderbar
 end
 
 # fast path for accessing CGI parameters
-def $param.method_missing(name)
+def $params.method_missing(name)
   if has_key? name.to_s
     if self[name.to_s].length == 1
       self[name.to_s].first.extend(Wunderbar::Untaint)

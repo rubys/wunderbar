@@ -5,7 +5,7 @@ module Wunderbar
     # produce json
     def self.json(&block)
       builder = JsonBuilder.new
-      output = builder.encode($param, &block)
+      output = builder.encode($params, &block)
       Kernel.print "Status: 404 Not Found\r\n" if output == {}
     rescue Exception => exception
       Kernel.print "Status: 500 Internal Error\r\n"
@@ -29,7 +29,7 @@ module Wunderbar
     # produce text
     def self.text &block
       builder = TextBuilder.new
-      output = builder.encode($param, &block)
+      output = builder.encode($params, &block)
       Kernel.print "Status: 404 Not Found\r\n" if output == ''
     rescue Exception => exception
       Wunderbar.error exception.inspect

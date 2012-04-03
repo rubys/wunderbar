@@ -11,7 +11,7 @@ class HtmlMarkup
 
   def html(*args, &block)
     @x.tag! :html, *args do 
-      $param.each do |key,value| 
+      $params.each do |key,value| 
         value = value.first if Array == value
         instance_variable_set "@#{key}", value if key =~ /^\w+$/
       end
