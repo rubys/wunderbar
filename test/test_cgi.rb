@@ -118,7 +118,7 @@ class CGITest < Test::Unit::TestCase
 
     Wunderbar::CGI.call(ENV)
 
-    assert_match %r{Status: 500 Internal Error\r\n}, $stdout.string
+    assert_match %r{Status: 500 Internal Server Error\r\n}, $stdout.string
     assert_match %r{^Content-Type: application/json\r\n}, $stdout.string
     assert_match %r{^\s+"exception": ".*NameError.*error_undefined}, 
       $stdout.string
@@ -146,7 +146,8 @@ class CGITest < Test::Unit::TestCase
 
     Wunderbar::CGI.call(ENV)
 
-    assert_match %r{^Content-Type: text/plain\r\n}, $stdout.string
+    assert_match %r{^Content-Type: text/plain; charset=UTF-8\r\n}, 
+      $stdout.string
     assert_match %r{\r\n\r\nIt Worked!\n\Z}, $stdout.string
   end
 
@@ -159,7 +160,7 @@ class CGITest < Test::Unit::TestCase
 
     Wunderbar::CGI.call(ENV)
 
-    assert_match %r{^Content-Type: text/plain\r\n}, $stdout.string
+    assert_match %r{^Content-Type: text/plain}, $stdout.string
     assert_match %r{\r\n\r\nIt Worked!\n\Z}, $stdout.string
   end
 
@@ -172,7 +173,7 @@ class CGITest < Test::Unit::TestCase
     Wunderbar::CGI.call(ENV)
 
     assert_match %r{Status: 404 Not Found\r\n}, $stdout.string
-    assert_match %r{^Content-Type: text/plain\r\n}, $stdout.string
+    assert_match %r{^Content-Type: text/plain}, $stdout.string
     assert_match %r{\r\n\r\n\Z}, $stdout.string
   end
 
@@ -185,8 +186,8 @@ class CGITest < Test::Unit::TestCase
 
     Wunderbar::CGI.call(ENV)
 
-    assert_match %r{Status: 500 Internal Error\r\n}, $stdout.string
-    assert_match %r{^Content-Type: text/plain\r\n}, $stdout.string
+    assert_match %r{Status: 500 Internal Server Error\r\n}, $stdout.string
+    assert_match %r{^Content-Type: text/plain}, $stdout.string
     assert_match %r{NameError.*error_undefined}, $stdout.string
     assert_match %r{^_ERROR.*NameError.*error_undefined}, $stderr.string
   end

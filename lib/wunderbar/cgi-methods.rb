@@ -4,12 +4,13 @@ module Wunderbar
 
     # produce json
     def self.json(&block)
+      headers = { 'type' => 'application/json', 'Cache-Control' => 'no-cache' }
       builder = JsonBuilder.new
       output = builder.encode($params, &block)
-      Kernel.print "Status: 404 Not Found\r\n" if output == {}
+      headers['status'] =  "404 Not Found" if output == {}
     rescue Exception => exception
-      Kernel.print "Status: 500 Internal Error\r\n"
       Wunderbar.error exception.inspect
+      headers['status'] =  "500 Internal Server Error"
       backtrace = []
       exception.backtrace.each do |frame| 
         next if frame =~ %r{/wunderbar/}
@@ -21,19 +22,18 @@ module Wunderbar
       builder._exception exception.inspect
       builder._backtrace backtrace
     ensure
-      out? 'type' => 'application/json', 'Cache-Control' => 'no-cache' do
-        builder.target!
-      end
+      out?(headers) { builder.target!}
     end
 
     # produce text
     def self.text &block
+      headers = {'type' => 'text/plain', 'charset' => 'UTF-8'}
       builder = TextBuilder.new
       output = builder.encode($params, &block)
-      Kernel.print "Status: 404 Not Found\r\n" if output == ''
+      headers['status'] =  "404 Not Found" if output == ''
     rescue Exception => exception
       Wunderbar.error exception.inspect
-      Kernel.print "Status: 500 Internal Error\r\n"
+      headers['status'] =  "500 Internal Server Error"
       builder.puts unless builder.size == 0
       builder.puts exception.inspect
       exception.backtrace.each do |frame| 
@@ -43,9 +43,7 @@ module Wunderbar
         builder.puts "  #{frame}"
       end
     ensure
-      out? 'type' => 'text/plain', 'Cache-Control' => 'no-cache' do
-        builder.target!
-      end
+      out?(headers) { builder.target!}
     end
 
     # Conditionally provide output, based on ETAG

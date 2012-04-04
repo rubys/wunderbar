@@ -22,6 +22,14 @@ at_exit do
 
     # redirect the output produced
     def $cgi.out(headers,&block)
+      # map Ruby CGI headers to Rack headers
+      status = headers.delete('status')
+      @response.status = status if status
+      type = headers.delete('type') || 'text/html'
+      charset = headers.delete('charset')
+      type = "#{type}; charset=#{charset}" if charset
+      headers['Content-Type'] ||= type
+
       headers.each { |key, value| @response[key] = value }
       @response.write block.call unless @request.head?
     end
