@@ -59,7 +59,7 @@ class HtmlMarkupTest < Test::Unit::TestCase
   end
 
   def test_script_xhtml
-    @x.html(:xmlns => 'http://www.w3.org/1999/xhtml') {_script "if (i<1) {}"}
+    @x.xhtml {_script "if (i<1) {}"}
     assert_match %r[<script.*>\s*if \(i&lt;1\) \{\}\s*</script>], target
   end
 

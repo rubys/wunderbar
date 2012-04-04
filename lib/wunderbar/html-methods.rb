@@ -7,16 +7,18 @@ class HtmlMarkup
 
   def initialize(*args, &block)
     @x = Wunderbar::XmlMarkup.new :indent => 2, :target => []
+    @xthml = false
+  end
+
+  def xhtml(*args, &block)
+    @xhtml = true
+    html(*args, &block)
   end
 
   def html(*args, &block)
-    # xhtml/namespace processing
-    @xhtml = false
+    # default namespace
     args << {} if args.empty?
-    if Hash === args.first
-      @xhtml = (args.first[:xmlns] == 'http://www.w3.org/1999/xhtml')
-      args.first[:xmlns] ||= 'http://www.w3.org/1999/xhtml'
-    end
+    args.first[:xmlns] ||= 'http://www.w3.org/1999/xhtml' if Hash === args.first
 
     @x.tag! :html, *args do 
       $params.each do |key,value| 

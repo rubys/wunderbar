@@ -16,7 +16,7 @@ at_exit do
       $env = OpenStruct.new(env)
       $params = @request.params
 
-      Wunderbar.call(env)
+      Wunderbar::CGI.call(env)
       @response.finish
     end
 
@@ -57,6 +57,6 @@ at_exit do
     end
 
     # CGI or command line
-    Wunderbar.call(ENV)
+    Wunderbar::CGI.call(ENV)
   end
 end

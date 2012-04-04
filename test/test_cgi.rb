@@ -7,7 +7,7 @@ class CGITest < Test::Unit::TestCase
   def setup
     @stdout, @stderr = $stdout, $stderr
     $stdout, $stderr = StringIO.new, StringIO.new
-    Wunderbar.clear!
+    Wunderbar.queue.clear
     Wunderbar.logger = nil
     @accept = ENV['HTTP_ACCEPT']
   end
@@ -23,7 +23,7 @@ class CGITest < Test::Unit::TestCase
       _body
     end
 
-    Wunderbar.call(ENV)
+    Wunderbar::CGI.call(ENV)
 
     assert_match %r{^Content-Type: text/html; charset=UTF-8\r\n}, $stdout.string
     assert_match %r{^Etag: "\w+"\r\n}, $stdout.string
@@ -37,7 +37,7 @@ class CGITest < Test::Unit::TestCase
       end
     end
 
-    Wunderbar.call(ENV)
+    Wunderbar::CGI.call(ENV)
 
     assert_match %r{Status: 500 Internal Error\r\n}, $stdout.string
     assert_match %r{^Content-Type: text/html; charset=UTF-8\r\n}, $stdout.string
@@ -51,7 +51,7 @@ class CGITest < Test::Unit::TestCase
       _.fatal 'oh, dear'
     end
 
-    Wunderbar.call(ENV)
+    Wunderbar::CGI.call(ENV)
 
     assert_equal "_FATAL oh, dear\n", $stderr.string
   end
@@ -63,7 +63,7 @@ class CGITest < Test::Unit::TestCase
       _body
     end
 
-    Wunderbar.call(ENV)
+    Wunderbar::CGI.call(ENV)
 
     assert_match %r{^Content-Type: application/xhtml\+xml; charset=UTF-8\r\n},
       $stdout.string
@@ -77,7 +77,7 @@ class CGITest < Test::Unit::TestCase
       _body
     end
 
-    Wunderbar.call(ENV)
+    Wunderbar::CGI.call(ENV)
 
     assert_match %r{^Content-Type: text/html; charset=UTF-8\r\n}, $stdout.string
     assert_match %r{^\s+<body></body>$}, $stdout.string
@@ -90,7 +90,7 @@ class CGITest < Test::Unit::TestCase
       _ :response => 'It Worked!'
     end
 
-    Wunderbar.call(ENV)
+    Wunderbar::CGI.call(ENV)
 
     assert_match %r{^Content-Type: application/json\r\n}, $stdout.string
     assert_match %r{^\s+"response": "It Worked!"}, $stdout.string
@@ -102,7 +102,7 @@ class CGITest < Test::Unit::TestCase
     Wunderbar.json do
     end
 
-    Wunderbar.call(ENV)
+    Wunderbar::CGI.call(ENV)
 
     assert_match %r{Status: 404 Not Found\r\n}, $stdout.string
     assert_match %r{^Content-Type: application/json\r\n}, $stdout.string
@@ -116,7 +116,7 @@ class CGITest < Test::Unit::TestCase
       error_undefined
     end
 
-    Wunderbar.call(ENV)
+    Wunderbar::CGI.call(ENV)
 
     assert_match %r{Status: 500 Internal Error\r\n}, $stdout.string
     assert_match %r{^Content-Type: application/json\r\n}, $stdout.string
@@ -132,7 +132,7 @@ class CGITest < Test::Unit::TestCase
       _.fatal 'oh, dear'
     end
 
-    Wunderbar.call(ENV)
+    Wunderbar::CGI.call(ENV)
 
     assert_equal "_FATAL oh, dear\n", $stderr.string
   end
@@ -144,7 +144,7 @@ class CGITest < Test::Unit::TestCase
       _ 'It Worked!'
     end
 
-    Wunderbar.call(ENV)
+    Wunderbar::CGI.call(ENV)
 
     assert_match %r{^Content-Type: text/plain\r\n}, $stdout.string
     assert_match %r{\r\n\r\nIt Worked!\n\Z}, $stdout.string
@@ -157,7 +157,7 @@ class CGITest < Test::Unit::TestCase
       _.printf "%s Worked!\n", 'It'
     end
 
-    Wunderbar.call(ENV)
+    Wunderbar::CGI.call(ENV)
 
     assert_match %r{^Content-Type: text/plain\r\n}, $stdout.string
     assert_match %r{\r\n\r\nIt Worked!\n\Z}, $stdout.string
@@ -169,7 +169,7 @@ class CGITest < Test::Unit::TestCase
     Wunderbar.text do
     end
 
-    Wunderbar.call(ENV)
+    Wunderbar::CGI.call(ENV)
 
     assert_match %r{Status: 404 Not Found\r\n}, $stdout.string
     assert_match %r{^Content-Type: text/plain\r\n}, $stdout.string
@@ -183,7 +183,7 @@ class CGITest < Test::Unit::TestCase
       error_undefined
     end
 
-    Wunderbar.call(ENV)
+    Wunderbar::CGI.call(ENV)
 
     assert_match %r{Status: 500 Internal Error\r\n}, $stdout.string
     assert_match %r{^Content-Type: text/plain\r\n}, $stdout.string
@@ -198,7 +198,7 @@ class CGITest < Test::Unit::TestCase
       _.fatal 'oh, dear'
     end
 
-    Wunderbar.call(ENV)
+    Wunderbar::CGI.call(ENV)
 
     assert_equal "_FATAL oh, dear\n", $stderr.string
   end

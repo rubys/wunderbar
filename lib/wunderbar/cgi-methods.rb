@@ -66,18 +66,16 @@ module Wunderbar
 
     # produce html/xhtml
     def self.html(*args, &block)
-      if Hash === args.first and args.first[:xmlns] == 'http://www.w3.org/1999/xhtml'
-        mimetype = 'application/xhtml+xml'
-      else
-        mimetype = 'text/html'
-      end
-
       x = HtmlMarkup.new
       x._! "\xEF\xBB\xBF"
       x._.declare :DOCTYPE, :html
 
       begin
-        output = x.html *args, &block
+        if @xhtml
+          output = x.xhtml *args, &block
+        else
+          output = x.html *args, &block
+        end
       rescue ::Exception => exception
         Kernel.print "Status: 500 Internal Error\r\n"
         x.clear!
@@ -103,8 +101,57 @@ module Wunderbar
         end
       end
 
+      mimetype = (@xhtml ? 'application/xhtml+xml' : 'text/html')
       out? 'type' => mimetype, 'charset' => 'UTF-8' do
         output
+      end
+    end
+
+    def self.call(env)
+      require 'etc'
+      $USER = ENV['REMOTE_USER'] ||= ENV['USER'] || Etc.getlogin
+
+      accept         = $env.HTTP_ACCEPT.to_s
+      request_uri    = $env.REQUEST_URI.to_s
+
+      # implied request types
+      xhr_json = Wunderbar::Options::XHR_JSON  || (accept =~ /json/)
+      text = Wunderbar::Options::TEXT || 
+        (accept =~ /plain/ and accept !~ /html/)
+      @xhtml = (accept =~ /xhtml/ or accept == '')
+
+      # overrides via the uri query parameter
+      xhr_json  ||= (request_uri =~ /\?json$/)
+      text       ||= (request_uri =~ /\?text$/)
+
+      # overrides via the command line
+      xhtml_override = ARGV.include?('--xhtml')
+      html_override  = ARGV.include?('--html')
+
+      Wunderbar.queue.each do |type, args, block|
+        case type
+        when :html, :xhtml
+          unless xhr_json or text
+            if type == :html
+              @xhtml = false unless xhtml_override
+            else
+              @xhtml = false if html_override
+            end
+
+            self.html(*args, &block)
+            return
+          end
+        when :json
+          if xhr_json
+            self.json(*args, &block)
+            return
+          end
+        when :text
+          if text
+            self.text(*args, &block)
+            return
+          end
+        end
       end
     end
   end
@@ -128,61 +175,7 @@ module Wunderbar
     @queue << [:text, args, block]
   end
 
-  def self.call(env)
-    require 'etc'
-    $USER = ENV['REMOTE_USER'] ||= ENV['USER'] || Etc.getlogin
-
-    accept         = $env.HTTP_ACCEPT.to_s
-    request_uri    = $env.REQUEST_URI.to_s
-
-    # implied request types
-    xhr_json = Wunderbar::Options::XHR_JSON  || (accept =~ /json/)
-    text = Wunderbar::Options::TEXT || (accept =~ /plain/ and accept !~ /html/)
-    xhtml = (accept =~ /xhtml/ or accept == '')
-
-    # overrides via the uri query parameter
-    xhr_json  ||= (request_uri =~ /\?json$/)
-    text       ||= (request_uri =~ /\?text$/)
-
-    # overrides via the command line
-    xhtml_override = ARGV.include?('--xhtml')
-    html_override  = ARGV.include?('--html')
-
-    @queue.each do |type, args, block|
-      case type
-      when :html, :xhtml
-        unless xhr_json or text
-          if type == :html
-            xhtml = false unless xhtml_override
-          else
-            xhtml = false if html_override
-          end
-
-          if xhtml
-            args << {} if args.empty?
-            if Hash === args.first
-              args.first[:xmlns] ||= 'http://www.w3.org/1999/xhtml'
-            end
-          end
-
-          CGI.html(*args, &block)
-          return
-        end
-      when :json
-        if xhr_json
-          CGI.json(*args, &block)
-          return
-        end
-      when :text
-        if text
-          CGI.text(*args, &block)
-          return
-        end
-      end
-    end
-  end
-
-  def self.clear!
-    @queue.clear
+  def self.queue
+    @queue
   end
 end
