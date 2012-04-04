@@ -25,7 +25,7 @@ module Wunderbar
   end
 
   # was this invoked via HTTP POST?
-  def post?
+  def self.post?
     $env.REQUEST_METHOD.to_s.upcase == 'POST'
   end
 end
@@ -42,7 +42,7 @@ end
 
 require 'socket'
 $SERVER = ENV['HTTP_HOST'] || Socket::gethostname
-$HOME = ENV['HOME'] ||= File.expand_path("~#{Etc.getlogin}")
+$HOME = ENV['HOME'] ||= Dir.home() rescue nil
 
 # set encoding to UTF-8
 ENV['LANG'] ||= "en_US.UTF-8"

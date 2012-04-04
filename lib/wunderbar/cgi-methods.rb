@@ -129,6 +129,7 @@ module Wunderbar
   end
 
   def self.call(env)
+    require 'etc'
     $USER = ENV['REMOTE_USER'] ||= ENV['USER'] || Etc.getlogin
 
     accept         = $env.HTTP_ACCEPT.to_s
