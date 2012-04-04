@@ -19,7 +19,8 @@ class HtmlMarkupTest < Test::Unit::TestCase
 
   def test_html
     @x.html {}
-    assert_equal %{<html>\n</html>\n}, target
+    assert_equal %{<html xmlns="http://www.w3.org/1999/xhtml">\n</html>\n},
+      target
   end
 
   def test_void_element
@@ -53,14 +54,12 @@ class HtmlMarkupTest < Test::Unit::TestCase
   end
 
   def test_script_html
-    $XHTML = false
     @x.html {_script "if (i<1) {}"}
     assert_match %r[<script.*>\s*if \(i<1\) \{\}\s*</script>], target
   end
 
   def test_script_xhtml
-    $XHTML = true
-    @x.html {_script "if (i<1) {}"}
+    @x.html(:xmlns => 'http://www.w3.org/1999/xhtml') {_script "if (i<1) {}"}
     assert_match %r[<script.*>\s*if \(i&lt;1\) \{\}\s*</script>], target
   end
 

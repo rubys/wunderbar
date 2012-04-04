@@ -164,11 +164,6 @@ module Wunderbar
     def comment(*args)
       @x.comment! *args
     end
-
-    # was this invoked via HTTP POST?
-    def post?
-      $HTTP_POST
-    end
   end
 
   class TextBuilder

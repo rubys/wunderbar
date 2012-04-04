@@ -1,8 +1,6 @@
 # explicit request types
 module Wunderbar
   module Options
-    HTTP_GET  = ARGV.delete('--get')
-    HTTP_POST = ARGV.delete('--post')
     XHR_JSON  = ARGV.delete('--json')
     TEXT      = ARGV.delete('--text')
   end
@@ -24,6 +22,11 @@ module Wunderbar
     else
       SELF + "?" # avoids spoiling the cache
     end
+  end
+
+  # was this invoked via HTTP POST?
+  def post?
+    $env.REQUEST_METHOD.to_s.upcase == 'POST'
   end
 end
 

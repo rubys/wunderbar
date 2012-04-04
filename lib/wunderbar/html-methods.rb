@@ -10,6 +10,14 @@ class HtmlMarkup
   end
 
   def html(*args, &block)
+    # xhtml/namespace processing
+    @xhtml = false
+    args << {} if args.empty?
+    if Hash === args.first
+      @xhtml = (args.first[:xmlns] == 'http://www.w3.org/1999/xhtml')
+      args.first[:xmlns] ||= 'http://www.w3.org/1999/xhtml'
+    end
+
     @x.tag! :html, *args do 
       $params.each do |key,value| 
         value = value.first if Array == value
@@ -18,6 +26,10 @@ class HtmlMarkup
       instance_exec(@x, &block)
     end
     @x.target!.join
+  end
+
+  def xhtml?
+    @xhtml
   end
 
   def method_missing(name, *args, &block)
@@ -37,7 +49,7 @@ class HtmlMarkup
       if %w(script style).include?(name)
         if String === args.first and not block
           text = args.shift
-          if $XHTML
+          if @xhtml
             block = Proc.new {@x.indented_text! text}
           else
             block = Proc.new {@x.indented_data! text}

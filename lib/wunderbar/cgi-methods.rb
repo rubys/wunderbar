@@ -66,11 +66,12 @@ module Wunderbar
 
     # produce html/xhtml
     def self.html(*args, &block)
-      args << {} if args.empty?
-      if Hash === args.first
-        args.first[:xmlns] ||= 'http://www.w3.org/1999/xhtml'
+      if Hash === args.first and args.first[:xmlns] == 'http://www.w3.org/1999/xhtml'
+        mimetype = 'application/xhtml+xml'
+      else
+        mimetype = 'text/html'
       end
-      mimetype = ($XHTML ? 'application/xhtml+xml' : 'text/html')
+
       x = HtmlMarkup.new
       x._! "\xEF\xBB\xBF"
       x._.declare :DOCTYPE, :html
@@ -130,47 +131,49 @@ module Wunderbar
   def self.call(env)
     $USER = ENV['REMOTE_USER'] ||= ENV['USER'] || Etc.getlogin
 
-    request_method = $env.REQUEST_METHOD.to_s
     accept         = $env.HTTP_ACCEPT.to_s
     request_uri    = $env.REQUEST_URI.to_s
 
     # implied request types
-    $HTTP_GET  = Wunderbar::Options::HTTP_GET  || (request_method == 'GET')
-    $HTTP_POST = Wunderbar::Options::HTTP_POST || (request_method == 'POST')
-    $XHR_JSON  = Wunderbar::Options::XHR_JSON  || (accept =~ /json/)
-    $XHTML     = (accept =~ /xhtml/ or accept == '')
-    $TEXT      = Wunderbar::Options::TEXT ||
-      (accept =~ /plain/ and accept !~ /html/)
+    xhr_json = Wunderbar::Options::XHR_JSON  || (accept =~ /json/)
+    text = Wunderbar::Options::TEXT || (accept =~ /plain/ and accept !~ /html/)
+    xhtml = (accept =~ /xhtml/ or accept == '')
 
     # overrides via the uri query parameter
-    $XHR_JSON  ||= (request_uri =~ /\?json$/)
-    $TEXT      ||= (request_uri =~ /\?text$/)
+    xhr_json  ||= (request_uri =~ /\?json$/)
+    text       ||= (request_uri =~ /\?text$/)
 
     # overrides via the command line
-    xhtml = ARGV.include?('--xhtml')
-    html  = ARGV.include?('--html')
+    xhtml_override = ARGV.include?('--xhtml')
+    html_override  = ARGV.include?('--html')
 
     @queue.each do |type, args, block|
       case type
-      when :html
-        unless $XHR_JSON or $TEXT
-          $XHTML = false unless xhtml
-          CGI.html(*args, &block)
-          return
-        end
-      when :xhtml
-        unless $XHR_JSON or $TEXT
-          $XHTML = false if html
+      when :html, :xhtml
+        unless xhr_json or text
+          if type == :html
+            xhtml = false unless xhtml_override
+          else
+            xhtml = false if html_override
+          end
+
+          if xhtml
+            args << {} if args.empty?
+            if Hash === args.first
+              args.first[:xmlns] ||= 'http://www.w3.org/1999/xhtml'
+            end
+          end
+
           CGI.html(*args, &block)
           return
         end
       when :json
-        if $XHR_JSON
+        if xhr_json
           CGI.json(*args, &block)
           return
         end
       when :text
-        if $TEXT
+        if text
           CGI.text(*args, &block)
           return
         end

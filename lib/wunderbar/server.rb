@@ -35,6 +35,10 @@ at_exit do
     app = Rack::ShowExceptions.new(Rack::Lint.new($cgi))
     Rack::Server.start :app => app, :Port => port
   else
+    # allow the REQUEST_METHOD to be set for command line invocations
+    ENV['REQUEST_METHOD'] ||= 'POST' if ARGV.delete('--post')
+    ENV['REQUEST_METHOD'] ||= 'GET'  if ARGV.delete('--get')
+
     # standard objects
     $params = $cgi.params
 

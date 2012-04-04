@@ -270,11 +270,6 @@ Globals provided
 * `$SERVER` - Server name
 * `$HOME`   - user's home directory
 * `$HOST`   - server host
-* `$HTTP_GET`   - request is an HTTP GET
-* `$HTTP_POST`  - request is an HTTP POST
-* `$XHR_JSON`   - request is XmlHttpRequest for JSON
-* `$XHTML`      - user agent accepts XHTML responses
-* `$TEXT`       - user agent accepts plain text responses
 
 Also, the following environment variables are set if they aren't already:
 
@@ -292,6 +287,7 @@ HTML methods
 * `_svg`: insert svg namespace
 * `_math`: insert math namespace
 * `_coffeescript`: convert [coffeescript](http://coffeescript.org/) to JS and insert script tag
+* `xhtml?`: output as XHTML?
 
 Note that adding an exclamation mark to the end of the tag name disables this
 behavior.
