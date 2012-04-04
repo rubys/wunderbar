@@ -2,6 +2,9 @@ module Wunderbar
 
   module CGI
 
+    HIDE_FRAME = [ %r{/(wunderbar|webrick)/},
+                   %r{/gems/.*/(builder|rack|sinatra)/} ]
+
     # produce json
     def self.json(&block)
       headers = { 'type' => 'application/json', 'Cache-Control' => 'no-cache' }
@@ -13,8 +16,7 @@ module Wunderbar
       headers['status'] =  "500 Internal Server Error"
       backtrace = []
       exception.backtrace.each do |frame| 
-        next if frame =~ %r{/wunderbar/}
-        next if frame =~ %r{/gems/.*/builder/}
+        next if HIDE_FRAME.any? {|re| frame =~ re}
         Wunderbar.warn "  #{frame}"
         backtrace << frame 
       end
@@ -37,8 +39,7 @@ module Wunderbar
       builder.puts unless builder.size == 0
       builder.puts exception.inspect
       exception.backtrace.each do |frame| 
-        next if frame =~ %r{/wunderbar/}
-        next if frame =~ %r{/gems/.*/builder/}
+        next if HIDE_FRAME.any? {|re| frame =~ re}
         Wunderbar.warn "  #{frame}"
         builder.puts "  #{frame}"
       end
@@ -91,8 +92,7 @@ module Wunderbar
             text = exception.inspect
             Wunderbar.error text
             exception.backtrace.each do |frame| 
-              next if frame =~ %r{/wunderbar/}
-              next if frame =~ %r{/gems/.*/builder/}
+              next if HIDE_FRAME.any? {|re| frame =~ re}
               Wunderbar.warn "  #{frame}"
               text += "\n  #{frame}"
             end
@@ -126,6 +126,13 @@ module Wunderbar
       xhtml_override = ARGV.include?('--xhtml')
       html_override  = ARGV.include?('--html')
 
+      # disable conneg if only one handler is provided
+      if Wunderbar.queue.length == 1
+        type = Wunderbar.queue.first.first
+        xhr_json = (type == :json)
+        text     = (type == :text)
+      end
+
       Wunderbar.queue.each do |type, args, block|
         case type
         when :html, :xhtml
@@ -151,6 +158,16 @@ module Wunderbar
           end
         end
       end
+    end
+
+    # map Ruby CGI headers to Rack headers
+    def self.headers(headers)
+      result = headers.dup
+      type = result.delete('type') || 'text/html'
+      charset = result.delete('charset')
+      type = "#{type}; charset=#{charset}" if charset
+      result['Content-Type'] ||= type
+      result
     end
   end
 

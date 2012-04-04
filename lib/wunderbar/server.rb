@@ -22,15 +22,12 @@ at_exit do
 
     # redirect the output produced
     def $cgi.out(headers,&block)
-      # map Ruby CGI headers to Rack headers
       status = headers.delete('status')
       @response.status = status if status
-      type = headers.delete('type') || 'text/html'
-      charset = headers.delete('charset')
-      type = "#{type}; charset=#{charset}" if charset
-      headers['Content-Type'] ||= type
 
+      headers = Wunderbar::CGI.headers(headers)
       headers.each { |key, value| @response[key] = value }
+
       @response.write block.call unless @request.head?
     end
 
@@ -42,7 +39,68 @@ at_exit do
     require 'rack/showexceptions'
     app = Rack::ShowExceptions.new(Rack::Lint.new($cgi))
     Rack::Server.start :app => app, :Port => port
+
+  elsif defined? Sinatra
+
+    Tilt.register :_html, Wunderbar
+    Tilt.register :_xhtml, Wunderbar
+    Tilt.register :_json, Wunderbar
+    Tilt.register :_text, Wunderbar
+
+    # redirect the output produced
+    def $cgi.out(headers,&block)
+      status = headers.delete('status')
+      $sinatra.status status if status
+      $sinatra.headers Wunderbar::CGI.headers(headers)
+      $sinatra.body block.call unless $sinatra.request.head?
+    end
+
+    require 'thread'
+
+    def $cgi.helper(sinatra, &block)
+      return @semaphore = Mutex.new unless sinatra
+
+      @semaphore.synchronize do
+        $sinatra = sinatra
+        $params = OpenStruct.new(sinatra.params)
+        $env = OpenStruct.new(sinatra.env)
+        Wunderbar.queue.clear
+        block.call
+        Wunderbar::CGI.call($env)
+      end
+    end
+
+    $cgi.helper(nil) # allocate semaphore
+
+    # define helpers
+    helpers do
+      def _html(*args, &block)
+        $cgi.helper(self) do
+          Wunderbar.html(*args, &block)
+        end
+      end
+
+      def _xhtml(*args, &block)
+        $cgi.helper(self) do
+          Wunderbar.xhtml(*args, &block)
+        end
+      end
+
+      def _json(*args, &block)
+        $cgi.helper(self) do
+          Wunderbar.json(*args, &block)
+        end
+      end
+
+      def _text(*args, &block)
+        $cgi.helper(self) do
+          Wunderbar.text(*args, &block)
+        end
+      end
+    end
+
   else
+
     # allow the REQUEST_METHOD to be set for command line invocations
     ENV['REQUEST_METHOD'] ||= 'POST' if ARGV.delete('--post')
     ENV['REQUEST_METHOD'] ||= 'GET'  if ARGV.delete('--get')
