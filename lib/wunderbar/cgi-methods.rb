@@ -22,7 +22,7 @@ module Wunderbar
       builder._exception exception.inspect
       builder._backtrace backtrace
     ensure
-      out?(headers) { builder.target!}
+      out?(headers) { builder.target! }
     end
 
     # produce text
@@ -43,7 +43,7 @@ module Wunderbar
         builder.puts "  #{frame}"
       end
     ensure
-      out?(headers) { builder.target!}
+      out?(headers) { builder.target! }
     end
 
     # Conditionally provide output, based on ETAG
@@ -64,6 +64,9 @@ module Wunderbar
 
     # produce html/xhtml
     def self.html(*args, &block)
+      headers = { 'type' => 'text/html', 'charset' => 'UTF-8' }
+      headers['type'] = 'application/xhtml+xml' if @xhtml
+
       x = HtmlMarkup.new
       x._! "\xEF\xBB\xBF"
       x._.declare :DOCTYPE, :html
@@ -75,16 +78,16 @@ module Wunderbar
           output = x.html *args, &block
         end
       rescue ::Exception => exception
-        Kernel.print "Status: 500 Internal Error\r\n"
+        headers['status'] =  "500 Internal Server Error"
         x.clear!
         x._! "\xEF\xBB\xBF"
         x._.declare :DOCTYPE, :html
         output = x.html(*args) do
           _head do
-            _title 'Internal Error'
+            _title 'Internal Server Error'
           end
           _body do
-            _h1 'Internal Error'
+            _h1 'Internal Server Error'
             text = exception.inspect
             Wunderbar.error text
             exception.backtrace.each do |frame| 
@@ -99,10 +102,7 @@ module Wunderbar
         end
       end
 
-      mimetype = (@xhtml ? 'application/xhtml+xml' : 'text/html')
-      out? 'type' => mimetype, 'charset' => 'UTF-8' do
-        output
-      end
+      out?(headers) { output }
     end
 
     def self.call(env)

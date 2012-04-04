@@ -39,9 +39,9 @@ class CGITest < Test::Unit::TestCase
 
     Wunderbar::CGI.call(ENV)
 
-    assert_match %r{Status: 500 Internal Error\r\n}, $stdout.string
+    assert_match %r{Status: 500 Internal Server Error\r\n}, $stdout.string
     assert_match %r{^Content-Type: text/html; charset=UTF-8\r\n}, $stdout.string
-    assert_match %r{^\s+<h1>Internal Error</h1>$}, $stdout.string
+    assert_match %r{^\s+<h1>Internal Server Error</h1>$}, $stdout.string
     assert_match %r{^\s+<pre>.*NameError.*error_undefined}, $stdout.string
     assert_match %r{^_ERROR.*NameError.*error_undefined}, $stderr.string
   end
