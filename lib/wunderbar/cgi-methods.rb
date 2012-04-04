@@ -52,8 +52,8 @@ module Wunderbar
       require 'digest/md5'
       etag = Digest::MD5.hexdigest(content)
 
-      if ENV['HTTP_IF_NONE_MATCH'] == etag.inspect
-        Kernel.print "Status: 304 Not Modified\r\n\r\n"
+      if $env.HTTP_IF_NONE_MATCH == etag.inspect
+        $cgi.out 'status' => '304 Not Modified'
       else
         $cgi.out headers.merge('Etag' => etag.inspect) do
           content
