@@ -42,10 +42,10 @@ at_exit do
 
   elsif defined? Sinatra
 
-    Tilt.register :_html, Wunderbar
+    Tilt.register :_html,  Wunderbar
     Tilt.register :_xhtml, Wunderbar
-    Tilt.register :_json, Wunderbar
-    Tilt.register :_text, Wunderbar
+    Tilt.register :_json,  Wunderbar
+    Tilt.register :_text,  Wunderbar
 
     # redirect the output produced
     def $cgi.out(headers,&block)
@@ -62,7 +62,7 @@ at_exit do
 
       @semaphore.synchronize do
         $sinatra = sinatra
-        $params = OpenStruct.new(sinatra.params)
+        $params = sinatra.params
         $env = OpenStruct.new(sinatra.env)
         Wunderbar.queue.clear
         block.call
