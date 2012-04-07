@@ -75,29 +75,47 @@ module Wunderbar
   end
 
   class XmlMarkup
-    def initialize(*args)
-      @x = SpacedMarkup.new(*args)
+    def initialize(args)
+      @_scope = args.delete(:scope)
+      @_builder = SpacedMarkup.new(args)
     end
 
-    # forward to either Wunderbar or XmlMarkup
+    # forward to Wunderbar, XmlMarkup, or @_scope
     def method_missing(method, *args, &block)
       if Wunderbar.respond_to? method
         Wunderbar.send method, *args, &block
       elsif SpacedMarkup.public_instance_methods.include? method
-        @x.__send__ method, *args, &block
+        @_builder.__send__ method, *args, &block
       elsif SpacedMarkup.public_instance_methods.include? method.to_s
-        @x.__send__ method, *args, &block
+        @_builder.__send__ method, *args, &block
+      elsif @_scope and @_scope.respond_to? method
+        @_scope.send method, *args, &block
       else
         super
       end
     end
 
+    def methods
+      result = super + Wunderbar.methods
+      result += SpacedMarkup.public_instance_methods
+      result += @_scope.methods if @_scope
+      result.uniq
+    end
+
+    def respond_to?(method)
+      respond true if Wunderbar.respond_to? method
+      respond true if SpacedMarkup.public_instance_methods.include? method
+      respond true if SpacedMarkup.public_instance_methods.include?  method.to_s
+      respond true if @_scope and @_scope.respond_to? method?
+      super
+    end
+
     # avoid method_missing overhead for the most common case
     def tag!(sym, *args, &block)
       if !block and (args.empty? or args == [''])
-        CssProxy.new(@x, @x.target!, sym, args)
+        CssProxy.new(@_builder, @_builder.target!, sym, args)
       else
-        @x.tag! sym, *args, &block
+        @_builder.tag! sym, *args, &block
       end
     end
 
@@ -122,7 +140,7 @@ module Wunderbar
       stdout = output_class[:stdout] || '_stdout'
       stderr = output_class[:stderr] || '_stderr'
 
-      @x.tag! tag, command, :class=>stdin unless opts[:echo] == false
+      @_builder.tag! tag, command, :class=>stdin unless opts[:echo] == false
 
       require 'thread'
       semaphore = Mutex.new
@@ -131,14 +149,18 @@ module Wunderbar
           Thread.new do
             until pout.eof?
               out_line = pout.readline.chomp
-              semaphore.synchronize { @x.tag! tag, out_line, :class=>stdout }
+              semaphore.synchronize do
+                @_builder.tag! tag, out_line, :class=>stdout
+              end
             end
           end,
 
           Thread.new do
             until perr.eof?
               err_line = perr.readline.chomp
-              semaphore.synchronize { @x.tag! tag, err_line, :class=>stderr }
+              semaphore.synchronize do 
+                @_builder.tag! tag, err_line, :class=>stderr
+              end
             end
           end,
 
@@ -157,12 +179,12 @@ module Wunderbar
 
     # declaration (DOCTYPE, etc)
     def declare(*args)
-      @x.declare!(*args)
+      @_builder.declare!(*args)
     end
 
     # comment
     def comment(*args)
-      @x.comment! *args
+      @_builder.comment! *args
     end
   end
 
@@ -186,12 +208,14 @@ module Wunderbar
       self
     end
 
-    # forward to either Wunderbar or @_target
+    # forward to Wunderbar, @_target, or @_scope
     def method_missing(method, *args, &block)
       if Wunderbar.respond_to? method
         return Wunderbar.send method, *args, &block
       elsif @_target.respond_to? method
         return @_target.send method, *args, &block
+      elsif @_scope and @_scope.respond_to? method
+        return @_scope.send method, *args, &block
       else
         super
       end
@@ -203,7 +227,8 @@ module Wunderbar
   end
 
   class JsonBuilder
-    def initialize
+    def initialize(scope=nil)
+      @_scope = scope
       @_target = {}
     end
 
@@ -216,7 +241,7 @@ module Wunderbar
       @_target
     end
 
-    # forward to either Wunderbar or @_target
+    # forward to Wunderbar, @_target, or @_scope
     def method_missing(method, *args, &block)
 
       if method.to_s =~ /^_(\w*)$/
@@ -225,6 +250,8 @@ module Wunderbar
         return Wunderbar.send method, *args, &block
       elsif @_target.respond_to? method
         return @_target.send method, *args, &block
+      elsif @_scope and @_scope.respond_to? method
+        return @_scope.send method, *args, &block
       else
         super
       end

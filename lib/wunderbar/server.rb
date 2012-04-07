@@ -42,60 +42,44 @@ at_exit do
 
   elsif defined? Sinatra
 
-    Tilt.register :_html,  Wunderbar
-    Tilt.register :_xhtml, Wunderbar
-    Tilt.register :_json,  Wunderbar
-    Tilt.register :_text,  Wunderbar
-
-    # redirect the output produced
-    def $cgi.out(headers,&block)
-      status = headers.delete('status')
-      $sinatra.status status if status
-      $sinatra.headers Wunderbar::CGI.headers(headers)
-      $sinatra.body block.call unless $sinatra.request.head?
-    end
-
-    require 'thread'
-
-    def $cgi.helper(sinatra, &block)
-      return @semaphore = Mutex.new unless sinatra
-
-      @semaphore.synchronize do
-        $sinatra = sinatra
-        $params = sinatra.params
-        $env = OpenStruct.new(sinatra.env)
-        Wunderbar.queue.clear
-        block.call
-        Wunderbar::CGI.call($env)
-      end
-    end
-
-    $cgi.helper(nil) # allocate semaphore
+    require 'wunderbar/template'
+    Tilt.register '_html',  Wunderbar::Template::Html
+    Tilt.register '_xhtml', Wunderbar::Template::Xhtml
+    Tilt.register '_json',  Wunderbar::Template::Json
+    Tilt.register '_text',  Wunderbar::Template::Text
 
     # define helpers
     helpers do
       def _html(*args, &block)
-        $cgi.helper(self) do
-          Wunderbar.html(*args, &block)
+        if block
+          Wunderbar::Template::Html.evaluate('_html', self) do
+            _html(*args) { instance_eval &block }
+          end
+        else
+          Wunderbar::Template::Html.evaluate('_html', self, *args)
         end
       end
 
       def _xhtml(*args, &block)
-        $cgi.helper(self) do
-          Wunderbar.xhtml(*args, &block)
+        if env['HTTP_ACCEPT'] and not env['HTTP_ACCEPT'].include? 'xhtml'
+          return _html(*args, &block)
+        end
+
+        if block
+          Wunderbar::Template::Xhtml.evaluate('_xhtml', self) do
+            _xhtml(*args) { instance_eval &block }
+          end
+        else
+          Wunderbar::Template::Xhtml.evaluate('_xhtml', self, *args)
         end
       end
 
       def _json(*args, &block)
-        $cgi.helper(self) do
-          Wunderbar.json(*args, &block)
-        end
+        Wunderbar::Template::Json.evaluate('_json', self, *args, &block)
       end
 
       def _text(*args, &block)
-        $cgi.helper(self) do
-          Wunderbar.text(*args, &block)
-        end
+        Wunderbar::Template::Text.evaluate('_text', self, *args, &block)
       end
     end
 

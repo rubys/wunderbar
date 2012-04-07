@@ -5,8 +5,9 @@ class HtmlMarkup
     link meta param source track wbr
   )
 
-  def initialize(*args, &block)
-    @x = Wunderbar::XmlMarkup.new :indent => 2, :target => []
+  def initialize(scope = nil)
+    @_scope = scope
+    @x = Wunderbar::XmlMarkup.new :scope => scope, :indent => 2, :target => []
     @xthml = false
   end
 
@@ -20,14 +21,27 @@ class HtmlMarkup
     args << {} if args.empty?
     args.first[:xmlns] ||= 'http://www.w3.org/1999/xhtml' if Hash === args.first
 
+    @x.text! "\xEF\xBB\xBF"
+    @x.declare! :DOCTYPE, :html
     @x.tag! :html, *args do 
-      $params.each do |key,value| 
-        value = value.first if Array === value
-        instance_variable_set "@#{key}", value if key =~ /^\w+$/
+      if $params
+        $params.each do |key,value| 
+          value = value.first if Array === value
+          instance_variable_set "@#{key}", value if key =~ /^\w+$/
+        end
       end
       instance_exec(@x, &block)
     end
     @x.target!.join
+  end
+
+  def _html(*args, &block)
+    html(*args, &block)
+  end
+
+  def _xhtml(*args, &block)
+    @xhtml = true
+    html(*args, &block)
   end
 
   def xhtml?
@@ -37,6 +51,8 @@ class HtmlMarkup
   def method_missing(name, *args, &block)
     if name.to_s =~ /^_(\w+)(!|\?|)$/
       name, flag = $1, $2
+    elsif @_scope and @_scope.respond_to? name
+      return @_scope.__send__ name, *args, &block
     else
       error = NameError.new "undefined local variable or method `#{name}'", name
       error.set_backtrace caller
@@ -97,8 +113,7 @@ class HtmlMarkup
           text = exception.inspect
           Wunderbar.warn text
           exception.backtrace.each do |frame| 
-            next if frame =~ %r{/wunderbar/}
-            next if frame =~ %r{/gems/.*/builder/}
+            next if Wunderbar::CGI::HIDE_FRAME.any? {|re| frame =~ re}
             Wunderbar.warn "  #{frame}"
             text += "\n  #{frame}"
           end

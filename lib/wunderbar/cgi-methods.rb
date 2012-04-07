@@ -54,7 +54,10 @@ module Wunderbar
       etag = Digest::MD5.hexdigest(content)
 
       if $env.HTTP_IF_NONE_MATCH == etag.inspect
-        $cgi.out 'status' => '304 Not Modified'
+        headers['Date'] = ::CGI.rfc1123_date(Time.now)
+        $cgi.out headers.merge('status' => '304 Not Modified') do
+          ''
+        end
       else
         $cgi.out headers.merge('Etag' => etag.inspect) do
           content
@@ -69,8 +72,6 @@ module Wunderbar
       headers['type'] = 'application/xhtml+xml' if @xhtml
 
       x = HtmlMarkup.new
-      x._! "\xEF\xBB\xBF"
-      x._.declare :DOCTYPE, :html
 
       begin
         if @xhtml
@@ -81,8 +82,6 @@ module Wunderbar
       rescue ::Exception => exception
         headers['status'] =  "500 Internal Server Error"
         x.clear!
-        x._! "\xEF\xBB\xBF"
-        x._.declare :DOCTYPE, :html
         output = x.html(*args) do
           _head do
             _title 'Internal Server Error'

@@ -19,8 +19,9 @@ class HtmlMarkupTest < Test::Unit::TestCase
 
   def test_html
     @x.html {}
-    assert_equal %{<html xmlns="http://www.w3.org/1999/xhtml">\n</html>\n},
-      target
+    assert_match %r{<!DOCTYPE html>}, target
+    assert_match %r{<html xmlns="http://www.w3.org/1999/xhtml">}, target
+    assert_match %r{</html>}, target
   end
 
   def test_void_element
