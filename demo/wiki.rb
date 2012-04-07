@@ -154,7 +154,7 @@ W_.html do
           hash:   $('input[name=hash]').val()
         };
 
-        $.getJSON("#{_.SELF}", params, function(_) {
+        $.post("#{_.SELF}", params, function(_) {
           $('input[name=hash]').val(_.hash);
           if (_.time) {
             var time = new Date(_.time).toLocaleTimeString();
@@ -163,7 +163,7 @@ W_.html do
             $('.input').val(_.markup).attr('readonly', 'readonly');
             $('#message').css({'font-weight': 'bold'}).text(_.error).show();
           }
-        });
+        }, 'json');
       }, 10000);
 
       // regenerate output every 0.5 seconds
