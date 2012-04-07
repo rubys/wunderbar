@@ -15,19 +15,24 @@ W_.html do
     _title file
     _style %{
       body {background-color: #{(flag=='?') ? '#E0D8D8' : '#FFF'}}
+
       .status {border: 2px solid #000; border-radius: 1em; background: #FAFAD2; padding: 0.5em}
-      .input, .output {border: 1px solid #888; position: relative; width: 47.5%; height: 400px; overflow: auto}
-      .input {float: left; left: 1.5%}
-      .output {float: right; right: 1.5%; background-color: #6C6666; color: #FFF}
-      .buttons {clear: both; text-align: center; padding-top: 0.5em}
-      #message {position: fixed; left: 2%; color: #9400d3}
-      h1 {text-align: center; margin: 0}
-      form {clear: both}
-      .buttons form {display: inline}
       ._stdin:before {content: '$ '}
       ._stdin {color: #9400D3; margin-bottom: 0}
       ._stdout {margin: 0}
       ._stderr {margin: 0; color: red}
+
+      h1 {text-align: center; margin: 0}
+
+      .input, .output {border: 1px solid #888; position: relative; width: 47.5%; height: 400px; overflow: auto}
+      .input {float: left; left: 1.5%}
+      .output {float: right; right: 1.5%; background-color: #6C6666; color: #FFF}
+
+      .buttons {clear: both; text-align: center; padding-top: 0.5em}
+      #message {position: fixed; left: 2%; color: #9400d3}
+      .buttons:hover #message {display:inline !important}
+      form {clear: both}
+      .buttons form {display: inline}
     }
     _script src: '/showdown.js'
     _script src: '/jquery.min.js'
