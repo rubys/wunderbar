@@ -110,8 +110,8 @@ W_.html do
 
         _div.buttons do
           _span.message!
-          _input name: 'comment', placeholder: 'commit message'
-          _input type: 'submit', value: 'save'
+          _input.comment! name: 'comment', placeholder: 'commit message'
+          _input.save! type: 'submit', value: 'save'
         end
       end
 
@@ -129,8 +129,12 @@ W_.html do
     else
 
       #display
-      _ << RDiscount.new(@markup).to_html
+      _div_.content do
+        _ << RDiscount.new(@markup).to_html
+      end
+
       _div_.buttons do
+        _span.message!
         if !rev or rev.empty?
           _form action: "#{file}?", method: 'post' do
             _input type: 'submit', value: 'edit'
@@ -143,7 +147,7 @@ W_.html do
     end
 
     _script %{
-      // autosave every 10 seconds
+      // autosave every 5 seconds
       var dirty = false;
       setInterval(function() {
         if (!dirty) return;
@@ -160,25 +164,54 @@ W_.html do
             var time = new Date(_.time).toLocaleTimeString();
             $('#message').text("Autosaved at " + time).show().fadeOut(5000);
           } else {
-            $('.input').val(_.markup).attr('readonly', 'readonly');
+            $('.input').val(_.markup).attr('readonly', true);
             $('#message').css({'font-weight': 'bold'}).text(_.error).show();
           }
-        }, 'json');
-      }, 10000);
 
-      // regenerate output every 0.5 seconds
+          if ($('#comment').val() != '') $('#save').attr('disabled', false);
+        }, 'json');
+      }, 5000);
+
+      // regenerate output every second
       var updated = false;
       setInterval(function() {
         if (!updated) return;
         updated = false;
         $('.output').html(converter.makeHtml($('.input').val()));
-      }, 500);
+      }, 1000);
 
       // update output pane and mark dirty whenever input changes
       var converter = new Showdown.converter();
       $('.input').bind('input', function() {
         updated = dirty = true;
-      }).trigger('input');
+        $('#save').attr('disabled', true);
+      });
+
+      // watch for updates
+      var watch = $('<input type="submit" value="watch"/>');
+      watch.click(function() {
+        var watcher = function() {
+          $.ajax({url: "#{_.SELF}", ifModified: true,
+            dataType: 'text', accepts: {text: 'text/plain'},
+            success: function(_) { 
+              $('.content').html(converter.makeHtml(_));
+              var time = new Date().toLocaleTimeString();
+              $('#message').text("Updated at " + time).show().fadeOut(5000);
+            }
+          });
+        };
+        watcher();
+        setInterval(watcher, 10000);
+        $(this).hide();
+        return false;
+      });
+      $('.buttons form').first().prepend(watch);
+
+      // disable save button until there is a commit message
+      $('#save').attr('disabled', true);
+      $('#comment').bind('input', function() {
+        if (!dirty) $('#save').attr('disabled', false);
+      });
 
       // resize based on window size
       var reserve = $('header').height() * 3 + $('.buttons').height();
@@ -200,6 +233,11 @@ W_.json do
     _time Time.now.to_i*1000
   end
   _hash hash
+end
+
+# allow the raw markdown to be fetched
+W_.text do
+  _ File.read(file) if File.exist?(file)
 end
 
 __END__
