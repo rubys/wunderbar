@@ -29,7 +29,7 @@ W_.html do
       .output {float: right; right: 1.5%; background-color: #6C6666; color: #FFF}
 
       .buttons {clear: both; text-align: center; padding-top: 0.5em}
-      #message {position: fixed; left: 2%; color: #9400d3}
+      #message {position: absolute; left: 2%; color: #9400d3}
       .buttons:hover #message {display:inline !important}
       form {clear: both}
       .buttons form {display: inline}
