@@ -30,7 +30,7 @@ _html do
 
       .buttons {clear: both; text-align: center; padding-top: 0.5em}
       #message {position: absolute; left: 2%; color: #9400d3}
-      .buttons:hover #message {display:inline !important}
+      .buttons:hover #message {opacity: 0.7; color: black; display:inline !important}
       form {clear: both}
       .buttons form {display: inline}
     }
