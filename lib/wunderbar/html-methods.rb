@@ -24,8 +24,8 @@ class HtmlMarkup
     @x.text! "\xEF\xBB\xBF"
     @x.declare! :DOCTYPE, :html
     @x.tag! :html, *args do 
-      if $params
-        $params.each do |key,value| 
+      if @_scope and @_scope.respond_to? :params
+        @_scope.params.each do |key,value| 
           value = value.first if Array === value
           instance_variable_set "@#{key}", value if key =~ /^\w+$/
         end

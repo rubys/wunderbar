@@ -16,8 +16,10 @@ module Wunderbar
       STDERR.reopen STDOUT
 
       # clear environment of cgi cruft
-      ENV.keys.to_a.each do |key|
-        ENV.delete(key) if key =~ /HTTP/ or $cgi.respond_to? key.downcase
+      require 'cgi'
+      ENV.delete_if {|key,value| key =~ /^HTTP_/}
+      CGI::QueryExtension.public_instance_methods.each do |method|
+        ENV.delete method.to_s.upcase
       end
 
       # setup environment

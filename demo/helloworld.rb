@@ -1,6 +1,6 @@
 require 'wunderbar'
 
-W_.html do
+_html do
   _head_ do
     _title 'Greeter'
     _style %{

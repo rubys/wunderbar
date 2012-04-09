@@ -263,8 +263,6 @@ output stream, which provides access to other useful methods, for example:
 Globals provided
 ---
 * `$cgi`    - Common Gateway Interface
-* `$params` - Access to parameters (read-only OpenStruct like interface)
-* `$env`    - Access to environment variables (read-only OpenStruct like interface)
 * `$USER`   - Host user id
 * `$HOME`   - Home directory
 * `$SERVER` - Server name
@@ -291,10 +289,6 @@ HTML methods
 
 Note that adding an exclamation mark to the end of the tag name disables this
 behavior.
-
-OpenStruct methods (for $params and $env)
----
-* `untaint_if_match`: untaints value if it matches a regular expression
 
 Builder extensions
 ---

@@ -189,9 +189,10 @@ module Wunderbar
   end
 
   class TextBuilder
-    def initialize
+    def initialize(scope=nil)
       require 'stringio'
       @_target = StringIO.new
+      @_scope = scope
     end
 
     def encode(params = {}, &block)

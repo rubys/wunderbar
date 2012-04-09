@@ -6,11 +6,11 @@ require 'digest/md5'
 Dir.chdir WIKIDATA
 
 # parse request
-%r{/(?<file>.\w+)((?<flag>/)(?<rev>\w*))?$} =~ $env.PATH_INFO
-flag ||= '?' if $env.REQUEST_URI.include? '?'
+%r{/(?<file>\w[-\w]+)((?<flag>/)(?<rev>\w*))?$} =~ ENV['PATH_INFO']
+flag ||= '?' if ENV['REQUEST_URI'].include? '?'
 file ||= 'index'
 
-W_.html do
+_html do
   _head_ do
     _title file
     _style %{
@@ -228,7 +228,7 @@ W_.html do
 end
 
 # process autosave requests
-W_.json do
+_json do
   hash = Digest::MD5.hexdigest(@markup)
   if File.exist?(file) and Digest::MD5.hexdigest(File.read(file)) != @hash
     _error "Write conflict"
@@ -241,7 +241,7 @@ W_.json do
 end
 
 # allow the raw markdown to be fetched
-W_.text do
+_text do
   _ File.read(file) if File.exist?(file)
 end
 
@@ -254,7 +254,7 @@ require 'wunderbar'
 require 'etc'
 begin
   name = Etc.getpwnam($USER).gecos.split(',').first
-  $EMAIL = "#{name} <#{$USER}@#{$env.SERVER_NAME}>"
+  $EMAIL = "#{name} <#{$USER}@#{ENV['SERVER_NAME']}>"
   $EMAIL = nil if %w(www-data _www).include?($USER)
 rescue
 end

@@ -11,38 +11,16 @@ module Wunderbar
     end
   end
 
-  # quick access to request_uri
-  def self.SELF 
-    $env.REQUEST_URI
-  end
-
-  def self.SELF?
-    if SELF '?'
-      self.self
-    else
-      SELF + "?" # avoids spoiling the cache
+  class Scope
+    attr_accessor :env
+    def initialize(env)
+      @env = env
     end
   end
-
-  # was this invoked via HTTP POST?
-  def self.post?
-    $env.REQUEST_METHOD.to_s.upcase == 'POST'
-  end
-end
-
-# environment objects
-$env = {}
-def $env.method_missing(name)
-  delete name.to_s if ENV[name.to_s] != self[name.to_s]
-  if ENV[name.to_s] and not has_key?(name.to_s)
-    self[name.to_s]=ENV[name.to_s].dup.extend(Wunderbar::Untaint)
-  end
-  self[name.to_s]
 end
 
 require 'socket'
 $SERVER = ENV['HTTP_HOST'] || Socket::gethostname
-$HOME = ENV['HOME'] ||= Dir.home() rescue nil
 
 # set encoding to UTF-8
 ENV['LANG'] ||= "en_US.UTF-8"
@@ -51,4 +29,25 @@ if defined? Encoding
   Encoding.default_internal = Encoding::UTF_8
 else
   $KCODE = 'U'
+end
+
+# Add methods to the 'main' object
+if self.to_s == 'main'
+  class << self
+    def _html(*args, &block)
+      Wunderbar.html(*args, &block)
+    end
+
+    def _xhtml(*args, &block)
+      Wunderbar.xhtml(*args, &block)
+    end
+
+    def _json(*args, &block)
+      Wunderbar.json(*args, &block)
+    end
+
+    def _text(*args, &block)
+      Wunderbar.text(*args, &block)
+    end
+  end
 end

@@ -1,3 +1,7 @@
+# http://rack.rubyforge.org/doc/classes/Rack/Request.html
+# http://rubydoc.info/gems/sinatra/Sinatra/Application
+# http://www.ruby-doc.org/stdlib-1.9.3/libdoc/cgi/rdoc/CGI.html#public-class-method-details
+
 at_exit do
   # Only prompt if explicitly asked for
   ARGV.push '' if ARGV.empty?
@@ -13,22 +17,33 @@ at_exit do
     def $cgi.call(env)
       @request = Rack::Request.new(env)
       @response = Rack::Response.new
-      $env = OpenStruct.new(env)
-      $params = @request.params
 
-      Wunderbar::CGI.call(env)
+      @request.instance_variable_set '@_env', env
+      @request.instance_variable_set '@_response', @response
+
+      class << @request
+        def env
+          @_env
+        end
+
+        def response
+          @_response
+        end
+
+        # redirect the output produced
+        def out(headers,&block)
+          status = headers.delete('status')
+          @_response.status = status if status
+
+          headers = Wunderbar::CGI.headers(headers)
+          headers.each {|key, value| @_response[key] = value}
+
+          @_response.write block.call unless head?
+        end
+      end
+
+      Wunderbar::CGI.call(@request)
       @response.finish
-    end
-
-    # redirect the output produced
-    def $cgi.out(headers,&block)
-      status = headers.delete('status')
-      @response.status = status if status
-
-      headers = Wunderbar::CGI.headers(headers)
-      headers.each { |key, value| @response[key] = value }
-
-      @response.write block.call unless @request.head?
     end
 
     # Evaluate optional data from the script (after __END__)
@@ -89,24 +104,48 @@ at_exit do
     ENV['REQUEST_METHOD'] ||= 'POST' if ARGV.delete('--post')
     ENV['REQUEST_METHOD'] ||= 'GET'  if ARGV.delete('--get')
 
-    # standard objects
-    $params = $cgi.params
+    $cgi.instance_variable_set '@env', ENV
+    class << $cgi
+      attr_accessor :env
 
-    # get arguments if CGI couldn't find any... 
-    $params.merge!(CGI.parse(ARGV.join('&'))) if $params.empty?
+      # quick access to request_uri
+      def SELF 
+        env['REQUEST_URI']
+      end
 
-    # fast path for accessing CGI parameters
-    def $params.method_missing(name)
-      if has_key? name.to_s
-        if self[name.to_s].length == 1
-          self[name.to_s].first.extend(Wunderbar::Untaint)
+      def SELF?
+        if SELF.include? '?'
+          SELF
         else
-          self[name.to_s].join 
+          SELF + "?" # avoids spoiling the cache
         end
+      end
+
+      # was this invoked via HTTP POST?
+      def post?
+        env['REQUEST_METHOD'].to_s.upcase == 'POST'
       end
     end
 
+    # get arguments if CGI couldn't find any... 
+    $cgi.params.merge!(CGI.parse(ARGV.join('&'))) if $cgi.params.empty?
+
+    require 'etc'
+    $USER = ENV['REMOTE_USER'] ||= ENV['USER'] || Etc.getlogin
+    if $USER.nil?
+      if RUBY_PLATFORM =~ /darwin/i
+        $USER = `dscl . -search /Users UniqueID #{Process.uid}`.split.first
+      elsif RUBY_PLATFORM =~ /linux/i
+        $USER = `getent passwd #{Process.uid}`.split(':').first
+      end
+
+      ENV['USER'] ||= $USER
+    end
+
+    ENV['HOME'] ||= Dir.home($USER) rescue nil
+    ENV['HOME'] = ENV['DOCUMENT_ROOT'] if not File.exist? ENV['HOME'].to_s
+
     # CGI or command line
-    Wunderbar::CGI.call(ENV)
+    Wunderbar::CGI.call($cgi)
   end
 end

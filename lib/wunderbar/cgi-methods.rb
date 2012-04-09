@@ -3,13 +3,14 @@ module Wunderbar
   module CGI
 
     HIDE_FRAME = [ %r{/(wunderbar|webrick)/},
-                   %r{/gems/.*/(builder|rack|sinatra)/} ]
+                   %r{<internal:},
+                   %r{/gems/.*/lib/(builder|rack|sinatra|tilt)/} ]
 
     # produce json
-    def self.json(&block)
+    def self.json(scope, &block)
       headers = { 'type' => 'application/json', 'Cache-Control' => 'no-cache' }
-      builder = JsonBuilder.new
-      output = builder.encode($params, &block)
+      builder = JsonBuilder.new(scope)
+      output = builder.encode(scope.params, &block)
       headers['status'] =  "404 Not Found" if output == {}
     rescue Exception => exception
       Wunderbar.error exception.inspect
@@ -24,14 +25,14 @@ module Wunderbar
       builder._exception exception.inspect
       builder._backtrace backtrace
     ensure
-      out?(headers) { builder.target! }
+      out?(scope, headers) { builder.target! }
     end
 
     # produce text
-    def self.text &block
+    def self.text(scope, &block)
       headers = {'type' => 'text/plain', 'charset' => 'UTF-8'}
-      builder = TextBuilder.new
-      output = builder.encode($params, &block)
+      builder = TextBuilder.new(scope)
+      output = builder.encode(scope.params, &block)
       headers['status'] =  "404 Not Found" if output == ''
     rescue Exception => exception
       Wunderbar.error exception.inspect
@@ -44,22 +45,22 @@ module Wunderbar
         builder.puts "  #{frame}"
       end
     ensure
-      out?(headers) { builder.target! }
+      out?(scope, headers) { builder.target! }
     end
 
     # Conditionally provide output, based on ETAG
-    def self.out?(headers, &block)
+    def self.out?(scope, headers, &block)
       content = block.call
       require 'digest/md5'
       etag = Digest::MD5.hexdigest(content)
 
-      if $env.HTTP_IF_NONE_MATCH == etag.inspect
+      if ENV['HTTP_IF_NONE_MATCH'] == etag.inspect
         headers['Date'] = ::CGI.rfc1123_date(Time.now)
-        $cgi.out headers.merge('status' => '304 Not Modified') do
+        scope.out headers.merge('status' => '304 Not Modified') do
           ''
         end
       else
-        $cgi.out headers.merge('Etag' => etag.inspect) do
+        scope.out headers.merge('Etag' => etag.inspect) do
           content
         end
       end
@@ -67,11 +68,11 @@ module Wunderbar
     end
 
     # produce html/xhtml
-    def self.html(*args, &block)
+    def self.html(scope, *args, &block)
       headers = { 'type' => 'text/html', 'charset' => 'UTF-8' }
       headers['type'] = 'application/xhtml+xml' if @xhtml
 
-      x = HtmlMarkup.new
+      x = HtmlMarkup.new(scope)
 
       begin
         if @xhtml
@@ -101,15 +102,13 @@ module Wunderbar
         end
       end
 
-      out?(headers) { output }
+      out?(scope, headers) { output }
     end
 
-    def self.call(env)
-      require 'etc'
-      $USER = ENV['REMOTE_USER'] ||= ENV['USER'] || Etc.getlogin
-
-      accept         = $env.HTTP_ACCEPT.to_s
-      request_uri    = $env.REQUEST_URI.to_s
+    def self.call(scope)
+      env = scope.env
+      accept      = env['HTTP_ACCEPT'].to_s
+      request_uri = env['REQUEST_URI'].to_s
 
       # implied request types
       xhr_json = Wunderbar::Options::XHR_JSON  || (accept =~ /json/)
@@ -118,8 +117,8 @@ module Wunderbar
       @xhtml = (accept =~ /xhtml/ or accept == '')
 
       # overrides via the uri query parameter
-      xhr_json  ||= (request_uri =~ /\?json$/)
-      text       ||= (request_uri =~ /\?text$/)
+      xhr_json ||= (request_uri =~ /\?json$/)
+      text     ||= (request_uri =~ /\?text$/)
 
       # overrides via the command line
       xhtml_override = ARGV.include?('--xhtml')
@@ -142,17 +141,17 @@ module Wunderbar
               @xhtml = false if html_override
             end
 
-            self.html(*args, &block)
+            self.html(scope, *args, &block)
             return
           end
         when :json
           if xhr_json
-            self.json(*args, &block)
+            self.json(scope, *args, &block)
             return
           end
         when :text
           if text
-            self.text(*args, &block)
+            self.text(scope, *args, &block)
             return
           end
         end
