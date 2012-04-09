@@ -7,14 +7,14 @@ at_exit do
   ARGV.push '' if ARGV.empty?
   ARGV.delete('--prompt') or ARGV.delete('--offline')
 
-  $cgi = CGI.new
+  cgi = CGI.new
 
   port = ARGV.find {|arg| arg =~ /--port=(.*)/}
   if port and ARGV.delete(port)
     port = $1.to_i
 
     # entry point for Rack
-    def $cgi.call(env)
+    def cgi.call(env)
       @request = Rack::Request.new(env)
       @response = Rack::Response.new
 
@@ -52,7 +52,7 @@ at_exit do
     # start the server
     require 'rack'
     require 'rack/showexceptions'
-    app = Rack::ShowExceptions.new(Rack::Lint.new($cgi))
+    app = Rack::ShowExceptions.new(Rack::Lint.new(cgi))
     Rack::Server.start :app => app, :Port => port
 
   elsif defined? Sinatra
@@ -104,8 +104,8 @@ at_exit do
     ENV['REQUEST_METHOD'] ||= 'POST' if ARGV.delete('--post')
     ENV['REQUEST_METHOD'] ||= 'GET'  if ARGV.delete('--get')
 
-    $cgi.instance_variable_set '@env', ENV
-    class << $cgi
+    cgi.instance_variable_set '@env', ENV
+    class << cgi
       attr_accessor :env
 
       # quick access to request_uri
@@ -128,7 +128,7 @@ at_exit do
     end
 
     # get arguments if CGI couldn't find any... 
-    $cgi.params.merge!(CGI.parse(ARGV.join('&'))) if $cgi.params.empty?
+    cgi.params.merge!(CGI.parse(ARGV.join('&'))) if cgi.params.empty?
 
     require 'etc'
     $USER = ENV['REMOTE_USER'] ||= ENV['USER'] || Etc.getlogin
@@ -146,6 +146,6 @@ at_exit do
     ENV['HOME'] = ENV['DOCUMENT_ROOT'] if not File.exist? ENV['HOME'].to_s
 
     # CGI or command line
-    Wunderbar::CGI.call($cgi)
+    Wunderbar::CGI.call(cgi)
   end
 end

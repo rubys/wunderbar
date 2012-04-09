@@ -54,7 +54,7 @@ module Wunderbar
       require 'digest/md5'
       etag = Digest::MD5.hexdigest(content)
 
-      if ENV['HTTP_IF_NONE_MATCH'] == etag.inspect
+      if scope.env['HTTP_IF_NONE_MATCH'] == etag.inspect
         headers['Date'] = ::CGI.rfc1123_date(Time.now)
         scope.out headers.merge('status' => '304 Not Modified') do
           ''

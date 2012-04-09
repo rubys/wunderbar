@@ -5,17 +5,21 @@ require 'stringio'
 
 class CGITest < Test::Unit::TestCase
   def setup
-    @stdout, @stderr = $stdout, $stderr
-    $stdout, $stderr = StringIO.new, StringIO.new
+    @stderr, $stderr = $stderr, StringIO.new
+
     Wunderbar.queue.clear
     Wunderbar.logger = nil
-    @accept = ENV['HTTP_ACCEPT']
-  end
 
+    @cgi = Struct.new(:env, :params, :headers, :body).new(Hash[ENV], [], {}, '')
+    def @cgi.out(headers, &block)
+      self.headers = headers
+      self.body = block.call
+    end
+  end
+  
   def teardown
-    $stdout, $stderr = @stdout, @stderr
+    $stderr = @stderr
     Wunderbar.logger = nil
-    ENV['HTTP_ACCEPT'] = @accept
   end
 
   def test_html_success
@@ -23,11 +27,26 @@ class CGITest < Test::Unit::TestCase
       _body
     end
 
-    Wunderbar::CGI.call($cgi)
+    Wunderbar::CGI.call(@cgi)
 
-    assert_match %r{^Content-Type: text/html; charset=UTF-8\r\n}, $stdout.string
-    assert_match %r{^Etag: "\w+"\r\n}, $stdout.string
-    assert_match %r{^\s+<body></body>$}, $stdout.string
+    assert_equal 'text/html', @cgi.headers['type']
+    assert_equal 'UTF-8', @cgi.headers['charset']
+    assert_match %r{^\s+<body></body>$}, @cgi.body
+  end
+
+  def test_html_unmodified
+    Wunderbar.html do
+    end
+
+    Wunderbar::CGI.call(@cgi)
+
+    assert_match %r{^"\w+"$}, @cgi.headers['Etag']
+    assert_equal nil, @cgi.headers['status']
+
+    @cgi.env['HTTP_IF_NONE_MATCH'] = @cgi.headers['Etag']
+
+    Wunderbar::CGI.call(@cgi)
+    assert_equal '304 Not Modified', @cgi.headers['status']
   end
 
   def test_html_failure
@@ -37,12 +56,13 @@ class CGITest < Test::Unit::TestCase
       end
     end
 
-    Wunderbar::CGI.call($cgi)
+    Wunderbar::CGI.call(@cgi)
 
-    assert_match %r{Status: 500 Internal Server Error\r\n}, $stdout.string
-    assert_match %r{^Content-Type: text/html; charset=UTF-8\r\n}, $stdout.string
-    assert_match %r{^\s+<h1>Internal Server Error</h1>$}, $stdout.string
-    assert_match %r{^\s+<pre>.*NameError.*error_undefined}, $stdout.string
+    assert_equal '500 Internal Server Error', @cgi.headers['status']
+    assert_equal 'text/html', @cgi.headers['type']
+    assert_equal 'UTF-8', @cgi.headers['charset']
+    assert_match %r{^\s+<h1>Internal Server Error</h1>$}, @cgi.body
+    assert_match %r{^\s+<pre>.*NameError.*error_undefined}, @cgi.body
     assert_match %r{^_ERROR.*NameError.*error_undefined}, $stderr.string
   end
 
@@ -51,155 +71,155 @@ class CGITest < Test::Unit::TestCase
       _.fatal 'oh, dear'
     end
 
-    Wunderbar::CGI.call($cgi)
+    Wunderbar::CGI.call(@cgi)
 
     assert_equal "_FATAL oh, dear\n", $stderr.string
   end
 
   def test_xhtml_success
-    ENV['HTTP_ACCEPT'] = 'application/xhtml+xml'
+    @cgi.env['HTTP_ACCEPT'] = 'application/xhtml+xml'
 
     Wunderbar.xhtml do
       _body
     end
 
-    Wunderbar::CGI.call($cgi)
+    Wunderbar::CGI.call(@cgi)
 
-    assert_match %r{^Content-Type: application/xhtml\+xml; charset=UTF-8\r\n},
-      $stdout.string
-    assert_match %r{^\s+<body></body>$}, $stdout.string
+    assert_equal 'application/xhtml+xml', @cgi.headers['type']
+    assert_equal 'UTF-8', @cgi.headers['charset']
+    assert_match %r{^\s+<body></body>$}, @cgi.body
   end
 
   def test_xhtml_fallback
-    ENV['HTTP_ACCEPT'] = 'text/html'
+    @cgi.env['HTTP_ACCEPT'] = 'text/html'
 
     Wunderbar.xhtml do
       _body
     end
 
-    Wunderbar::CGI.call($cgi)
+    Wunderbar::CGI.call(@cgi)
 
-    assert_match %r{^Content-Type: text/html; charset=UTF-8\r\n}, $stdout.string
-    assert_match %r{^\s+<body></body>$}, $stdout.string
+    assert_equal 'text/html', @cgi.headers['type']
+    assert_equal 'UTF-8', @cgi.headers['charset']
+    assert_match %r{^\s+<body></body>$}, @cgi.body
   end
 
   def test_json_success
-    ENV['HTTP_ACCEPT'] = 'application/json'
+    @cgi.env['HTTP_ACCEPT'] = 'application/json'
 
     Wunderbar.json do
       _ :response => 'It Worked!'
     end
 
-    Wunderbar::CGI.call($cgi)
+    Wunderbar::CGI.call(@cgi)
 
-    assert_match %r{^Content-Type: application/json\r\n}, $stdout.string
-    assert_match %r{^\s+"response": "It Worked!"}, $stdout.string
+    assert_equal 'application/json', @cgi.headers['type']
+    assert_match %r{^\s+"response": "It Worked!"}, @cgi.body
   end
 
   def test_json_missing
-    ENV['HTTP_ACCEPT'] = 'application/json'
+    @cgi.env['HTTP_ACCEPT'] = 'application/json'
 
     Wunderbar.json do
     end
 
-    Wunderbar::CGI.call($cgi)
+    Wunderbar::CGI.call(@cgi)
 
-    assert_match %r{Status: 404 Not Found\r\n}, $stdout.string
-    assert_match %r{^Content-Type: application/json\r\n}, $stdout.string
-    assert_match /^\{\s*\}\s*$/, $stdout.string
+    assert_equal '404 Not Found', @cgi.headers['status']
+    assert_equal 'application/json', @cgi.headers['type']
+    assert_match /^\{\s*\}\s*$/, @cgi.body
   end
 
   def test_json_failure
-    ENV['HTTP_ACCEPT'] = 'application/json'
+    @cgi.env['HTTP_ACCEPT'] = 'application/json'
 
     Wunderbar.json do
       error_undefined
     end
 
-    Wunderbar::CGI.call($cgi)
+    Wunderbar::CGI.call(@cgi)
 
-    assert_match %r{Status: 500 Internal Server Error\r\n}, $stdout.string
-    assert_match %r{^Content-Type: application/json\r\n}, $stdout.string
-    assert_match %r{^\s+"exception": ".*NameError.*error_undefined}, 
-      $stdout.string
+    assert_equal '500 Internal Server Error', @cgi.headers['status']
+    assert_equal 'application/json', @cgi.headers['type']
+    assert_match %r{^\s+"exception": ".*NameError.*error_undefined}, @cgi.body
     assert_match %r{^_ERROR.*NameError.*error_undefined}, $stderr.string
   end
 
   def test_json_log
-    ENV['HTTP_ACCEPT'] = 'application/json'
+    @cgi.env['HTTP_ACCEPT'] = 'application/json'
 
     Wunderbar.json do
       _.fatal 'oh, dear'
     end
 
-    Wunderbar::CGI.call($cgi)
+    Wunderbar::CGI.call(@cgi)
 
     assert_equal "_FATAL oh, dear\n", $stderr.string
   end
 
   def test_text_success
-    ENV['HTTP_ACCEPT'] = 'text/plain'
+    @cgi.env['HTTP_ACCEPT'] = 'text/plain'
 
     Wunderbar.text do
       _ 'It Worked!'
     end
 
-    Wunderbar::CGI.call($cgi)
+    Wunderbar::CGI.call(@cgi)
 
-    assert_match %r{^Content-Type: text/plain; charset=UTF-8\r\n}, 
-      $stdout.string
-    assert_match %r{\r\n\r\nIt Worked!\n\Z}, $stdout.string
+    assert_equal 'text/plain', @cgi.headers['type']
+    assert_equal 'UTF-8', @cgi.headers['charset']
+    assert_equal "It Worked!\n", @cgi.body
   end
 
   def test_text_methods
-    ENV['HTTP_ACCEPT'] = 'text/plain'
+    @cgi.env['HTTP_ACCEPT'] = 'text/plain'
 
     Wunderbar.text do
       _.printf "%s Worked!\n", 'It'
     end
 
-    Wunderbar::CGI.call($cgi)
+    Wunderbar::CGI.call(@cgi)
 
-    assert_match %r{^Content-Type: text/plain}, $stdout.string
-    assert_match %r{\r\n\r\nIt Worked!\n\Z}, $stdout.string
+    assert_equal 'text/plain', @cgi.headers['type']
+    assert_equal "It Worked!\n", @cgi.body
   end
 
   def test_text_missing
-    ENV['HTTP_ACCEPT'] = 'text/plain'
+    @cgi.env['HTTP_ACCEPT'] = 'text/plain'
 
     Wunderbar.text do
     end
 
-    Wunderbar::CGI.call($cgi)
+    Wunderbar::CGI.call(@cgi)
 
-    assert_match %r{Status: 404 Not Found\r\n}, $stdout.string
-    assert_match %r{^Content-Type: text/plain}, $stdout.string
-    assert_match %r{\r\n\r\n\Z}, $stdout.string
+    assert_equal '404 Not Found', @cgi.headers['status']
+    assert_equal 'text/plain', @cgi.headers['type']
+    assert_equal '', @cgi.body
   end
 
   def test_text_failure
-    ENV['HTTP_ACCEPT'] = 'text/plain'
+    @cgi.env['HTTP_ACCEPT'] = 'text/plain'
 
     Wunderbar.text do
       error_undefined
     end
 
-    Wunderbar::CGI.call($cgi)
+    Wunderbar::CGI.call(@cgi)
 
-    assert_match %r{Status: 500 Internal Server Error\r\n}, $stdout.string
-    assert_match %r{^Content-Type: text/plain}, $stdout.string
-    assert_match %r{NameError.*error_undefined}, $stdout.string
+    assert_equal '500 Internal Server Error', @cgi.headers['status']
+    assert_equal 'text/plain', @cgi.headers['type']
+    assert_match %r{NameError.*error_undefined}, @cgi.body
     assert_match %r{^_ERROR.*NameError.*error_undefined}, $stderr.string
   end
 
   def test_text_log
-    ENV['HTTP_ACCEPT'] = 'text/plain'
+    @cgi.env['HTTP_ACCEPT'] = 'text/plain'
 
     Wunderbar.text do
       _.fatal 'oh, dear'
     end
 
-    Wunderbar::CGI.call($cgi)
+    Wunderbar::CGI.call(@cgi)
 
     assert_equal "_FATAL oh, dear\n", $stderr.string
   end

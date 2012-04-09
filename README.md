@@ -262,7 +262,6 @@ output stream, which provides access to other useful methods, for example:
 
 Globals provided
 ---
-* `$cgi`    - Common Gateway Interface
 * `$USER`   - Host user id
 * `$HOME`   - Home directory
 * `$SERVER` - Server name
