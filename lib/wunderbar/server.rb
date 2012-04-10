@@ -3,31 +3,19 @@
 # http://www.ruby-doc.org/stdlib-1.9.3/libdoc/cgi/rdoc/CGI.html#public-class-method-details
 
 at_exit do
-  # Only prompt if explicitly asked for
-  ARGV.push '' if ARGV.empty?
-  ARGV.delete('--prompt') or ARGV.delete('--offline')
-
-  cgi = CGI.new
-
   port = ARGV.find {|arg| arg =~ /--port=(.*)/}
   if port and ARGV.delete(port)
     port = $1.to_i
 
-    # entry point for Rack
-    def cgi.call(env)
-      @request = Rack::Request.new(env)
-      @response = Rack::Response.new
-
-      @request.instance_variable_set '@_env', env
-      @request.instance_variable_set '@_response', @response
-
-      class << @request
-        def env
-          @_env
-        end
-
-        def response
-          @_response
+    module Wunderbar
+      class RackApp
+        # entry point for Rack
+        def call(env)
+          @_env = env
+          @_request = Rack::Request.new(env)
+          @_response = Rack::Response.new
+          Wunderbar::CGI.call(self)
+          @_response.finish
         end
 
         # redirect the output produced
@@ -38,12 +26,25 @@ at_exit do
           headers = Wunderbar::CGI.headers(headers)
           headers.each {|key, value| @_response[key] = value}
 
-          @_response.write block.call unless head?
+          @_response.write block.call unless @_request.head?
+        end
+
+        def env
+          @_env
+        end
+
+        def params
+          @_request.params
+        end
+
+        def request
+          @_request
+        end
+
+        def response
+          @_response
         end
       end
-
-      Wunderbar::CGI.call(@request)
-      @response.finish
     end
 
     # Evaluate optional data from the script (after __END__)
@@ -52,7 +53,7 @@ at_exit do
     # start the server
     require 'rack'
     require 'rack/showexceptions'
-    app = Rack::ShowExceptions.new(Rack::Lint.new(cgi))
+    app = Rack::ShowExceptions.new(Rack::Lint.new(Wunderbar::RackApp.new))
     Rack::Server.start :app => app, :Port => port
 
   elsif defined? Sinatra
@@ -98,32 +99,26 @@ at_exit do
       end
     end
 
-  else
+  elsif Wunderbar.queue.length > 0
 
     # allow the REQUEST_METHOD to be set for command line invocations
     ENV['REQUEST_METHOD'] ||= 'POST' if ARGV.delete('--post')
     ENV['REQUEST_METHOD'] ||= 'GET'  if ARGV.delete('--get')
 
+    # Only prompt if explicitly asked for
+    ARGV.push '' if ARGV.empty?
+    ARGV.delete('--prompt') or ARGV.delete('--offline')
+
+    cgi = CGI.new
     cgi.instance_variable_set '@env', ENV
     class << cgi
       attr_accessor :env
 
-      # quick access to request_uri
-      def SELF 
-        env['REQUEST_URI']
-      end
-
-      def SELF?
-        if SELF.include? '?'
-          SELF
-        else
-          SELF + "?" # avoids spoiling the cache
-        end
-      end
-
       # was this invoked via HTTP POST?
-      def post?
-        env['REQUEST_METHOD'].to_s.upcase == 'POST'
+      %w(delete get head options post put trace).each do |http_method|
+        define_method "#{http_method}?" do
+          env['REQUEST_METHOD'].to_s.downcase == http_method
+        end
       end
     end
 

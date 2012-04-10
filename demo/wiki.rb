@@ -163,7 +163,7 @@ _html do
           hash:   $('input[name=hash]').val()
         };
 
-        $.post("#{_.SELF}", params, function(_) {
+        $.post(#{ENV['REQUEST_URI'].to_json}, params, function(_) {
           $('input[name=hash]').val(_.hash);
           if (_.time) {
             var time = new Date(_.time).toLocaleTimeString();
@@ -196,7 +196,7 @@ _html do
       var watch = $('<input type="submit" value="watch"/>');
       watch.click(function() {
         var watcher = function() {
-          $.ajax({url: "#{_.SELF}", ifModified: true,
+          $.ajax({url: #{ENV['REQUEST_URI'].to_json}, ifModified: true,
             dataType: 'text', accepts: {text: 'text/plain'},
             success: function(_) { 
               $('.content').html(converter.makeHtml(_));

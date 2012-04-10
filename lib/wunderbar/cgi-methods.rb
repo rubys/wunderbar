@@ -64,7 +64,8 @@ module Wunderbar
           content
         end
       end
-    rescue
+    rescue Exception => exception
+      Wunderbar.fatal exception.inspect
     end
 
     # produce html/xhtml

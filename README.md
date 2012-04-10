@@ -182,8 +182,6 @@ number of other convenience methods are defined:
 * `_.post?`  -- was this invoked via HTTP POST?
 * `_.system` -- invokes a shell command, captures stdin, stdout, and stderr
 * `_.submit` -- runs command (or block) as a deamon process
-* `_.SELF`   -- Request URI
-* `_.SELF?`  -- Request URI with '?' appended (avoids spoiling the cache)
 
 Access to all of the builder _defined_ methods (typically these end in an esclamation mark) and all of the Wunderbar module methods can be accessed in this way.  Examples:
 
