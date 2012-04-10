@@ -10,7 +10,7 @@ class CGITest < Test::Unit::TestCase
     Wunderbar.queue.clear
     Wunderbar.logger = nil
 
-    @cgi = Struct.new(:env, :params, :headers, :body).new(Hash[ENV], [], {}, '')
+    @cgi = Struct.new(:env, :params, :headers, :body).new(Hash[ENV], {}, {}, '')
     def @cgi.out(headers, &block)
       self.headers = headers
       self.body = block.call
@@ -32,6 +32,19 @@ class CGITest < Test::Unit::TestCase
     assert_equal 'text/html', @cgi.headers['type']
     assert_equal 'UTF-8', @cgi.headers['charset']
     assert_match %r{^\s+<body></body>$}, @cgi.body
+  end
+
+  def test_html_params
+    Wunderbar.html do
+      _body do
+        _p @foo
+      end
+    end
+
+    @cgi.params['foo'] = ['bar']
+    Wunderbar::CGI.call(@cgi)
+
+    assert_match %r{^\s+<p>bar</p>$}, @cgi.body
   end
 
   def test_html_unmodified

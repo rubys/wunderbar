@@ -4,7 +4,7 @@ require 'wunderbar'
 
 class JsonTest < Test::Unit::TestCase
   def setup
-    @j = Wunderbar::JsonBuilder.new
+    @j = Wunderbar::JsonBuilder.new(Struct.new(:params).new({}))
   end
 
   def test_hash_value

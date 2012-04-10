@@ -1,11 +1,11 @@
 # Wrapper class that understands HTML
-class HtmlMarkup
+class HtmlMarkup < Wunderbar::BuilderBase
   VOID = %w(
     area base br col command embed hr img input keygen
     link meta param source track wbr
   )
 
-  def initialize(scope = nil)
+  def initialize(scope)
     @_scope = scope
     @x = Wunderbar::XmlMarkup.new :scope => scope, :indent => 2, :target => []
     @xthml = false
@@ -24,13 +24,8 @@ class HtmlMarkup
     @x.text! "\xEF\xBB\xBF"
     @x.declare! :DOCTYPE, :html
     @x.tag! :html, *args do 
-      if @_scope and @_scope.respond_to? :params
-        @_scope.params.each do |key,value| 
-          value = value.first if Array === value
-          instance_variable_set "@#{key}", value if key =~ /^\w+$/
-        end
-      end
-      instance_exec(@x, &block)
+      set_variables_from_params
+      instance_eval(&block)
     end
     @x.target!.join
   end

@@ -10,7 +10,7 @@ module Wunderbar
     def self.json(scope, &block)
       headers = { 'type' => 'application/json', 'Cache-Control' => 'no-cache' }
       builder = JsonBuilder.new(scope)
-      output = builder.encode(scope.params, &block)
+      output = builder.encode(&block)
       headers['status'] =  "404 Not Found" if output == {}
     rescue Exception => exception
       Wunderbar.error exception.inspect
@@ -21,7 +21,7 @@ module Wunderbar
         Wunderbar.warn "  #{frame}"
         backtrace << frame 
       end
-      builder = JsonBuilder.new
+      builder = JsonBuilder.new(scope)
       builder._exception exception.inspect
       builder._backtrace backtrace
     ensure
@@ -32,7 +32,7 @@ module Wunderbar
     def self.text(scope, &block)
       headers = {'type' => 'text/plain', 'charset' => 'UTF-8'}
       builder = TextBuilder.new(scope)
-      output = builder.encode(scope.params, &block)
+      output = builder.encode(&block)
       headers['status'] =  "404 Not Found" if output == ''
     rescue Exception => exception
       Wunderbar.error exception.inspect

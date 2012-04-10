@@ -188,18 +188,25 @@ module Wunderbar
     end
   end
 
-  class TextBuilder
-    def initialize(scope=nil)
+  class BuilderBase
+    def set_variables_from_params
+      @_scope.params.each do |key,value|
+        value = value.first if Array === value
+        value.gsub! "\r\n", "\n" if String === value
+        instance_variable_set "@#{key}", value if key =~ /^\w+$/
+      end
+    end
+  end
+
+  class TextBuilder < BuilderBase
+    def initialize(scope)
       require 'stringio'
       @_target = StringIO.new
       @_scope = scope
     end
 
-    def encode(params = {}, &block)
-      params.each do |key,value|
-        instance_variable_set "@#{key}", value.first if key =~ /^\w+$/
-      end
-
+    def encode(&block)
+      set_variables_from_params
       self.instance_eval(&block)
       @_target.string
     end
@@ -227,17 +234,14 @@ module Wunderbar
     end
   end
 
-  class JsonBuilder
-    def initialize(scope=nil)
+  class JsonBuilder < BuilderBase
+    def initialize(scope)
       @_scope = scope
       @_target = {}
     end
 
-    def encode(params = {}, &block)
-      params.each do |key,value|
-        instance_variable_set "@#{key}", value.first if key =~ /^\w+$/
-      end
-
+    def encode(&block)
+      set_variables_from_params
       self.instance_eval(&block)
       @_target
     end
@@ -259,13 +263,13 @@ module Wunderbar
 
       if args.length == 0
         return self unless block
-        result = JsonBuilder.new.encode(&block)
+        result = JsonBuilder.new(@_scope).encode(&block)
       elsif args.length == 1
         result = args.first
 
         if block
           if Symbol === result or String === result
-            result = {result.to_s => JsonBuilder.new.encode(&block)}
+            result = {result.to_s => JsonBuilder.new(@_scope).encode(&block)}
           else
             result = result.map {|n| @_target = {}; block.call(n); @_target} 
           end
