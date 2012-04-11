@@ -7,54 +7,18 @@ at_exit do
   if port and ARGV.delete(port)
     port = $1.to_i
 
-    module Wunderbar
-      class RackApp
-        # entry point for Rack
-        def call(env)
-          @_env = env
-          @_request = Rack::Request.new(env)
-          @_response = Rack::Response.new
-          Wunderbar::CGI.call(self)
-          @_response.finish
-        end
-
-        # redirect the output produced
-        def out(headers,&block)
-          status = headers.delete('status')
-          @_response.status = status if status
-
-          headers = Wunderbar::CGI.headers(headers)
-          headers.each {|key, value| @_response[key] = value}
-
-          @_response.write block.call unless @_request.head?
-        end
-
-        def env
-          @_env
-        end
-
-        def params
-          @_request.params
-        end
-
-        def request
-          @_request
-        end
-
-        def response
-          @_response
-        end
-      end
-    end
-
     # Evaluate optional data from the script (after __END__)
     eval Wunderbar.data if Object.const_defined? :DATA
 
+    # Allow optional environment override
+    environment = ARGV.find {|arg| arg =~ /--environment=(.*)/}
+    ENV['RACK_ENV'] = environment if environment and ARGV.delete(environment)
+
     # start the server
     require 'rack'
-    require 'rack/showexceptions'
-    app = Rack::ShowExceptions.new(Rack::Lint.new(Wunderbar::RackApp.new))
-    Rack::Server.start :app => app, :Port => port
+    require 'wunderbar/rack'
+    Rack::Server.start :app => Wunderbar::RackApp.new, :Port => port,
+      :environment => (ENV['RACK_ENV'] || 'development')
 
   elsif defined? Sinatra
 
