@@ -229,6 +229,22 @@ module Wunderbar
       end
     end
 
+    def _exception(*args)
+      exception = args.first
+      if exception.respond_to? :backtrace
+        Wunderbar.error exception.inspect
+        @_target.puts unless size == 0
+        @_target.puts exception.inspect
+        exception.backtrace.each do |frame| 
+          next if CALLERS_TO_IGNORE.any? {|re| frame =~ re}
+          Wunderbar.warn "  #{frame}"
+          @_target.puts "  #{frame}"
+        end
+      else
+        super
+      end
+    end
+
     def target!
       @_target.string
     end
@@ -313,6 +329,22 @@ module Wunderbar
 
     def _!(object)
       @_target = object
+    end
+
+    def _exception(*args)
+      exception = args.first
+      if exception.respond_to? :backtrace
+        Wunderbar.error exception.inspect
+        super(exception.inspect)
+        @_target['backtrace'] = []
+        exception.backtrace.each do |frame| 
+          next if CALLERS_TO_IGNORE.any? {|re| frame =~ re}
+          Wunderbar.warn "  #{frame}"
+          @_target['backtrace'] << frame 
+        end
+      else
+        super
+      end
     end
 
     def target!

@@ -2,6 +2,16 @@
 # http://rubydoc.info/gems/sinatra/Sinatra/Application
 # http://www.ruby-doc.org/stdlib-1.9.3/libdoc/cgi/rdoc/CGI.html#public-class-method-details
 
+module Wunderbar
+
+  CALLERS_TO_IGNORE = [
+    %r{/(wunderbar|webrick)/},
+    %r{<internal:},
+    %r{/gems/.*/lib/(builder|rack|sinatra|tilt)/}
+  ]
+
+end
+
 at_exit do
   port = ARGV.find {|arg| arg =~ /--port=(.*)/}
   if port and ARGV.delete(port)
@@ -22,46 +32,7 @@ at_exit do
 
   elsif defined? Sinatra
 
-    require 'wunderbar/template'
-    Tilt.register '_html',  Wunderbar::Template::Html
-    Tilt.register '_xhtml', Wunderbar::Template::Xhtml
-    Tilt.register '_json',  Wunderbar::Template::Json
-    Tilt.register '_text',  Wunderbar::Template::Text
-
-    # define helpers
-    helpers do
-      def _html(*args, &block)
-        if block
-          Wunderbar::Template::Html.evaluate('_html', self) do
-            _html(*args) { instance_eval &block }
-          end
-        else
-          Wunderbar::Template::Html.evaluate('_html', self, *args)
-        end
-      end
-
-      def _xhtml(*args, &block)
-        if env['HTTP_ACCEPT'] and not env['HTTP_ACCEPT'].include? 'xhtml'
-          return _html(*args, &block)
-        end
-
-        if block
-          Wunderbar::Template::Xhtml.evaluate('_xhtml', self) do
-            _xhtml(*args) { instance_eval &block }
-          end
-        else
-          Wunderbar::Template::Xhtml.evaluate('_xhtml', self, *args)
-        end
-      end
-
-      def _json(*args, &block)
-        Wunderbar::Template::Json.evaluate('_json', self, *args, &block)
-      end
-
-      def _text(*args, &block)
-        Wunderbar::Template::Text.evaluate('_text', self, *args, &block)
-      end
-    end
+    require 'wunderbar/sinatra'
 
   elsif Wunderbar.queue.length > 0
 

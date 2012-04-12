@@ -96,32 +96,45 @@ class HtmlMarkup < Wunderbar::BuilderBase
       end
     elsif flag == '?'
       # capture exceptions, produce filtered tracebacks
+      @x.tag!(name, *args) do
+        begin
+          block.call
+        rescue ::Exception => exception
+          options = (Hash === args.last)? args.last : {}
+          options[:log_level] = 'warn'
+          _exception exception, options
+        end
+      end
+    else
+      @x.tag! name, *args, &block
+    end
+  end
+
+  def _exception(*args)
+    exception = args.first
+    if exception.respond_to? :backtrace
       options = (Hash === args.last)? args.last : {}
       traceback_class = options.delete(:traceback_class)
       traceback_style = options.delete(:traceback_style)
       traceback_style ||= 'background-color:#ff0; margin: 1em 0; ' +
         'padding: 1em; border: 4px solid red; border-radius: 1em'
-      @x.tag!(name, *args) do
-        begin
-          block.call
-        rescue ::Exception => exception
-          text = exception.inspect
-          Wunderbar.warn text
-          exception.backtrace.each do |frame| 
-            next if Wunderbar::CGI::HIDE_FRAME.any? {|re| frame =~ re}
-            Wunderbar.warn "  #{frame}"
-            text += "\n  #{frame}"
-          end
-    
-          if traceback_class
-            @x.tag! :pre, text, :class=>traceback_class
-          else
-            @x.tag! :pre, text, :style=>traceback_style
-          end
-        end
+
+      text = exception.inspect
+      log_level = options.delete(:log_level) || :error
+      Wunderbar.send log_level, text
+      exception.backtrace.each do |frame| 
+        next if Wunderbar::CALLERS_TO_IGNORE.any? {|re| frame =~ re}
+        Wunderbar.send log_level, "  #{frame}"
+        text += "\n  #{frame}"
+      end
+ 
+      if traceback_class
+        @x.tag! :pre, text, :class=>traceback_class
+      else
+        @x.tag! :pre, text, :style=>traceback_style
       end
     else
-      @x.tag! name, *args, &block
+      super
     end
   end
 

@@ -1,10 +1,5 @@
 module Wunderbar
-
   module CGI
-
-    HIDE_FRAME = [ %r{/(wunderbar|webrick)/},
-                   %r{<internal:},
-                   %r{/gems/.*/lib/(builder|rack|sinatra|tilt)/} ]
 
     # produce json
     def self.json(scope, &block)
@@ -13,17 +8,9 @@ module Wunderbar
       output = builder.encode(&block)
       headers['status'] =  "404 Not Found" if output == {}
     rescue Exception => exception
-      Wunderbar.error exception.inspect
       headers['status'] =  "500 Internal Server Error"
-      backtrace = []
-      exception.backtrace.each do |frame| 
-        next if HIDE_FRAME.any? {|re| frame =~ re}
-        Wunderbar.warn "  #{frame}"
-        backtrace << frame 
-      end
-      builder = JsonBuilder.new(scope)
-      builder._exception exception.inspect
-      builder._backtrace backtrace
+      builder._! Hash.new
+      builder._exception exception
     ensure
       out?(scope, headers) { builder.target! }
     end
@@ -35,15 +22,8 @@ module Wunderbar
       output = builder.encode(&block)
       headers['status'] =  "404 Not Found" if output == ''
     rescue Exception => exception
-      Wunderbar.error exception.inspect
       headers['status'] =  "500 Internal Server Error"
-      builder.puts unless builder.size == 0
-      builder.puts exception.inspect
-      exception.backtrace.each do |frame| 
-        next if HIDE_FRAME.any? {|re| frame =~ re}
-        Wunderbar.warn "  #{frame}"
-        builder.puts "  #{frame}"
-      end
+      builder._exception exception
     ensure
       out?(scope, headers) { builder.target! }
     end
@@ -90,15 +70,7 @@ module Wunderbar
           end
           _body do
             _h1 'Internal Server Error'
-            text = exception.inspect
-            Wunderbar.error text
-            exception.backtrace.each do |frame| 
-              next if HIDE_FRAME.any? {|re| frame =~ re}
-              Wunderbar.warn "  #{frame}"
-              text += "\n  #{frame}"
-            end
-    
-            _pre text
+            _exception exception
           end
         end
       end
