@@ -36,10 +36,6 @@ at_exit do
 
   elsif Wunderbar.queue.length > 0
 
-    # allow the REQUEST_METHOD to be set for command line invocations
-    ENV['REQUEST_METHOD'] ||= 'POST' if ARGV.delete('--post')
-    ENV['REQUEST_METHOD'] ||= 'GET'  if ARGV.delete('--get')
-
     # Only prompt if explicitly asked for
     ARGV.push '' if ARGV.empty?
     ARGV.delete('--prompt') or ARGV.delete('--offline')
@@ -74,6 +70,10 @@ at_exit do
 
     ENV['HOME'] ||= Dir.home($USER) rescue nil
     ENV['HOME'] = ENV['DOCUMENT_ROOT'] if not File.exist? ENV['HOME'].to_s
+
+    # allow the REQUEST_METHOD to be set for command line invocations
+    ENV['REQUEST_METHOD'] ||= 'POST' if ARGV.delete('--post')
+    ENV['REQUEST_METHOD'] ||= 'GET'  if ARGV.delete('--get')
 
     # CGI or command line
     Wunderbar::CGI.call(cgi)
