@@ -186,6 +186,14 @@ module Wunderbar
     def comment(*args)
       @_builder.comment! *args
     end
+
+    # insert verbatim
+    def <<(string)
+      require 'nokogiri'
+      @_builder << Nokogiri::HTML::fragment(string).to_xml
+    rescue LoadError
+      @_builder << string
+    end
   end
 
   class BuilderBase

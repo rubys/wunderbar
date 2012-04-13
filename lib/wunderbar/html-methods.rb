@@ -110,6 +110,18 @@ class HtmlMarkup < Wunderbar::BuilderBase
     end
   end
 
+  def <<(string)
+    STDERR.puts @xhtml
+    if @xhtml
+      begin
+        require 'nokogiri'
+        string = Nokogiri::HTML::fragment(string).to_xml
+      rescue LoadError
+      end
+    end
+    super(string)
+  end
+
   def _exception(*args)
     exception = args.first
     if exception.respond_to? :backtrace

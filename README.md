@@ -317,3 +317,11 @@ Additionally, the following options are supported:
 * `--debug`, `--info`, `--warn`, `--error`, `--fatal`: set log level
 * `--install=`path: produce an suexec-callable wrapper script
 * `--rescue` or `--backtrace` cause wrapper script to capture errors
+
+Optional dependencies:
+---
+
+The following gems, if installed, will produce cleaner and prettier output:
+
+* `nokogiri` cleans up HTML fragments inserted via `<<`
+* `escape` prettier quoting of `system` commands

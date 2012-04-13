@@ -64,6 +64,19 @@ class HtmlMarkupTest < Test::Unit::TestCase
     assert_match %r[<script.*>\s*if \(i&lt;1\) \{\}\s*</script>], target
   end
 
+  begin
+    require 'nokogiri'
+
+    def test_non_xhtml_markup
+      @x.xhtml {_ << "<p><br>&copy;"}
+      if RUBY_VERSION =~ /^1\.8/
+        assert_match %r[<p><br/>\302\251</p>], target
+      else
+        assert_match %r[<p><br/>&#169;</p>], target
+      end
+    end
+  end
+
   def test_disable_indent
     @x.html {_div! {_ "one "; _strong "two"; _ " three"}}
     assert_match %r[<div>one <strong>two</strong> three</div>], target
