@@ -12,70 +12,74 @@ module Wunderbar
 
 end
 
-at_exit do
-  port = ARGV.find {|arg| arg =~ /--port=(.*)/}
-  if port and ARGV.delete(port)
-    port = $1.to_i
+port = ARGV.find {|arg| arg =~ /--port=(.*)/}
+if port and ARGV.delete(port)
+  port = $1.to_i
 
-    # Evaluate optional data from the script (after __END__)
-    eval Wunderbar.data if Object.const_defined? :DATA
+  # Evaluate optional data from the script (after __END__)
+  eval Wunderbar.data if Object.const_defined? :DATA
 
-    # Allow optional environment override
-    environment = ARGV.find {|arg| arg =~ /--environment=(.*)/}
-    ENV['RACK_ENV'] = environment if environment and ARGV.delete(environment)
+  # Allow optional environment override
+  environment = ARGV.find {|arg| arg =~ /--environment=(.*)/}
+  ENV['RACK_ENV'] = environment if environment and ARGV.delete(environment)
 
+  at_exit do
     # start the server
     require 'rack'
     require 'wunderbar/rack'
     Rack::Server.start :app => Wunderbar::RackApp.new, :Port => port,
       :environment => (ENV['RACK_ENV'] || 'development')
+  end
 
-  elsif defined? Sinatra
+elsif defined? Sinatra
 
-    require 'wunderbar/sinatra'
+  require 'wunderbar/sinatra'
 
-  elsif Wunderbar.queue.length > 0
+else
 
-    # Only prompt if explicitly asked for
-    ARGV.push '' if ARGV.empty?
-    ARGV.delete('--prompt') or ARGV.delete('--offline')
+  require 'etc'
+  $USER = ENV['REMOTE_USER'] ||= ENV['USER'] || Etc.getlogin
+  if $USER.nil?
+    if RUBY_PLATFORM =~ /darwin/i
+      $USER = `dscl . -search /Users UniqueID #{Process.uid}`.split.first
+    elsif RUBY_PLATFORM =~ /linux/i
+      $USER = `getent passwd #{Process.uid}`.split(':').first
+    end
 
-    cgi = CGI.new
-    cgi.instance_variable_set '@env', ENV
-    class << cgi
-      attr_accessor :env
+    ENV['USER'] ||= $USER
+  end
 
-      # was this invoked via HTTP POST?
-      %w(delete get head options post put trace).each do |http_method|
-        define_method "#{http_method}?" do
-          env['REQUEST_METHOD'].to_s.downcase == http_method
+  ENV['HOME'] ||= Dir.home($USER) rescue nil
+  ENV['HOME'] = ENV['DOCUMENT_ROOT'] if not File.exist? ENV['HOME'].to_s
+
+  at_exit do
+    if Wunderbar.queue.length > 0
+      # Only prompt if explicitly asked for
+      ARGV.push '' if ARGV.empty?
+      ARGV.delete('--prompt') or ARGV.delete('--offline')
+
+      cgi = CGI.new
+      cgi.instance_variable_set '@env', ENV
+      class << cgi
+        attr_accessor :env
+
+        # was this invoked via HTTP POST?
+        %w(delete get head options post put trace).each do |http_method|
+          define_method "#{http_method}?" do
+            env['REQUEST_METHOD'].to_s.downcase == http_method
+          end
         end
       end
+
+      # get arguments if CGI couldn't find any... 
+      cgi.params.merge!(CGI.parse(ARGV.join('&'))) if cgi.params.empty?
+
+      # allow the REQUEST_METHOD to be set for command line invocations
+      ENV['REQUEST_METHOD'] ||= 'POST' if ARGV.delete('--post')
+      ENV['REQUEST_METHOD'] ||= 'GET'  if ARGV.delete('--get')
+
+      # CGI or command line
+      Wunderbar::CGI.call(cgi)
     end
-
-    # get arguments if CGI couldn't find any... 
-    cgi.params.merge!(CGI.parse(ARGV.join('&'))) if cgi.params.empty?
-
-    require 'etc'
-    $USER = ENV['REMOTE_USER'] ||= ENV['USER'] || Etc.getlogin
-    if $USER.nil?
-      if RUBY_PLATFORM =~ /darwin/i
-        $USER = `dscl . -search /Users UniqueID #{Process.uid}`.split.first
-      elsif RUBY_PLATFORM =~ /linux/i
-        $USER = `getent passwd #{Process.uid}`.split(':').first
-      end
-
-      ENV['USER'] ||= $USER
-    end
-
-    ENV['HOME'] ||= Dir.home($USER) rescue nil
-    ENV['HOME'] = ENV['DOCUMENT_ROOT'] if not File.exist? ENV['HOME'].to_s
-
-    # allow the REQUEST_METHOD to be set for command line invocations
-    ENV['REQUEST_METHOD'] ||= 'POST' if ARGV.delete('--post')
-    ENV['REQUEST_METHOD'] ||= 'GET'  if ARGV.delete('--get')
-
-    # CGI or command line
-    Wunderbar::CGI.call(cgi)
   end
 end
