@@ -1,6 +1,6 @@
 #!/usr/bin/ruby
 require 'wunderbar'
-require 'rdiscount'
+require 'redcarpet'
 require 'digest/md5'
 
 Dir.chdir WIKIDATA
@@ -9,6 +9,8 @@ Dir.chdir WIKIDATA
 %r{/(?<file>\w[-\w]+)((?<flag>/)(?<rev>\w*))?$} =~ ENV['PATH_INFO']
 flag ||= '?' if ENV['REQUEST_URI'].include? '?'
 file ||= 'index'
+
+markdown = Redcarpet::Markdown.new(Redcarpet::Render::XHTML)
 
 _html do
   _head_ do
@@ -110,7 +112,7 @@ _html do
         _input type: 'hidden', name: 'hash', 
           value: Digest::MD5.hexdigest(@markup)
         _div.output do
-          _ << RDiscount.new(@markup).to_html
+          _ << markdown.render(@markup)
         end
 
         _div.buttons do
@@ -135,7 +137,7 @@ _html do
 
       #display
       _div_.content do
-        _ << RDiscount.new(@markup).to_html
+        _ << markdown.render(@markup)
       end
 
       _div_.buttons do
