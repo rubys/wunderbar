@@ -54,26 +54,39 @@ class HtmlMarkupTest < Test::Unit::TestCase
     assert_match %r[^    if], target
   end
 
-  def test_script_html
-    @x.html {_script "if (i<1) {}"}
-    assert_match %r[<script.*>\s*if \(i<1\) \{\}\s*</script>], target
+  def test_script_unwrapped
+    @x.html {_script "if (i>1) {}"}
+    assert_match %r[<script.*>\s*if \(i>1\) \{\}\s*</script>], target
   end
 
-  def test_script_xhtml
-    @x.xhtml {_script "if (i<1) {}"}
-    assert_match %r[<script.*>\s*if \(i&lt;1\) \{\}\s*</script>], target
+  def test_script_wrapped
+    @x.html {_script "if (i<1) {}"}
+    assert_match %r[<script.*>//<!\[CDATA\[\s*
+      if\s\(i<1\)\s\{\}\s*//\]\]></script>]x, target
   end
 
   begin
     require 'nokogiri'
 
     def test_non_xhtml_markup
-      @x.xhtml {_ << "<p><br>&copy;"}
-      if RUBY_VERSION =~ /^1\.8/
-        assert_match %r[<p><br/>\302\251</p>], target
-      else
-        assert_match %r[<p><br/>&#169;</p>], target
+      @x.html do
+        _div.one   {_ << '<p><br>&copy;'}
+        _div.two   {_ << '<script>foo</script>'}
+        _div.three {_ << '<script>1<2</script>'}
+        _div.four  {_ << '<style>foo</style>'}
+        _div.five  {_ << '<style>a:before {content: "<"}</style>'}
       end
+      if RUBY_VERSION =~ /^1\.8/
+        assert_match %r[<div class="one">\s+<p><br/>\302\251</p>], target
+      else
+        assert_match %r[<div class="one">\s+<p><br/>&#169;</p>], target
+      end
+      assert_match %r[<div class="two">\s+<script>foo</script>], target
+      assert_match %r[<div\sclass="three">\s+<script>//<!\[CDATA\[\s+
+        1<2\s+//\]\]></script>]x, target
+      assert_match %r[<div class="four">\s+<style>foo</style>], target
+      assert_match %r[<div\sclass="five">\s+<style>/\*<!\[CDATA\[\*/\s+
+        a:before\s\{content:\s"<"\}\s+/\*\]\]>\*/</style>]x, target
     end
   end
 

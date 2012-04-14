@@ -6,8 +6,10 @@ module Wunderbar
       indented_data!(text) {|data| text! data}
     end
 
-    def indented_data!(data, &block)
+    def indented_data!(data, pre=nil, post=nil, &block)
       return if data.strip.length == 0
+
+      self << pre + target!.pop if pre
 
       if @indent > 0
         data.sub! /\n\s*\Z/, ''
@@ -31,6 +33,8 @@ module Wunderbar
       end
 
       _newline unless data =~ /\n\Z/
+
+      self << post if post
     end
 
     def disable_indendation!(&block)
@@ -189,8 +193,30 @@ module Wunderbar
 
     # insert verbatim
     def <<(string)
-      require 'nokogiri'
-      @_builder << Nokogiri::HTML::fragment(string).to_xml
+      if not String === string or string.include? '<' or string.include? '&'
+        require 'nokogiri'
+        string = Nokogiri::HTML::fragment(string.to_s).to_xml
+      end
+
+      # fix CDATA in most cases (notably scripts)
+      string.gsub!(/<!\[CDATA\[(.*?)\]\]>/m) do |cdata|
+        if $1.include? '<' or $1.include? '&'
+          "//<![CDATA[\n#{$1}\n//]]>"
+        else
+          $1
+        end
+      end
+
+      # fix CDATA for style elements
+      string.gsub!(/<style>\/\/<!\[CDATA\[\n(.*?)\s+\/\/\]\]>/m) do |cdata|
+        if $1.include? '<' or $1.include? '&'
+          "<style>/*<![CDATA[*/\n#{$1.gsub("\n\Z",'')}\n/*]]>*/"
+        else
+          $1
+        end
+      end
+
+      @_builder << string.to_s
     rescue LoadError
       @_builder << string
     end

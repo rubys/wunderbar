@@ -62,10 +62,18 @@ class HtmlMarkup < Wunderbar::BuilderBase
       if %w(script style).include?(name)
         if String === args.first and not block
           text = args.shift
-          if @xhtml
-            block = Proc.new {@x.indented_text! text}
+          if !text.include? '&' and !text.include? '<'
+            block = Proc.new do
+              @x.indented_data!(text)
+            end
+          elsif name == 'style'
+            block = Proc.new do
+              @x.indented_data!(text, "/*<![CDATA[*/", "/*]]>*/")
+            end
           else
-            block = Proc.new {@x.indented_data! text}
+            block = Proc.new do
+              @x.indented_data!(text, "//<![CDATA[", "//]]>")
+            end
           end
         end
 
@@ -106,20 +114,14 @@ class HtmlMarkup < Wunderbar::BuilderBase
         end
       end
     else
-      @x.tag! name, *args, &block
-    end
-  end
-
-  def <<(string)
-    STDERR.puts @xhtml
-    if @xhtml
-      begin
-        require 'nokogiri'
-        string = Nokogiri::HTML::fragment(string).to_xml
-      rescue LoadError
+      target = @x.tag! name, *args, &block
+      if block and %w(script style).include?(name)
+        if %w{//]]> /*]]>*/}.include? target[-4]
+          target[-4], target[-3] = target[-3], target[-4]
+        end
       end
+      target
     end
-    super(string)
   end
 
   def _exception(*args)
