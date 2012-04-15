@@ -102,7 +102,6 @@ def code(element, indent='')
   end
 
   line = "#{indent}_#{element_name}#{attributes.join(',')}"
-  line.sub! /^_/, 'W_.' if element_name == 'html' and indent.empty?
 
   if element.children.empty?
     flow_attrs "#{indent}_#{element_name}#{attributes.pop}", attributes, indent
