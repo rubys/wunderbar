@@ -192,14 +192,14 @@ module Wunderbar
     end
 
     # insert verbatim
-    def <<(string)
-      if not String === string or string.include? '<' or string.include? '&'
+    def <<(data)
+      if not String === data or data.include? '<' or data.include? '&'
         require 'nokogiri'
-        string = Nokogiri::HTML::fragment(string.to_s).to_xml
+        data = Nokogiri::HTML::fragment(data.to_s).to_xml
       end
 
       # fix CDATA in most cases (notably scripts)
-      string.gsub!(/<!\[CDATA\[(.*?)\]\]>/m) do |cdata|
+      data.gsub!(/<!\[CDATA\[(.*?)\]\]>/m) do |cdata|
         if $1.include? '<' or $1.include? '&'
           "//<![CDATA[\n#{$1}\n//]]>"
         else
@@ -208,15 +208,15 @@ module Wunderbar
       end
 
       # fix CDATA for style elements
-      string.gsub!(/<style>\/\/<!\[CDATA\[\n(.*?)\s+\/\/\]\]>/m) do |cdata|
-        if $1.include? '<' or $1.include? '&'
-          "<style>/*<![CDATA[*/\n#{$1.gsub("\n\Z",'')}\n/*]]>*/"
+      data.gsub!(/<style([^>])*>\/\/<!\[CDATA\[\n(.*?)\s+\/\/\]\]>/m) do |cdata|
+        if $2.include? '<' or $2.include? '&'
+          "<style#{$1}>/*<![CDATA[*/\n#{$2.gsub("\n\Z",'')}\n/*]]>*/"
         else
           $1
         end
       end
 
-      @_builder << string.to_s
+      @_builder << data
     rescue LoadError
       @_builder << string
     end
