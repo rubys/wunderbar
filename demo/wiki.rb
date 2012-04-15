@@ -6,8 +6,8 @@ require 'digest/md5'
 Dir.chdir WIKIDATA
 
 # parse request
-%r{/(?<file>\w[-\w]+)((?<flag>/)(?<rev>\w*))?$} =~ ENV['PATH_INFO']
-flag ||= '?' if ENV['REQUEST_URI'].include? '?'
+%r{/(?<file>\w[-\w]+)((?<flag>/)(?<rev>\w*))?$} =~ env['PATH_INFO']
+flag ||= '?' if env['REQUEST_URI'].to_s.include? '?'
 file ||= 'index'
 
 markdown = Redcarpet::Markdown.new(Redcarpet::Render::XHTML)
@@ -165,7 +165,7 @@ _html do
           hash:   $('input[name=hash]').val()
         };
 
-        $.post(#{ENV['REQUEST_URI'].to_json}, params, function(_) {
+        $.post(#{env['REQUEST_URI'].to_json}, params, function(_) {
           $('input[name=hash]').val(_.hash);
           if (_.time) {
             var time = new Date(_.time).toLocaleTimeString();
@@ -198,7 +198,7 @@ _html do
       var watch = $('<input type="submit" value="watch"/>');
       watch.click(function() {
         var watcher = function() {
-          $.ajax({url: #{ENV['REQUEST_URI'].to_json}, ifModified: true,
+          $.ajax({url: #{env['REQUEST_URI'].to_json}, ifModified: true,
             dataType: 'text', accepts: {text: 'text/plain'},
             success: function(_) { 
               $('.content').html(converter.makeHtml(_));

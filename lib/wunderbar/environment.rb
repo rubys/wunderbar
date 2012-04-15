@@ -49,5 +49,9 @@ if self.to_s == 'main'
     def _text(*args, &block)
       Wunderbar.text(*args, &block)
     end
+
+    def env
+      ENV
+    end
   end
 end
