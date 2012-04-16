@@ -2,13 +2,7 @@ require 'net/http'
 require 'rubygems'
 require 'nokogiri'
 require 'optparse'
-
-HTML5_BLOCK = %w(
-  # https://developer.mozilla.org/en/HTML/Block-level_elements
-  address article aside audio blockquote br canvas dd div dl fieldset
-  figcaption figcaption figure footer form h1 h2 h3 h4 h5 h6 header hgroup hr
-  noscript ol output p pre section table tfoot ul video
-)
+require 'wunderbar'
 
 # Convert a webpage to a Wunderbar script
 
@@ -116,20 +110,7 @@ def code(element, indent='')
   # element has children
   elsif element.children.any? {|child| child.element?}
     # do any of the text nodes need special processing to preserve spacing?
-    flatten = false
-    space = true
-    if element.children.any? {|child| child.text? and !child.text.strip.empty?}
-      element.children.each do |child| 
-        if child.text? or child.element?
-          unless child.text == ''
-            flatten = true if not space and not child.text =~ /\A\s/
-            space = (child.text =~ /\s\Z/)
-          end
-          space = true if child.element? and HTML5_BLOCK.include? child.name
-        end
-      end
-    end
-    line.sub!(/(\w)( |\.|$)/, '\1!\2') if flatten
+    line.sub! /(\w)( |\.|$)/, '\1!\2' if HtmlMarkup.flatten? element.children
 
     q "#{line} do"
 

@@ -112,7 +112,7 @@ _html do
         _input type: 'hidden', name: 'hash', 
           value: Digest::MD5.hexdigest(@markup)
         _div.output do
-          _ << markdown.render(@markup)
+          _import! markdown.render(@markup)
         end
 
         _div.buttons do
@@ -137,7 +137,7 @@ _html do
 
       #display
       _div_.content do
-        _ << markdown.render(@markup)
+        _import! markdown.render(@markup)
       end
 
       _div_.buttons do

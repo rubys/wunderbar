@@ -37,7 +37,7 @@ module Wunderbar
       self << post if post
     end
 
-    def disable_indendation!(&block)
+    def disable_indentation!(&block)
       indent, level, pending_newline, pending_margin = 
         indentation_state! [0, 0, @pending_newline, @pending_margin]
       text! " "*indent*level

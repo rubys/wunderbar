@@ -5,6 +5,13 @@ class HtmlMarkup < Wunderbar::BuilderBase
     link meta param source track wbr
   )
 
+  HTML5_BLOCK = %w(
+    # https://developer.mozilla.org/en/HTML/Block-level_elements
+    address article aside audio blockquote br canvas dd div dl fieldset
+    figcaption figcaption figure footer form h1 h2 h3 h4 h5 h6 header hgroup hr
+    noscript ol output p pre section table tfoot ul video
+  )
+
   def initialize(scope)
     @_scope = scope
     @x = Wunderbar::XmlMarkup.new :scope => scope, :indent => 2, :target => []
@@ -99,7 +106,7 @@ class HtmlMarkup < Wunderbar::BuilderBase
     end
 
     if flag == '!'
-      @x.disable_indendation! do
+      @x.disable_indentation! do
         @x.tag! name, *args, &block
       end
     elsif flag == '?'
@@ -192,5 +199,59 @@ class HtmlMarkup < Wunderbar::BuilderBase
 
   def clear!
     @x.target!.clear
+  end
+
+  def self.flatten?(children)
+    # do any of the text nodes need special processing to preserve spacing?
+    flatten = false
+    space = true
+    if children.any? {|child| child.text? and !child.text.strip.empty?}
+      children.each do |child|
+        if child.text? or child.element?
+          unless child.text == ''
+            flatten = true if not space and not child.text =~ /\A\s/
+            space = (child.text =~ /\s\Z/)
+          end
+          space = true if child.element? and HTML5_BLOCK.include? child.name
+        end
+      end
+    end
+    flatten
+  end
+
+  def _import!(children)
+    if String === children
+      require 'nokogiri'
+      children = Nokogiri::HTML::fragment(children.to_s).children
+    end
+
+    # remove leading and trailing space
+    children.shift if children.first.text.strip.empty?
+    children.pop if children.last.text.strip.empty?
+
+    children.each do |child|
+      if child.text?
+        text = child.text
+        if text.strip.empty?
+          @x.text! "\n" if text.count("\n")>1
+        elsif @x.indentation_state!.first == 0
+          @x.indented_text! text.gsub(/\s+/, ' ')
+        else
+          @x.indented_text! text.strip
+        end
+      else
+        if self.class.flatten? child.children
+          @x.disable_indentation! do
+            @x.tag!(child.name, child.attributes) {_import! child.children}
+          end
+        elsif child.children.empty?
+          @x.tag!(child.name, child.attributes)
+        elsif child.children.all? {|gchild| gchild.text?}
+          @x.tag!(child.name, child.text.strip, child.attributes)
+        else
+          @x.tag!(child.name, child.attributes) {_import! child.children}
+        end
+      end
+    end
   end
 end

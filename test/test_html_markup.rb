@@ -107,6 +107,18 @@ class HtmlMarkupTest < Test::Unit::TestCase
       target
   end
 
+  def test_import_indented
+    @x.html {_div {_import! "<p>one</p><hr><p>two</p>"}}
+    assert_match %r[<div>\n +<p>one</p>\n +<hr/>\n +<p>two</p>\n +</div>], 
+      target
+  end
+
+  def test_import_collapsed
+    @x.html {_div {_import! "<p>one, <em>two</em>, three</p>"}}
+    assert_match %r[<div>\n +<p>one, <em>two</em>, three</p>\n +</div>], 
+      target
+  end
+
   def test_traceback
     @x.html {_body? {boom}}
     assert_match %r[<pre.*>#&lt;NameError: .*boom], 

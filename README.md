@@ -282,6 +282,7 @@ HTML methods
 * `_svg`: insert svg namespace
 * `_math`: insert math namespace
 * `_coffeescript`: convert [coffeescript](http://coffeescript.org/) to JS and insert script tag
+* `_import!`: insert markup with indentation matching the current output
 * `xhtml?`: output as XHTML?
 
 Note that adding an exclamation mark to the end of the tag name disables this
@@ -291,7 +292,7 @@ Builder extensions
 ---
 * `indented_text!`: matches text indentation to markup
 * `indented_data!`: useful for script and styles in HTML syntax
-* `disable_indendation!`: temporarily disable insertion of whitespace
+* `disable_indentation!`: temporarily disable insertion of whitespace
 * `margin!`: insert blank lines between tags
 
 Logging:
