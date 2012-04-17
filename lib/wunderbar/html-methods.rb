@@ -239,18 +239,40 @@ class HtmlMarkup < Wunderbar::BuilderBase
         else
           @x.indented_text! text.strip
         end
-      else
-        if self.class.flatten? child.children
+      elsif self.class.flatten? child.children
+        block_element = Proc.new do |node| 
+          node.element? and HTML5_BLOCK.include?(node.name)
+        end
+
+        if child.children.any?(&block_element)
+          # indent children, but disable indentation on consecutive
+          # sequences of non-block-elements.  Put another way: break
+          # out block elements to a new line.
+          @x.tag!(child.name, child.attributes) do
+            children = child.children.to_a
+            while not children.empty?
+              stop = children.index(&block_element)
+              if stop == 0
+                _import! [children.shift]
+              else
+                @x.disable_indentation! do
+                  _import! children.shift(stop || children.length)
+                end
+              end
+            end
+          end
+        else
+          # disable indentation on the entire element
           @x.disable_indentation! do
             @x.tag!(child.name, child.attributes) {_import! child.children}
           end
-        elsif child.children.empty?
-          @x.tag!(child.name, child.attributes)
-        elsif child.children.all? {|gchild| gchild.text?}
-          @x.tag!(child.name, child.text.strip, child.attributes)
-        else
-          @x.tag!(child.name, child.attributes) {_import! child.children}
         end
+      elsif child.children.empty?
+        @x.tag!(child.name, child.attributes)
+      elsif child.children.all? {|gchild| gchild.text?}
+        @x.tag!(child.name, child.text.strip, child.attributes)
+      else
+        @x.tag!(child.name, child.attributes) {_import! child.children}
       end
     end
   end
