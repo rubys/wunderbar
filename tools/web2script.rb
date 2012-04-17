@@ -110,7 +110,8 @@ def code(element, indent='')
   # element has children
   elsif element.children.any? {|child| child.element?}
     # do any of the text nodes need special processing to preserve spacing?
-    line.sub! /(\w)( |\.|$)/, '\1!\2' if HtmlMarkup.flatten? element.children
+    flatten = HtmlMarkup.flatten?(element.children)
+    line.sub! /(\w)( |\.|$)/, '\1!\2' if flatten
 
     q "#{line} do"
 
@@ -120,7 +121,7 @@ def code(element, indent='')
 
     # recursively process children
     element.children.each do |child|
-      if child.text?
+      if child.text? or child.cdata?
         text = child.text.gsub(/\s+/, ' ')
         text = text.strip unless flatten
         next if text.empty?

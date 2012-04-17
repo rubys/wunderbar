@@ -230,7 +230,7 @@ class HtmlMarkup < Wunderbar::BuilderBase
     children.pop if children.last.text.strip.empty?
 
     children.each do |child|
-      if child.text?
+      if child.text? or child.cdata?
         text = child.text
         if text.strip.empty?
           @x.text! "\n" if text.count("\n")>1

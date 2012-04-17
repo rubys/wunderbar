@@ -119,6 +119,12 @@ class HtmlMarkupTest < Test::Unit::TestCase
       target
   end
 
+  def test_import_style
+    @x.html {_div {_import! "<style>em {color: red}</style>"}}
+    assert_match %r[<div>\n +<style>\n +em \{color: red\}\n +</style>\n], 
+      target
+  end
+
   def test_traceback
     @x.html {_body? {boom}}
     assert_match %r[<pre.*>#&lt;NameError: .*boom], 
