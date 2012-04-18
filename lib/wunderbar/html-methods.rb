@@ -226,8 +226,10 @@ class HtmlMarkup < Wunderbar::BuilderBase
     end
 
     # remove leading and trailing space
-    children.shift if children.first.text.strip.empty?
-    children.pop if children.last.text.strip.empty?
+    children.shift if children.first.text? and children.first.text.strip.empty?
+    if not children.empty?
+      children.pop if children.last.text? and children.last.text.strip.empty?
+    end
 
     children.each do |child|
       if child.text? or child.cdata?
@@ -239,6 +241,8 @@ class HtmlMarkup < Wunderbar::BuilderBase
         else
           @x.indented_text! text.strip
         end
+      elsif child.comment?
+        @x.comment! child.text.sub(/\A /,'').sub(/ \Z/, '')
       elsif self.class.flatten? child.children
         block_element = Proc.new do |node| 
           node.element? and HTML5_BLOCK.include?(node.name)

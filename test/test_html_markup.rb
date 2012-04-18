@@ -125,6 +125,12 @@ class HtmlMarkupTest < Test::Unit::TestCase
       target
   end
 
+  def test_import_comment
+    @x.html {_div {_import! "<br><!-- comment --><br>"}}
+    assert_match %r[<div>\n +<br/>\n +<!-- comment -->\n +<br/>\n +</div>], 
+      target
+  end
+
   def test_traceback
     @x.html {_body? {boom}}
     assert_match %r[<pre.*>#&lt;NameError: .*boom], 
