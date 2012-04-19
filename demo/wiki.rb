@@ -12,7 +12,7 @@ file ||= 'index'
 
 markdown = Redcarpet::Markdown.new(Redcarpet::Render::XHTML)
 
-_html do
+_html _width: 80 do
   _head_ do
     _title file
     _style %{

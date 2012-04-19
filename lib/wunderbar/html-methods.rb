@@ -27,6 +27,7 @@ class HtmlMarkup < Wunderbar::BuilderBase
     # default namespace
     args << {} if args.empty?
     args.first[:xmlns] ||= 'http://www.w3.org/1999/xhtml' if Hash === args.first
+    @_width = args.first.delete(:_width) if Hash === args.first
 
     @x.text! "\xEF\xBB\xBF"
     @x.declare! :DOCTYPE, :html
@@ -34,6 +35,32 @@ class HtmlMarkup < Wunderbar::BuilderBase
       set_variables_from_params
       instance_eval(&block)
     end
+
+    if @_width
+      # reflow long lines
+      source = @x.target!.slice!(0..-1)
+      indent = col = 0
+      breakable = true
+      while not source.empty?
+        token = source.shift
+        indent = token[/^ */].length if col == 0
+        breakable = false if token.start_with? '<'
+        while token.length + col > @_width and breakable
+          break if token[0...-1].include? "\n"
+          split = token.rindex(' ', [@_width-col,0].max) || token.index(' ')
+          break unless split
+          break if col+split < indent+@_width/2
+          @x.target! << token[0...split] << "\n" << (' '*indent)
+          col = indent
+          token = token[split+1..-1]
+        end
+        breakable = true if token.end_with? '>'
+        @x.target! << token
+        col += token.length
+        col = 0 if token.end_with? "\n"
+      end
+    end
+
     @x.target!.join
   end
 

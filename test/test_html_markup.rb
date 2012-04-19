@@ -223,5 +223,14 @@ class HtmlMarkupTest < Test::Unit::TestCase
     end
   rescue LoadError
   end
-    
+
+  def test_width
+    @x.html :_width => 80 do
+      _div! do
+        5.times {|i| _a i, :href=>i; _ ', '}
+      end
+    end
+    assert_match /<a href="2">2<\/a>, <a href="3">3<\/a>,\n  <a href="4">/, 
+      target
+  end
 end

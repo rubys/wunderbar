@@ -288,6 +288,10 @@ HTML methods
 Note that adding an exclamation mark to the end of the tag name disables this
 behavior.
 
+If one of the attributes passed on the `_html` declaration is `:_width`, an
+attempt will be made to reflow text in order to not exceed this line width.
+This won't be done if it will affect what actually is displayed.
+
 Builder extensions
 ---
 * `indented_text!`: matches text indentation to markup
