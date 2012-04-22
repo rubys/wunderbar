@@ -246,7 +246,7 @@ class SintraTest < Test::Unit::TestCase
       remove_method method
     end
     unless instance_methods.grep(/^skip$/).empty?
-      define_method(:test_sinatra) {skip Exception.inspect}
+      define_method(:test_sinatra) {skip exception.inspect}
     end
   end
 end

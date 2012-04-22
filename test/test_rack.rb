@@ -226,7 +226,7 @@ class RackTest < Test::Unit::TestCase
       remove_method method
     end
     unless instance_methods.grep(/^skip$/).empty?
-      define_method(:test_rack) {skip Exception.inspect}
+      define_method(:test_rack) {skip exception.inspect}
     end
   end
 end
