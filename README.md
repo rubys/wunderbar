@@ -186,15 +186,32 @@ number of other convenience methods are defined:
 * `_.post?`  -- was this invoked via HTTP POST?
 * `_.system` -- invokes a shell command, captures stdin, stdout, and stderr
 * `_.submit` -- runs command (or block) as a deamon process
+* `_.xhtml?` -- output as XHTML?
 
 Access to all of the builder _defined_ methods (typically these end in an esclamation mark) and all of the Wunderbar module methods can be accessed in this way.  Examples:
 
-* `_.tag! :foo`
-* `_.error 'Log message'`
+* `_.tag! :foo`: insert elements where the name can be dynamic
+* `_.error 'Log message'`: write a message to the server log
+* `_import!`: insert markup with indentation matching the current output
 
 XHTML differs from HTML in the escaping of inline style and script elements.
 XHTML will also fall back to HTML output unless the user agent indicates it
 supports XHTML via the HTTP Accept header.
+
+In addition to the default processing of elements, text, and attributes,
+Wunderdar defines additional processing for the following:
+
+* `_head`: insert meta charset utf-8
+* `_svg`: insert svg namespace
+* `_math`: insert math namespace
+* `_coffeescript`: convert [coffeescript](http://coffeescript.org/) to JS and insert script tag
+
+Note that adding an exclamation mark to the end of the tag name disables this
+behavior.
+
+If one of the attributes passed on the `_html` declaration is `:_width`, an
+attempt will be made to reflow text in order to not exceed this line width.
+This won't be done if it will affect what actually is displayed.
 
 Methods provided to Wunderbar.json
 ---
@@ -279,22 +296,6 @@ Also, the following environment variables are set if they aren't already:
 
 Finally, the (Ruby 1.9.x) default external and internal encodings are set to
 UTF-8.  For Ruby 1.8, `$KCODE` is set to `U`
-
-HTML methods
----
-* `_head`: insert meta charset utf-8
-* `_svg`: insert svg namespace
-* `_math`: insert math namespace
-* `_coffeescript`: convert [coffeescript](http://coffeescript.org/) to JS and insert script tag
-* `_import!`: insert markup with indentation matching the current output
-* `xhtml?`: output as XHTML?
-
-Note that adding an exclamation mark to the end of the tag name disables this
-behavior.
-
-If one of the attributes passed on the `_html` declaration is `:_width`, an
-attempt will be made to reflow text in order to not exceed this line width.
-This won't be done if it will affect what actually is displayed.
 
 Builder extensions
 ---
