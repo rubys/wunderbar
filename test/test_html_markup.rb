@@ -221,7 +221,10 @@ class HtmlMarkupTest < Test::Unit::TestCase
       assert_match %r[<script\slang="text/javascript">\s+\(function\(\)\s
         \{\s+alert\("foo"\);\s+\}\).call\(this\);\s+</script>]x, target
     end
-  rescue LoadError
+  rescue LoadError => exception
+    unless instance_methods.grep(/^skip$/).empty?
+      define_method(:test_coffeescript) {skip Exception.inspect}
+    end
   end
 
   def test_width

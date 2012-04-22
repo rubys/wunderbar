@@ -219,11 +219,14 @@ class RackTest < Test::Unit::TestCase
       Wunderbar::RackApp.new
     end
 
-  rescue LoadError
+  rescue LoadError => exception
 
     attr_accessor :default_test
     public_instance_methods.grep(/^test_/).each do |method|
       remove_method method
+    end
+    unless instance_methods.grep(/^skip$/).empty?
+      define_method(:test_rack) {skip Exception.inspect}
     end
   end
 end
