@@ -1,5 +1,6 @@
 require 'sinatra'
 require 'digest/md5'
+require 'nokogiri'
 
 module Wunderbar
   # Tilt template implementation
@@ -48,10 +49,16 @@ module Wunderbar
             instance_variable_set "@#{key}", value if key =~ /^[a-z]\w+$/
           end
         end
-        if block
-          builder.instance_eval(&block)
-        elsif data
+
+        if not block
           builder.instance_eval(data.untaint, eval_file)
+        elsif not data
+          builder.instance_eval(&block)
+        else
+          context = builder.get_binding do
+            builder.instance_eval {_import! block.call}
+          end
+          context.eval(data.untaint, eval_file)
         end
       end
 

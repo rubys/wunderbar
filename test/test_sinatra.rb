@@ -25,6 +25,26 @@ class SintraTest < Test::Unit::TestCase
     assert_match %r{^\s+<body></body>$}, last_response.body
   end
 
+  def test_html_view_no_layout
+    get '/html/view/no_layout' do
+      _html :no_layout, :layout => false
+    end
+
+    assert_equal 'text/html;charset=utf-8', last_response.content_type
+    assert_match %r{^\s+<title>No Layout</title>$}, last_response.body
+    assert_match %r{^\s+<p>From the view</p>$}, last_response.body
+  end
+
+  def test_html_view_with_layout
+    get '/html/view/with_layout' do
+      _html :with_layout, :layout => true
+    end
+
+    assert_equal 'text/html;charset=utf-8', last_response.content_type
+    assert_match %r{^\s+<title>From the Layout</title>$}, last_response.body
+    assert_match %r{^\s+<p>From the view</p>$}, last_response.body
+  end
+
   def test_html_safe
     get '/html/safe' do
       _html do

@@ -230,6 +230,10 @@ module Wunderbar
         instance_variable_set "@#{key}", value if key =~ /^\w+$/
       end
     end
+
+    def get_binding
+      binding
+    end
   end
 
   require 'stringio'

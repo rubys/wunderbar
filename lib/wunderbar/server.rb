@@ -5,7 +5,6 @@
 module Wunderbar
 
   CALLERS_TO_IGNORE = [
-    %r{/(wunderbar|webrick)/},
     %r{<internal:},
     %r{/gems/.*/lib/(builder|rack|sinatra|tilt)/}
   ]

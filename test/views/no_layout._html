@@ -1,0 +1,9 @@
+_html do
+  _head_ do
+    _title 'No Layout'
+  end
+
+  _body? do
+    _p 'From the view'
+  end
+end
