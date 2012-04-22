@@ -136,19 +136,19 @@ Basic interface
 A typical main program produces one or more of HTML, JSON, or plain text
 output.  This is accomplished by providing one or more of the following:
 
-    Wunderbar.html do
+    _html do
       code
     end
  
-    Wunderbar.xhtml do
+    _xhtml do
       code
     end
  
-    Wunderbar.json do
+    _json do
       code
     end
 
-    Wunderbar.text do
+    _text do
       code
     end
  
