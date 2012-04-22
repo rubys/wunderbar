@@ -5,10 +5,14 @@ module Wunderbar
     TEXT      = ARGV.delete('--text')
   end
 
-  module Untaint
-    def untaint_if_match regexp
-      self.untaint if regexp.match(self)
-    end
+  @@unsafe = false
+
+  def self.unsafe!(mode=true)
+    @@unsafe=mode
+  end
+
+  def self.safe?
+    not @@unsafe
   end
 
   class Scope

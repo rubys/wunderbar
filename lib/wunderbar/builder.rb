@@ -232,9 +232,9 @@ module Wunderbar
     end
   end
 
+  require 'stringio'
   class TextBuilder < BuilderBase
     def initialize(scope)
-      require 'stringio'
       @_target = StringIO.new
       @_scope = scope
     end

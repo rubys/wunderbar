@@ -25,6 +25,16 @@ class SintraTest < Test::Unit::TestCase
     assert_match %r{^\s+<body></body>$}, last_response.body
   end
 
+  def test_html_safe
+    get '/html/safe' do
+      _html do
+        _p $SAFE
+      end
+    end
+
+    assert_match %r{^\s+<p>1</p>$}, last_response.body
+  end
+
   def test_html_params
     get '/html/params', {'foo' => 'bar'} do
       _html do

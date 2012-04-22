@@ -79,7 +79,11 @@ else
       ENV['REQUEST_METHOD'] ||= 'GET'  if ARGV.delete('--get')
 
       # CGI or command line
-      Wunderbar::CGI.call(cgi)
+      if Wunderbar.safe? and $SAFE==0
+        Proc.new { $SAFE=1; Wunderbar::CGI.call(cgi) }.call
+      else
+        Wunderbar::CGI.call(cgi)
+      end
     end
   end
 end

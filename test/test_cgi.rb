@@ -34,6 +34,16 @@ class CGITest < Test::Unit::TestCase
     assert_match %r{^\s+<body></body>$}, @cgi.body
   end
 
+  def test_html_safe
+    Wunderbar.html do
+      _p $SAFE
+    end
+
+    Proc.new { $SAFE=1 if $SAFE==0; Wunderbar::CGI.call(@cgi) }.call
+
+    assert_match %r{^\s+<p>1</p>$}, @cgi.body
+  end
+
   def test_html_params
     Wunderbar.html do
       _body do

@@ -9,6 +9,7 @@ Dir.chdir WIKIDATA
 %r{/(?<file>\w[-\w]+)((?<flag>/)(?<rev>\w*))?$} =~ env['PATH_INFO']
 flag ||= '?' if env['REQUEST_URI'].to_s.include? '?'
 file ||= 'index'
+file.untaint
 
 markdown = Redcarpet::Markdown.new(Redcarpet::Render::XHTML)
 

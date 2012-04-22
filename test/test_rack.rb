@@ -24,6 +24,16 @@ class RackTest < Test::Unit::TestCase
     assert_match %r{^\s+<body></body>$}, last_response.body
   end
 
+  def test_html_safe
+    Wunderbar.html do
+      _p $SAFE
+    end
+
+    get '/'
+
+    assert_match %r{^\s+<p>1</p>$}, last_response.body
+  end
+
   def test_html_params
     Wunderbar.html do
       _body do

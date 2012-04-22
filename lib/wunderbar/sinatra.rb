@@ -51,7 +51,15 @@ module Wunderbar
         if block
           builder.instance_eval(&block)
         elsif data
-          builder.instance_eval(data, eval_file)
+          builder.instance_eval(data.untaint, eval_file)
+        end
+      end
+
+      def _evaluate_safely(*args, &block)
+        if Wunderbar.safe? and $SAFE==0
+          Proc.new { $SAFE=1; _evaluate(*args, &block) }.call
+        else
+          _evaluate(*args, &block)
         end
       end
     end
@@ -62,7 +70,7 @@ module Wunderbar
       def evaluate(scope, locals, &block)
         builder = HtmlMarkup.new(scope)
         begin
-          _evaluate(builder, scope, locals, &block)
+          _evaluate_safely(builder, scope, locals, &block)
         rescue Exception => exception
           scope.response.status = 500
           builder.clear!
@@ -90,7 +98,7 @@ module Wunderbar
       def evaluate(scope, locals, &block)
         builder = JsonBuilder.new(scope)
         begin
-          _evaluate(builder, scope, locals, &block)
+          _evaluate_safely(builder, scope, locals, &block)
         rescue Exception => exception
           scope.content_type self.class.default_mime_type, :charset => 'utf-8'
           scope.response.status = 500
@@ -106,7 +114,7 @@ module Wunderbar
       def evaluate(scope, locals, &block)
         builder = TextBuilder.new(scope)
         begin
-          _evaluate(builder, scope, locals, &block)
+          _evaluate_safely(builder, scope, locals, &block)
           scope.response.status = 404 if builder.target!.empty?
         rescue Exception => exception
           scope.headers['Content-Type'] = self.class.default_mime_type

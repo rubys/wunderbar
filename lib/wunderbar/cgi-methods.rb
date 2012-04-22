@@ -1,3 +1,5 @@
+require 'digest/md5'
+
 module Wunderbar
   module CGI
 
@@ -31,7 +33,6 @@ module Wunderbar
     # Conditionally provide output, based on ETAG
     def self.out?(scope, headers, &block)
       content = block.call
-      require 'digest/md5'
       etag = Digest::MD5.hexdigest(content)
 
       if scope.env['HTTP_IF_NONE_MATCH'] == etag.inspect

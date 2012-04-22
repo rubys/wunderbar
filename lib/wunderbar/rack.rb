@@ -6,7 +6,11 @@ module Wunderbar
       @_request = Rack::Request.new(env)
       @_response = Rack::Response.new
       Wunderbar.logger = @_request.logger
-      Wunderbar::CGI.call(self)
+      if Wunderbar.safe? and $SAFE==0
+        Proc.new { $SAFE=1; Wunderbar::CGI.call(self) }.call
+      else
+        Wunderbar::CGI.call(self)
+      end
       @_response.finish
     end
 

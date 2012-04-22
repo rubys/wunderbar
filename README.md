@@ -279,6 +279,20 @@ output stream, which provides access to other useful methods, for example:
         _.print 'foo'
         _.printf "Hello %s!\n", 'world'
 
+Secure by default
+---
+
+Wunderbar will properly escape all HTML and JSON output, eliminating problems
+of HTML or JavaScript injection.
+
+Unless you call `Wunderbar.unsafe!` at the top of your script, Wunderbar will
+also set
+[`$SAFE=1`](http://www.ruby-doc.org/docs/ProgrammingRuby/html/taint.html)
+before processing requests.  This means that you will need to
+[`untaint`](ruby-doc.org/core/Object.html#method-i-untaint) all inputs
+received from external sources before you make system calls or access the file
+system.
+
 Globals provided
 ---
 * `$USER`   - Host user id
