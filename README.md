@@ -152,8 +152,12 @@ output.  This is accomplished by providing one or more of the following:
       code
     end
  
-Arbitrary Ruby code can be placed in each.  To append to the output produced,
-use the `_` methods described here.
+Arbitrary Ruby code can be placed in each.  Form parameters are made available
+as instance variables (e.g., `@name`).  Host environment (CGI, Rack, Sinatra)
+values are accessible as methods of the `_` object: for example `_.headers`
+(CGI), `_.set_cookie` (Rack), `_.redirect` (Sinatra).
+
+To append to the output produced, use the `_` methods described below.  
 
 Methods provided to Wunderbar.html
 ---
