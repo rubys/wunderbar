@@ -35,6 +35,10 @@ elsif defined? Sinatra
 
   require 'wunderbar/sinatra'
 
+elsif defined? ActionView::Template
+
+  require 'wunderbar/rails'
+
 else
 
   require 'etc'

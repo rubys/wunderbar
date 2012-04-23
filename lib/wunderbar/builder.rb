@@ -218,7 +218,7 @@ module Wunderbar
 
       @_builder << data
     rescue LoadError
-      @_builder << string
+      @_builder << data
     end
   end
 
