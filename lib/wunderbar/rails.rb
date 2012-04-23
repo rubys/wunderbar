@@ -4,7 +4,7 @@ module Wunderbar
   module Rails
     class HelperProxy < HtmlMarkup
       def method_missing(symbol, *args, &block)
-        if @_scope.respond_to? symbol or
+        if @_scope.respond_to? symbol
           if @_scope.method(symbol).owner.parents.include?  ActionView::Helpers
             return _import! @_scope.__send__(symbol, *args, &block)
           end

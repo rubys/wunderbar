@@ -1,0 +1,13 @@
+_h1_ 'Listing products'
+
+_table do
+  _tr do
+    _th 'Title'
+  end
+
+  @products.each do |product|
+    _tr_ do
+      _td product.title
+    end
+  end
+end
