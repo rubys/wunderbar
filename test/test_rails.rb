@@ -42,6 +42,13 @@ class WunderbarOnRailsTest < ActionController::TestCase
     assert_select 'td', 'Wunderbar'
   end
 
+  def test_html_success
+    get :index, :format => 'json'
+    assert_response :success
+    response = JSON.parse(@response.body)
+    assert_equal 'Wunderbar', response['products'][0]['title']
+  end
+
   if superclass.superclass == Test::Unit::TestCase
     remove_method :setup
     attr_accessor :default_test
