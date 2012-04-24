@@ -42,7 +42,7 @@ class WunderbarOnRailsTest < ActionController::TestCase
     assert_select 'td', 'Wunderbar'
   end
 
-  def test_html_success
+  def test_json_success
     get :index, :format => 'json'
     assert_response :success
     response = JSON.parse(@response.body)
