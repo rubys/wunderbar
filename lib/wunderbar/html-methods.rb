@@ -219,14 +219,12 @@ class HtmlMarkup < Wunderbar::BuilderBase
     @x.tag! :math, *args, &block
   end
 
-  def _(text=nil)
-    @x.indented_text! text if text
-    @x
+  def _?(text)
+    @x.indented_text! text
   end
 
-  def _!(text=nil)
-    @x.text! text if text
-    @x
+  def _!(text)
+    @x.text! text
   end
 
   def _coffeescript(text)
@@ -258,10 +256,16 @@ class HtmlMarkup < Wunderbar::BuilderBase
     flatten
   end
 
-  def _?(children)
+  def _(children=nil)
+    return @x if children == nil
+
     if String === children
-      require 'nokogiri'
-      children = Nokogiri::HTML::fragment(children.to_s).children
+      if children.include? '<' or children.include? '&'
+        require 'nokogiri'
+        children = Nokogiri::HTML::fragment(children.to_s).children
+      else
+        return @x.indented_text! children
+      end
     end
 
     # remove leading and trailing space
@@ -296,10 +300,10 @@ class HtmlMarkup < Wunderbar::BuilderBase
             while not children.empty?
               stop = children.index(&block_element)
               if stop == 0
-                _? [children.shift]
+                _ [children.shift]
               else
                 @x.disable_indentation! do
-                  _? children.shift(stop || children.length)
+                  _ children.shift(stop || children.length)
                 end
               end
             end
@@ -307,15 +311,18 @@ class HtmlMarkup < Wunderbar::BuilderBase
         else
           # disable indentation on the entire element
           @x.disable_indentation! do
-            @x.tag!(child.name, child.attributes) {_? child.children}
+            @x.tag!(child.name, child.attributes) {_ child.children}
           end
         end
       elsif child.children.empty?
         @x.tag!(child.name, child.attributes)
       elsif child.children.all? {|gchild| gchild.text?}
         @x.tag!(child.name, child.text.strip, child.attributes)
+      elsif child.children.any? {|gchild| gchild.cdata?} and 
+        (child.text.include? '<' or child.text.include? '&')
+        @x << child
       else
-        @x.tag!(child.name, child.attributes) {_? child.children}
+        @x.tag!(child.name, child.attributes) {_ child.children}
       end
     end
   end

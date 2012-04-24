@@ -113,7 +113,7 @@ _html _width: 80 do
         _input type: 'hidden', name: 'hash', 
           value: Digest::MD5.hexdigest(@markup)
         _div.output do
-          _? markdown.render(@markup)
+          _ markdown.render(@markup)
         end
 
         _div.buttons do
@@ -130,7 +130,7 @@ _html _width: 80 do
       _ul do
         `git log --format="%H|%ai|%an|%s" #{file}`.lines.each do |line|
           hash, date, author, subject = line.split('|')
-          _li! {_a date, href: hash; _ " #{subject} by #{author}"}
+          _li! {_a date, href: hash; _? " #{subject} by #{author}"}
         end
       end
 
@@ -138,7 +138,7 @@ _html _width: 80 do
 
       #display
       _div_.content do
-        _? markdown.render(@markup)
+        _ markdown.render(@markup)
       end
 
       _div_.buttons do

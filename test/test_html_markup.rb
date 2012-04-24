@@ -68,7 +68,29 @@ class HtmlMarkupTest < Test::Unit::TestCase
   begin
     require 'nokogiri'
 
-    def test_non_xhtml_markup
+    def test_non_xhtml_markup_import
+      @x.html do
+        _div.one   {_ '<p><br>&copy;'}
+        _div.two   {_ '<script>foo</script>'}
+        _div.three {_ '<script>1<2</script>'}
+        _div.four  {_ '<style>foo</style>'}
+        _div.five  {_ '<style>a:before {content: "<"}</style>'}
+      end
+      if RUBY_VERSION =~ /^1\.8/
+        assert_match %r[<div class="one">\s+<p>\s+<br/>\s+\302\251\s+</p>],
+          target
+      else
+        assert_match %r[<div class="one">\s+<p>\s+<br/>\s+\u00a9\s+</p>], target
+      end
+      assert_match %r[<div class="two">\s+<script>\s+foo\s+</script>], target
+      assert_match %r[<div\sclass="three">\s+<script>//<!\[CDATA\[\s+
+        1<2\s+//\]\]></script>]x, target
+      assert_match %r[<div class="four">\s+<style>\s+foo\s+</style>], target
+      assert_match %r[<div\sclass="five">\s+<style>/\*<!\[CDATA\[\*/\s+
+        a:before\s\{content:\s"<"\}\s+/\*\]\]>\*/</style>]x, target
+    end
+
+    def test_non_xhtml_markup_shift
       @x.html do
         _div.one   {_ << '<p><br>&copy;'}
         _div.two   {_ << '<script>foo</script>'}
@@ -108,25 +130,25 @@ class HtmlMarkupTest < Test::Unit::TestCase
   end
 
   def test_import_indented
-    @x.html {_div {_? "<p>one</p><hr><p>two</p>"}}
+    @x.html {_div {_ "<p>one</p><hr><p>two</p>"}}
     assert_match %r[<div>\n +<p>one</p>\n +<hr/>\n +<p>two</p>\n +</div>], 
       target
   end
 
   def test_import_collapsed
-    @x.html {_div {_? "<p>one, <em>two</em>, three</p>"}}
+    @x.html {_div {_ "<p>one, <em>two</em>, three</p>"}}
     assert_match %r[<div>\n +<p>one, <em>two</em>, three</p>\n +</div>], 
       target
   end
 
   def test_import_style
-    @x.html {_div {_? "<style>em {color: red}</style>"}}
+    @x.html {_div {_ "<style>em {color: red}</style>"}}
     assert_match %r[<div>\n +<style>\n +em \{color: red\}\n +</style>\n], 
       target
   end
 
   def test_import_comment
-    @x.html {_div {_? "<br><!-- comment --><br>"}}
+    @x.html {_div {_ "<br><!-- comment --><br>"}}
     assert_match %r[<div>\n +<br/>\n +<!-- comment -->\n +<br/>\n +</div>], 
       target
   end
@@ -183,7 +205,7 @@ class HtmlMarkupTest < Test::Unit::TestCase
   end
 
   def test_indented_text
-    @x.html {_div {_ 'text'}}
+    @x.html {_div {_? 'text'}}
     assert_match %r[^  <div>\n    text\n  </div>], target
   end
 

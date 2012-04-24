@@ -80,9 +80,13 @@ Element with optional (omitted) attributes:
 
     _tr class: nil
 
-Text:
+Text (may contain markup):
 
-    _ "hello"
+    _ "<em>hello</em>!!!"
+
+Text (markup is escaped):
+
+    _? "<3"
 
 Mixed content (autospaced):
 
@@ -183,6 +187,7 @@ The "`_`" method serves a number of purposes.  Calling it with a single argument
 produces text nodes.  Inserting markup verbatim is done by "`_ << text`".  A
 number of other convenience methods are defined:
 
+* `_?`: insert markup with indentation matching the current output
 * `_.post?`  -- was this invoked via HTTP POST?
 * `_.system` -- invokes a shell command, captures stdin, stdout, and stderr
 * `_.submit` -- runs command (or block) as a deamon process
@@ -200,7 +205,6 @@ supports XHTML via the HTTP Accept header.
 In addition to the default processing of elements, text, and attributes,
 Wunderdar defines additional processing for the following:
 
-* `_?`: insert markup with indentation matching the current output
 * `_head`: insert meta charset utf-8
 * `_svg`: insert svg namespace
 * `_math`: insert math namespace
