@@ -7,6 +7,7 @@ begin
 
     def index
       @products = [Struct.new(:title).new('Wunderbar')]
+      render :index, :layout => 'application'
     end
   end
 
@@ -40,6 +41,9 @@ class WunderbarOnRailsTest < ActionController::TestCase
   def test_html_success
     get :index
     assert_response :success
+    assert_select 'title', 'From Layout'
+    assert_select 'meta[content="authenticity_token"]'
+    assert_select 'meta[name="csrf-token"]'
     assert_select 'td', 'Wunderbar'
   end
 

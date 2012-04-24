@@ -20,17 +20,15 @@ module Wunderbar
       self.default_format = Mime::HTML
 
       def self.call(template)
-        pre = %{
+        %{
+          compiled = Proc.new {#{template.source}}
           x = Wunderbar::Rails::HelperProxy.new(self);
           instance_variables.each do |var|
             x.instance_variable_set var, instance_variable_get(var)
           end
-        }.strip.gsub(/\s+/, ' ')
-
-        post ="x._.target!.join"
-
-        # take care to preserve line numbers in original source
-        "#{pre}; x.instance_eval { #{template.source} }; #{post}"
+          x.instance_eval &compiled
+          x._.target!.join
+        }.strip # take care to preserve line numbers in original source
       end
     end
 
@@ -39,17 +37,15 @@ module Wunderbar
       self.default_format = Mime::JSON
 
       def self.call(template)
-        pre = %{
+        %{
+          compiled = Proc.new {#{template.source}}
           x = Wunderbar::JsonBuilder.new(self);
           instance_variables.each do |var|
             x.instance_variable_set var, instance_variable_get(var)
           end
-        }.strip.gsub(/\s+/, ' ')
-
-        post ="x.target!"
-
-        # take care to preserve line numbers in original source
-        "#{pre}; x.instance_eval { #{template.source} }; #{post}"
+          x.instance_eval &compiled
+          x.target!
+        }.strip # take care to preserve line numbers in original source
       end
     end
 

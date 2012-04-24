@@ -1,0 +1,10 @@
+_html do
+  _head_ do
+    _title 'From Layout'
+    csrf_meta_tags
+  end
+
+  _body do
+    _import! yield
+  end
+end
