@@ -41,11 +41,17 @@ class HtmlMarkup < Wunderbar::BuilderBase
       source = @x.target!.slice!(0..-1)
       indent = col = 0
       breakable = true
+      pre = false
       while not source.empty?
         token = source.shift
         indent = token[/^ */].length if col == 0
-        breakable = false if token.start_with? '<'
-        while token.length + col > @_width and breakable
+
+        if token.start_with? '<'
+          breakable = false
+          pre = true if token == '<pre'
+        end
+
+        while token.length + col > @_width and breakable and not pre
           break if token[0...-1].include? "\n"
           split = token.rindex(' ', [@_width-col,0].max) || token.index(' ')
           break unless split
@@ -54,7 +60,12 @@ class HtmlMarkup < Wunderbar::BuilderBase
           col = indent
           token = token[split+1..-1]
         end
-        breakable = true if token.end_with? '>'
+
+        if token.end_with? '>'
+          breakable = true
+          pre = false if token == '</pre>'
+        end
+
         @x.target! << token
         col += token.length
         col = 0 if token.end_with? "\n"
