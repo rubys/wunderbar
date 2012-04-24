@@ -18,6 +18,7 @@ begin
   end
 
 rescue LoadError =>  exception
+  require 'test/unit'
   ActionController = Module.new do
     const_set :TestCase, Class.new(Test::Unit::TestCase) {
       define_method(:default_test) {}
