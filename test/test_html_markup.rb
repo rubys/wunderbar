@@ -1,6 +1,7 @@
 require 'test/unit'
 require 'rubygems'
 require 'wunderbar'
+require 'nokogiri'
 
 class HtmlMarkupTest < Test::Unit::TestCase
   def setup
@@ -65,51 +66,56 @@ class HtmlMarkupTest < Test::Unit::TestCase
       if\s\(i<1\)\s\{\}\s*//\]\]></script>]x, target
   end
 
-  begin
-    require 'nokogiri'
-
-    def test_non_xhtml_markup_import
-      @x.html do
-        _div.one   {_ '<p><br>&copy;'}
-        _div.two   {_ '<script>foo</script>'}
-        _div.three {_ '<script>1<2</script>'}
-        _div.four  {_ '<style>foo</style>'}
-        _div.five  {_ '<style>a:before {content: "<"}</style>'}
-      end
-      if RUBY_VERSION =~ /^1\.8/
-        assert_match %r[<div class="one">\s+<p>\s+<br/>\s+\302\251\s+</p>],
-          target
-      else
-        assert_match %r[<div class="one">\s+<p>\s+<br/>\s+\u00a9\s+</p>], target
-      end
-      assert_match %r[<div class="two">\s+<script>\s+foo\s+</script>], target
-      assert_match %r[<div\sclass="three">\s+<script>//<!\[CDATA\[\s+
-        1<2\s+//\]\]></script>]x, target
-      assert_match %r[<div class="four">\s+<style>\s+foo\s+</style>], target
-      assert_match %r[<div\sclass="five">\s+<style>/\*<!\[CDATA\[\*/\s+
-        a:before\s\{content:\s"<"\}\s+/\*\]\]>\*/</style>]x, target
+  def test_non_xhtml_markup_import
+    @x.html do
+      _div.one   {_ '<p><br>&copy;'}
+      _div.two   {_ '<script>foo</script>'}
+      _div.three {_ '<script>1<2</script>'}
+      _div.four  {_ '<style>foo</style>'}
+      _div.five  {_ '<style>a:before {content: "<"}</style>'}
     end
-
-    def test_non_xhtml_markup_shift
-      @x.html do
-        _div.one   {_ << '<p><br>&copy;'}
-        _div.two   {_ << '<script>foo</script>'}
-        _div.three {_ << '<script>1<2</script>'}
-        _div.four  {_ << '<style>foo</style>'}
-        _div.five  {_ << '<style>a:before {content: "<"}</style>'}
-      end
-      if RUBY_VERSION =~ /^1\.8/
-        assert_match %r[<div class="one">\s+<p><br/>\302\251</p>], target
-      else
-        assert_match %r[<div class="one">\s+<p><br/>&#169;</p>], target
-      end
-      assert_match %r[<div class="two">\s+<script>foo</script>], target
-      assert_match %r[<div\sclass="three">\s+<script>//<!\[CDATA\[\s+
-        1<2\s+//\]\]></script>]x, target
-      assert_match %r[<div class="four">\s+<style>foo</style>], target
-      assert_match %r[<div\sclass="five">\s+<style>/\*<!\[CDATA\[\*/\s+
-        a:before\s\{content:\s"<"\}\s+/\*\]\]>\*/</style>]x, target
+    if RUBY_VERSION =~ /^1\.8/
+      assert_match %r[<div class="one">\s+<p>\s+<br/>\s+\302\251\s+</p>],
+        target
+    else
+      assert_match %r[<div class="one">\s+<p>\s+<br/>\s+\u00a9\s+</p>], target
     end
+    assert_match %r[<div class="two">\s+<script>\s+foo\s+</script>], target
+    assert_match %r[<div\sclass="three">\s+<script>//<!\[CDATA\[\s+
+      1<2\s+//\]\]></script>]x, target
+    assert_match %r[<div class="four">\s+<style>\s+foo\s+</style>], target
+    assert_match %r[<div\sclass="five">\s+<style>/\*<!\[CDATA\[\*/\s+
+      a:before\s\{content:\s"<"\}\s+/\*\]\]>\*/</style>]x, target
+  end
+
+  def test_non_xhtml_markup_shift
+    @x.html do
+      _div.one   {_ << '<p><br>&copy;'}
+      _div.two   {_ << '<script>foo</script>'}
+      _div.three {_ << '<script>1<2</script>'}
+      _div.four  {_ << '<style>foo</style>'}
+      _div.five  {_ << '<style>a:before {content: "<"}</style>'}
+    end
+    if RUBY_VERSION =~ /^1\.8/
+      assert_match %r[<div class="one">\s+<p><br/>\302\251</p>], target
+    else
+      assert_match %r[<div class="one">\s+<p><br/>&#169;</p>], target
+    end
+    assert_match %r[<div class="two">\s+<script>foo</script>], target
+    assert_match %r[<div\sclass="three">\s+<script>//<!\[CDATA\[\s+
+      1<2\s+//\]\]></script>]x, target
+    assert_match %r[<div class="four">\s+<style>foo</style>], target
+    assert_match %r[<div\sclass="five">\s+<style>/\*<!\[CDATA\[\*/\s+
+      a:before\s\{content:\s"<"\}\s+/\*\]\]>\*/</style>]x, target
+  end
+
+  def test_safe_markup
+    markup = "<b>bold</b>"
+    def markup.html_safe?
+      true
+    end
+    @x.html {_p markup}
+    assert_match %r[<p>\n    <b>bold</b>\n  </p>], target
   end
 
   def test_disable_indent

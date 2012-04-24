@@ -183,11 +183,13 @@ Suffixes after the tag name will modify the processing.
 * `?`: adds code to rescue exceptions and produce tracebacks 
 * `_`: adds extra blank lines between this tag and siblings
 
-The "`_`" method serves a number of purposes.  Calling it with a single argument
-produces text nodes.  Inserting markup verbatim is done by "`_ << text`".  A
-number of other convenience methods are defined:
+The "`_`" method serves a number of purposes.  Calling it with a single
+argument inserts markup, respecting indendation.  Inserting markup without
+reguard to indendatation is done using "`_ << text`".  A number of other
+convenience methods are defined:
 
-* `_?`: insert markup with indentation matching the current output
+* `_?`: insert text with indentation matching the current output
+* `_!`: insert text without indenting
 * `_.post?`  -- was this invoked via HTTP POST?
 * `_.system` -- invokes a shell command, captures stdin, stdout, and stderr
 * `_.submit` -- runs command (or block) as a deamon process
@@ -287,15 +289,23 @@ Secure by default
 ---
 
 Wunderbar will properly escape all HTML and JSON output, eliminating problems
-of HTML or JavaScript injection.
+of HTML or JavaScript injection.  This includes calls to `_` to insert markup
+directly when the input is `tainted` and not explicitly marked as `html-safe?`
+(when using Rails).
 
-Unless you call `Wunderbar.unsafe!` at the top of your script, Wunderbar will
-also set
+For all environments other than Rails, unless you call `Wunderbar.unsafe!` at
+the top of your script, Wunderbar will also set
 [`$SAFE=1`](http://www.ruby-doc.org/docs/ProgrammingRuby/html/taint.html)
 before processing requests.  This means that you will need to
 [`untaint`](ruby-doc.org/core/Object.html#method-i-untaint) all inputs
 received from external sources before you make system calls or access the file
 system.
+
+A special feature that effectively is only available in the Rails environment:
+if the first argument to call that creates an element is `html_safe?`, then
+that argument will be treated as a markup instead of as text.  This allows one
+to make calls like `_td link_to...` without placing the call to `link_to` in a
+block.
 
 Globals provided
 ---

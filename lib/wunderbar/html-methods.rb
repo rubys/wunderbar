@@ -135,6 +135,15 @@ class HtmlMarkup < Wunderbar::BuilderBase
         args.unshift '' if not VOID.include?(name) and not block
       end
 
+      if String === args.first and args.first.respond_to? :html_safe?
+        if args.first.html_safe? and not block
+          if args.first.include? '>' or args.first.include? '&'
+            markup = args.shift
+            block = Proc.new {_ markup}
+          end
+        end
+      end
+
       if Hash === args.last
         # remove attributes with nil, false values
         args.last.delete_if {|key, value| !value}
