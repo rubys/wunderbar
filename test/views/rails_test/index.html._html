@@ -3,11 +3,13 @@ _h1_ 'Listing products'
 _table do
   _tr do
     _th 'Title'
+    _th 'Quantity'
   end
 
   @products.each do |product|
     _tr_ do
       _td product.title
+      _td number_to_human(product.quantity)
     end
   end
 end

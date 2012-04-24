@@ -1,1 +1,1 @@
-_products @products, :title
+_products @products, :title, :quantity

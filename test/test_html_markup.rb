@@ -108,25 +108,25 @@ class HtmlMarkupTest < Test::Unit::TestCase
   end
 
   def test_import_indented
-    @x.html {_div {_import! "<p>one</p><hr><p>two</p>"}}
+    @x.html {_div {_? "<p>one</p><hr><p>two</p>"}}
     assert_match %r[<div>\n +<p>one</p>\n +<hr/>\n +<p>two</p>\n +</div>], 
       target
   end
 
   def test_import_collapsed
-    @x.html {_div {_import! "<p>one, <em>two</em>, three</p>"}}
+    @x.html {_div {_? "<p>one, <em>two</em>, three</p>"}}
     assert_match %r[<div>\n +<p>one, <em>two</em>, three</p>\n +</div>], 
       target
   end
 
   def test_import_style
-    @x.html {_div {_import! "<style>em {color: red}</style>"}}
+    @x.html {_div {_? "<style>em {color: red}</style>"}}
     assert_match %r[<div>\n +<style>\n +em \{color: red\}\n +</style>\n], 
       target
   end
 
   def test_import_comment
-    @x.html {_div {_import! "<br><!-- comment --><br>"}}
+    @x.html {_div {_? "<br><!-- comment --><br>"}}
     assert_match %r[<div>\n +<br/>\n +<!-- comment -->\n +<br/>\n +</div>], 
       target
   end

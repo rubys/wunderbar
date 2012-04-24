@@ -6,7 +6,7 @@ begin
     append_view_path File.expand_path(File.join File.dirname(__FILE__), 'views')
 
     def index
-      @products = [Struct.new(:title).new('Wunderbar')]
+      @products = [Struct.new(:title,:quantity).new('Wunderbar',1_000)]
       render :index, :layout => 'application'
     end
   end
@@ -45,6 +45,7 @@ class WunderbarOnRailsTest < ActionController::TestCase
     assert_select 'meta[content="authenticity_token"]'
     assert_select 'meta[name="csrf-token"]'
     assert_select 'td', 'Wunderbar'
+    assert_select 'td', '1 Thousand'
   end
 
   def test_json_success
@@ -52,6 +53,7 @@ class WunderbarOnRailsTest < ActionController::TestCase
     assert_response :success
     response = JSON.parse(@response.body)
     assert_equal 'Wunderbar', response['products'][0]['title']
+    assert_equal 1_000, response['products'][0]['quantity']
   end
 
   if superclass.superclass == Test::Unit::TestCase

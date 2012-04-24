@@ -192,7 +192,6 @@ Access to all of the builder _defined_ methods (typically these end in an esclam
 
 * `_.tag! :foo`: insert elements where the name can be dynamic
 * `_.error 'Log message'`: write a message to the server log
-* `_import!`: insert markup with indentation matching the current output
 
 XHTML differs from HTML in the escaping of inline style and script elements.
 XHTML will also fall back to HTML output unless the user agent indicates it
@@ -201,6 +200,7 @@ supports XHTML via the HTTP Accept header.
 In addition to the default processing of elements, text, and attributes,
 Wunderdar defines additional processing for the following:
 
+* `_?`: insert markup with indentation matching the current output
 * `_head`: insert meta charset utf-8
 * `_svg`: insert svg namespace
 * `_math`: insert math namespace

@@ -2,19 +2,6 @@ require 'active_support/core_ext'
 
 module Wunderbar
   module Rails
-    class HelperProxy < HtmlMarkup
-      def method_missing(symbol, *args, &block)
-        if @_scope.respond_to? symbol
-          if @_scope.method(symbol).owner.parents.include?  ActionView::Helpers
-            return _import! @_scope.__send__(symbol, *args, &block)
-          end
-        elsif @_scope.helpers.instance_methods.include? symbol
-          return _import! @_scope.__send__(symbol, *args, &block)
-        end
-        super
-      end
-    end
-
     class HtmlHandler
       cattr_accessor :default_format
       self.default_format = Mime::HTML
@@ -22,7 +9,7 @@ module Wunderbar
       def self.call(template)
         %{
           compiled = Proc.new {#{template.source}}
-          x = Wunderbar::Rails::HelperProxy.new(self);
+          x = HtmlMarkup.new(self);
           instance_variables.each do |var|
             x.instance_variable_set var, instance_variable_get(var)
           end

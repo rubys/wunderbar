@@ -1,10 +1,10 @@
 _html do
   _head_ do
     _title 'From Layout'
-    csrf_meta_tags
+    _? csrf_meta_tags
   end
 
   _body do
-    _import! yield
+    _? yield
   end
 end

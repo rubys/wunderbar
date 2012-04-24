@@ -258,7 +258,7 @@ class HtmlMarkup < Wunderbar::BuilderBase
     flatten
   end
 
-  def _import!(children)
+  def _?(children)
     if String === children
       require 'nokogiri'
       children = Nokogiri::HTML::fragment(children.to_s).children
@@ -296,10 +296,10 @@ class HtmlMarkup < Wunderbar::BuilderBase
             while not children.empty?
               stop = children.index(&block_element)
               if stop == 0
-                _import! [children.shift]
+                _? [children.shift]
               else
                 @x.disable_indentation! do
-                  _import! children.shift(stop || children.length)
+                  _? children.shift(stop || children.length)
                 end
               end
             end
@@ -307,7 +307,7 @@ class HtmlMarkup < Wunderbar::BuilderBase
         else
           # disable indentation on the entire element
           @x.disable_indentation! do
-            @x.tag!(child.name, child.attributes) {_import! child.children}
+            @x.tag!(child.name, child.attributes) {_? child.children}
           end
         end
       elsif child.children.empty?
@@ -315,7 +315,7 @@ class HtmlMarkup < Wunderbar::BuilderBase
       elsif child.children.all? {|gchild| gchild.text?}
         @x.tag!(child.name, child.text.strip, child.attributes)
       else
-        @x.tag!(child.name, child.attributes) {_import! child.children}
+        @x.tag!(child.name, child.attributes) {_? child.children}
       end
     end
   end
