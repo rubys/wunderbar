@@ -129,11 +129,11 @@ module Wunderbar
         begin
           # if available, use escape as it does prettier quoting
           require 'escape'
-          command = Escape.shell_command(command)
+          command = Escape.shell_command(command).untaint
         rescue LoadError
           # std-lib function that gets the job done
           require 'shellwords'
-          command = Shellwords.join(command)
+          command = Shellwords.join(command).untaint
         end
       end
 
