@@ -220,11 +220,11 @@ class HtmlMarkup < Wunderbar::BuilderBase
   end
 
   def _?(text)
-    @x.indented_text! text
+    @x.indented_text! text.to_s
   end
 
   def _!(text)
-    @x.text! text
+    @x.text! text.to_s
   end
 
   def _coffeescript(text)
