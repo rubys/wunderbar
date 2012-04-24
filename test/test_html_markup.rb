@@ -153,6 +153,16 @@ class HtmlMarkupTest < Test::Unit::TestCase
       target
   end
 
+  def test_import_nonvoid
+    @x.html {_div {_ "<textarea/>"}}
+    assert_match %r[<textarea></textarea>], target
+  end
+
+  def test_import_tainted
+    @x.html {_div {_ "<br>".taint}}
+    assert_match %r[&lt;br&gt;], target
+  end
+
   def test_traceback
     @x.html {_body? {boom}}
     assert_match %r[<pre.*>#&lt;NameError: .*boom], 

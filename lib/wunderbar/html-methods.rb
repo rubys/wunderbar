@@ -260,7 +260,10 @@ class HtmlMarkup < Wunderbar::BuilderBase
     return @x if children == nil
 
     if String === children
-      if children.include? '<' or children.include? '&'
+      safe = !children.tainted?
+      safe ||= children.html_safe?  if children.respond_to? :html_safe?
+
+      if safe and (children.include? '<' or children.include? '&')
         require 'nokogiri'
         children = Nokogiri::HTML::fragment(children.to_s).children
       else
@@ -314,7 +317,7 @@ class HtmlMarkup < Wunderbar::BuilderBase
             @x.tag!(child.name, child.attributes) {_ child.children}
           end
         end
-      elsif child.children.empty?
+      elsif child.children.empty? and VOID.include? child.name
         @x.tag!(child.name, child.attributes)
       elsif child.children.all? {|gchild| gchild.text?}
         @x.tag!(child.name, child.text.strip, child.attributes)
