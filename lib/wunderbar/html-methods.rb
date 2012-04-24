@@ -101,6 +101,7 @@ class HtmlMarkup < Wunderbar::BuilderBase
 
     if name.sub!(/_$/,'')
       @x.margin!
+      return __send__ "_#{name}", *args, &block if respond_to? "_#{name}"
     end
 
     if flag != '!'
