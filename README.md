@@ -266,6 +266,7 @@ the block
    * Example: `_([1,2,3]) {|n| n*n}`
 
 * arrays can be also be built using the `_` method:
+
         _ 1
         _ 2
 
