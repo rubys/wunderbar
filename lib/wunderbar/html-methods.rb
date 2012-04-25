@@ -51,6 +51,7 @@ class HtmlMarkup < Wunderbar::BuilderBase
           pre = true if token == '<pre'
         end
 
+        # flow text
         while token.length + col > @_width and breakable and not pre
           break if token[0...-1].include? "\n"
           split = token.rindex(' ', [@_width-col,0].max) || token.index(' ')
@@ -61,9 +62,15 @@ class HtmlMarkup < Wunderbar::BuilderBase
           token = token[split+1..-1]
         end
 
+        # break around tags
         if token.end_with? '>'
-          if col > @_width and not pre
-            # treat tags as a whole, break on previous space within text
+          if col > indent + 4 and @x.target![-2..-1] == ['<br', '/']
+            @x.target! << token << "\n"
+            col = 0
+            token = ' '*indent
+            source[0] = source.first.lstrip
+          elsif col > @_width and not pre
+            # break on previous space within text
             pcol = col
             @x.target!.reverse_each do |xtoken|
               break if xtoken.include? "\n"
