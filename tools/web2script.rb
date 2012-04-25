@@ -100,6 +100,15 @@ def code(element, indent='')
     else
       attributes << " #{key.enquote} => #{value.enquote}"
     end
+
+    # add _width to html element
+    if $width and element_name == 'html'
+      if RUBY_VERSION =~ /^1\.8/
+        attributes << " :_width => #{$width}"
+      else
+        attributes << " _width: #{$width}"
+      end
+    end
   end
 
   line = "#{indent}_#{element_name}#{attributes.join(',')}"
