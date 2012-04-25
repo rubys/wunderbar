@@ -13,7 +13,7 @@ file.untaint
 
 markdown = Redcarpet::Markdown.new(Redcarpet::Render::XHTML)
 
-_html _width: 80 do
+_html _width: $WIDTH do
   _head_ do
     _title file
     _style %{
@@ -251,6 +251,9 @@ end
 __END__
 # Customize where the wiki data is stored
 WIKIDATA = '/full/path/to/data/directory'
+
+# Width to wrap lines in output HTML produced (remove to disable wrapping)
+$WIDTH = 80
 
 # git author e-mail address override
 require 'wunderbar'
