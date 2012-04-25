@@ -62,6 +62,23 @@ class HtmlMarkup < Wunderbar::BuilderBase
         end
 
         if token.end_with? '>'
+          if col > @_width and not pre
+            # treat tags as a whole, break on previous space within text
+            pcol = col
+            @x.target!.reverse_each do |xtoken|
+              break if xtoken.include? "\n"
+              split = xtoken.rindex(' ')
+              breakable = false if xtoken.end_with? '>'
+              if breakable and split
+                col = col - pcol + xtoken.length - split + indent
+                xtoken[split] = "\n#{' '*indent}" 
+                break
+              end
+              breakable = true if xtoken.start_with? '<'
+              pcol -= xtoken.length
+              break if pcol < (@_width + indent)/2
+            end
+          end
           breakable = true
           pre = false if token == '</pre>'
         end
@@ -131,8 +148,12 @@ class HtmlMarkup < Wunderbar::BuilderBase
       end
 
       # ensure that non-void elements are explicitly closed
-      if args.length == 0 or (args.length == 1 and Hash === args.first)
-        args.unshift '' if not VOID.include?(name) and not block
+      if not block and not VOID.include?(name)
+        symbol = (args.shift if args.length > 0 and Symbol === args.first)
+        if args.length == 0 or (args.length == 1 and Hash === args.first)
+          args.unshift ''
+        end
+        args.unshift(symbol) if symbol
       end
 
       if String === args.first and args.first.respond_to? :html_safe?

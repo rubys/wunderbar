@@ -35,6 +35,11 @@ class HtmlMarkupTest < Test::Unit::TestCase
     assert_match %r{<textarea></textarea>}, target
   end
 
+  def test_namespaced_element
+    @x.html {_g :plusone}
+    assert_match %r{<g:plusone></g:plusone>}, target
+  end
+
   def test_script_lang
     @x.html {_script}
     assert_match %r[<script lang="text/javascript">], target
