@@ -37,63 +37,7 @@ class HtmlMarkup < Wunderbar::BuilderBase
     end
 
     if @_width
-      # reflow long lines
-      source = @x.target!.slice!(0..-1)
-      indent = col = 0
-      breakable = true
-      pre = false
-      while not source.empty?
-        token = source.shift
-        indent = token[/^ */].length if col == 0
-
-        if token.start_with? '<'
-          breakable = false
-          pre = true if token == '<pre'
-        end
-
-        # flow text
-        while token.length + col > @_width and breakable and not pre
-          break if token[0...-1].include? "\n"
-          split = token.rindex(' ', [@_width-col,0].max) || token.index(' ')
-          break unless split
-          break if col+split < indent+@_width/2
-          @x.target! << token[0...split] << "\n" << (' '*indent)
-          col = indent
-          token = token[split+1..-1]
-        end
-
-        # break around tags
-        if token.end_with? '>'
-          if col > indent + 4 and @x.target![-2..-1] == ['<br', '/']
-            @x.target! << token << "\n"
-            col = 0
-            token = ' '*indent
-            source[0] = source.first.lstrip
-          elsif col > @_width and not pre
-            # break on previous space within text
-            pcol = col
-            @x.target!.reverse_each do |xtoken|
-              break if xtoken.include? "\n"
-              split = xtoken.rindex(' ')
-              breakable = false if xtoken.end_with? '>'
-              if breakable and split
-                col = col - pcol + xtoken.length - split + indent
-                xtoken[split] = "\n#{' '*indent}" 
-                break
-              end
-              breakable = true if xtoken.start_with? '<'
-              pcol -= xtoken.length
-              break if pcol < (@_width + indent)/2
-            end
-          end
-          breakable = true
-          pre = false if token == '</pre>'
-        end
-
-        @x.target! << token
-        col += token.length
-        col = 0 if token.end_with? "\n"
-      end
+      self.class.reflow(@x.target!, @_width)
     end
 
     @x.target!.join
@@ -264,35 +208,6 @@ class HtmlMarkup < Wunderbar::BuilderBase
     @x.text! text.to_s
   end
 
-  def _coffeescript(text)
-    require 'coffee-script'
-    _script CoffeeScript.compile(text)
-  rescue LoadError
-    _script text, :lang => 'text/coffeescript'
-  end
-
-  def clear!
-    @x.target!.clear
-  end
-
-  def self.flatten?(children)
-    # do any of the text nodes need special processing to preserve spacing?
-    flatten = false
-    space = true
-    if children.any? {|child| child.text? and !child.text.strip.empty?}
-      children.each do |child|
-        if child.text? or child.element?
-          unless child.text == ''
-            flatten = true if not space and not child.text =~ /\A\s/
-            space = (child.text =~ /\s\Z/)
-          end
-          space = true if child.element? and HTML5_BLOCK.include? child.name
-        end
-      end
-    end
-    flatten
-  end
-
   def _(children=nil)
     return @x if children == nil
 
@@ -364,6 +279,95 @@ class HtmlMarkup < Wunderbar::BuilderBase
       else
         @x.tag!(child.name, child.attributes) {_ child.children}
       end
+    end
+  end
+
+  def _coffeescript(text)
+    require 'coffee-script'
+    _script CoffeeScript.compile(text)
+  rescue LoadError
+    _script text, :lang => 'text/coffeescript'
+  end
+
+  def clear!
+    @x.target!.clear
+  end
+
+  def self.flatten?(children)
+    # do any of the text nodes need special processing to preserve spacing?
+    flatten = false
+    space = true
+    if children.any? {|child| child.text? and !child.text.strip.empty?}
+      children.each do |child|
+        if child.text? or child.element?
+          unless child.text == ''
+            flatten = true if not space and not child.text =~ /\A\s/
+            space = (child.text =~ /\s\Z/)
+          end
+          space = true if child.element? and HTML5_BLOCK.include? child.name
+        end
+      end
+    end
+    flatten
+  end
+
+  # reflow long lines
+  def self.reflow(stream, width)
+    source = stream.slice!(0..-1)
+    indent = col = 0
+    breakable = true
+    pre = false
+    while not source.empty?
+      token = source.shift
+      indent = token[/^ */].length if col == 0
+
+      if token.start_with? '<'
+        breakable = false
+        pre = true if token == '<pre'
+      end
+
+      # flow text
+      while token.length + col > width and breakable and not pre
+        break if token[0...-1].include? "\n"
+        split = token.rindex(' ', [width-col,0].max) || token.index(' ')
+        break unless split
+        break if col+split < indent+width/2
+        stream << token[0...split] << "\n" << (' '*indent)
+        col = indent
+        token = token[split+1..-1]
+      end
+
+      # break around tags
+      if token.end_with? '>'
+        if col > indent + 4 and stream[-2..-1] == ['<br', '/']
+          stream << token << "\n"
+          col = 0
+          token = ' '*indent
+          source[0] = source.first.lstrip unless source.empty?
+        elsif col > width and not pre
+          # break on previous space within text
+          pcol = col
+          stream.reverse_each do |xtoken|
+            break if xtoken.include? "\n"
+            split = xtoken.rindex(' ')
+            breakable = false if xtoken.end_with? '>'
+            if breakable and split
+              col = col - pcol + xtoken.length - split + indent
+              xtoken[split] = "\n#{' '*indent}" 
+              break
+            end
+            breakable = true if xtoken.start_with? '<'
+            pcol -= xtoken.length
+            break if pcol < (width + indent)/2
+          end
+        end
+        breakable = true
+        pre = false if token == '</pre>'
+      end
+
+      stream << token
+      col += token.length
+      col = 0 if token.end_with? "\n"
     end
   end
 end
