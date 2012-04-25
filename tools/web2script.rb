@@ -80,7 +80,7 @@ def code(element, indent='', flat=false)
     value = element[key]
 
     # resolve relative links
-    if %w(a img link).include? element.name and %w(href src).include? key
+    if %w(a img link script).include? element.name and %w(href src).include? key
       value = ($uri + value).to_s rescue nil
     end
 
