@@ -125,7 +125,7 @@ def code(element, indent='', flat=false)
   # element has children
   elsif element.children.any? {|child| child.element?}
     # do any of the text nodes need special processing to preserve spacing?
-    flatten = HtmlMarkup.flatten?(element.children)
+    flatten = flat || HtmlMarkup.flatten?(element.children)
     line.sub! /(\w)( |\.|$)/, '\1!\2' if flatten
 
     q "#{line} do"
