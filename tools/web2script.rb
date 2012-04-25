@@ -146,6 +146,7 @@ def code(element, indent='', flat=false)
         method = (text.include? '<' or text.include? '&') ? '_?' : '_'
         flow_text "#{indent}  #{method} #{text.enquote}", 
           "\" +\n    #{indent}\""
+        first = true # stop break
       elsif child.comment?
         flow_text "#{indent}  _.comment #{child.text.strip.enquote}", 
           "\" +\n    #{indent}\""
@@ -155,11 +156,11 @@ def code(element, indent='', flat=false)
 
       # insert a blank line if either this or the previous block was large
       if $group and start + $group < $q.length
-        $q[start].sub! /^(\s+_\w+)([! .])/, '\1_\2'
-        $q.insert(start,'') if not first and breakable
-        blank = true
+        $q[start].sub! /^(\s+_\w+)([! .])/, '\1_\2' if breakable
+        $q.insert(start,'') if not first
+        blank = !child.text?
       else
-        $q.insert(start,'') if blank and breakable
+        $q.insert(start,'') if blank
         blank = false
       end
       start = $q.length
