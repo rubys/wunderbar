@@ -64,7 +64,7 @@ def flow_attrs(line, attributes, indent)
   q line
 end
 
-def code(element, indent='')
+def code(element, indent='', flat=false)
   # restore namespaces that Nokogiri::HTML dropped
   element_name = element.name
   if $namespaced[element.name]
@@ -127,6 +127,9 @@ def code(element, indent='')
     start = $q.length
     blank = false
     first = true
+    breakable = $group && !flat && !element.children.any? do |child| 
+      child.text? and not child.text.strip.empty?
+    end
 
     # recursively process children
     element.children.each do |child|
@@ -141,16 +144,16 @@ def code(element, indent='')
         flow_text "#{indent}  _.comment #{child.text.strip.enquote}", 
           "\" +\n    #{indent}\""
       else
-        code(child, indent + '  ')
+        code(child, indent + '  ', flatten)
       end
 
       # insert a blank line if either this or the previous block was large
       if $group and start + $group < $q.length
-        $q[start].sub! /^(\s+_\w+)([ .])/, '\1_\2'
-        $q.insert(start,'')  if not first
+        $q[start].sub! /^(\s+_\w+)([! .])/, '\1_\2'
+        $q.insert(start,'') if not first and breakable
         blank = true
       else
-        $q.insert(start,'') if blank
+        $q.insert(start,'') if blank and breakable
         blank = false
       end
       start = $q.length
