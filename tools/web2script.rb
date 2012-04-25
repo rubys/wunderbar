@@ -215,6 +215,12 @@ ARGV.each do |arg|
   code Nokogiri::HTML(doc).root
 end
 
+# she-bang
+puts "#!" + File.join(
+  RbConfig::CONFIG["bindir"],
+  RbConfig::CONFIG["ruby_install_name"] + RbConfig::CONFIG["EXEEXT"]
+)
+
 # headers
 if ''.respond_to? 'encoding'
   puts '# encoding: utf-8' if $q.any? {|line| line.match /[^\x20-\x7f]/}
@@ -226,3 +232,6 @@ puts "require 'wunderbar'\n\n"
 
 # main output
 puts $q.join("\n")
+
+# make executable
+$stdout.chmod($stdout.stat.mode&0755|0111) if $stdout.respond_to? :chmod
