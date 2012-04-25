@@ -23,6 +23,9 @@ OptionParser.new { |opts|
       $ascii = true
     end
   end
+  opts.on '-x', '--xhtml', 'Output as XHTML' do
+    $xhtml = true
+  end
 }.parse!
 
 # Method to "enquote" a string
@@ -102,11 +105,14 @@ def code(element, indent='', flat=false)
     end
 
     # add _width to html element
-    if $width and element_name == 'html'
-      if RUBY_VERSION =~ /^1\.8/
-        attributes << " :_width => #{$width}"
-      else
-        attributes << " _width: #{$width}"
+    if element_name == 'html'
+      element_name = 'xhtml' if $xhtml
+      if $width
+        if RUBY_VERSION =~ /^1\.8/
+          attributes << " :_width => #{$width}"
+        else
+          attributes << " _width: #{$width}"
+        end
       end
     end
   end
