@@ -1,6 +1,6 @@
 # run command/block as a background daemon
 module Wunderbar
-  def submit(cmd=nil)
+  def self.submit(cmd=nil)
     fork do
       # detach from tty
       Process.setsid
@@ -17,8 +17,10 @@ module Wunderbar
 
       # clear environment of cgi cruft
       require 'cgi'
-      ENV.delete_if {|key,value| key =~ /^HTTP_/}
-      CGI::QueryExtension.public_instance_methods.each do |method|
+      ENV.keys.select {|key| key =~ /^HTTP_/}.each do |key|
+        ENV.delete key.dup.untaint
+      end
+      ::CGI::QueryExtension.public_instance_methods.each do |method|
         ENV.delete method.to_s.upcase
       end
 
