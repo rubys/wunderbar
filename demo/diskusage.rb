@@ -62,8 +62,8 @@ _html do
 
     _script %{
       ws = new WebSocket("ws://#{env['HTTP_HOST']}:#{port}/");
-      ws.onclose = function() {$("#status").html("<p>socket closed.</p>")}
-      ws.onopen  = function() {$("#status").html("<p>socket connected...</p>")};
+      ws.onclose = function() {$("#status").text("socket closed.")};
+      ws.onopen  = function() {$("#status").text("socket connected...")};
 
       ws.onmessage = function(evt) {
         var data = JSON.parse(evt.data);
@@ -73,8 +73,8 @@ _html do
         if (data.type == 'stdout' && match) {
           $('tbody tr').each(function() {
             if (match && $("td:first a", this).text() == match[2]) {
-              $("td", this).eq(1).text(match[1])
-              match = null
+              $("td", this).eq(1).text(match[1]);
+              match = null;
             }
           })
         }
