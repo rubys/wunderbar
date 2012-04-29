@@ -54,6 +54,11 @@ if self.to_s == 'main'
       Wunderbar.text(*args, &block)
     end
 
+    def _websocket(*args, &block)
+      args.last[:sync]=args.last.fetch(:sync,true) if Hash === args.last
+      Wunderbar.websocket(*args, &block)
+    end
+
     def env
       ENV
     end

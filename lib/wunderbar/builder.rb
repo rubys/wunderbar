@@ -338,8 +338,10 @@ module Wunderbar
           result = {}
           args.each {|arg| result[arg.to_s] = object.send arg}
         else
-          result = object.map do |item|
-            args.inject({}) {|hash, arg| hash[arg.to_s] = item.send arg; hash}
+          result = []
+          result = @_target if name.empty? and @_target.respond_to? :<<
+          object.each do |item|
+            result << Hash[args.map {|arg| [arg.to_s, item.send(arg)]}]
           end
         end
       end

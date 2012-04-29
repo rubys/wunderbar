@@ -125,13 +125,15 @@ module Wunderbar
         socket.close
       end
 
-      sock1, sock2 = UNIXSocket.pair
+      sock1 = nil
 
-      submit do
+      proc = Proc.new do
         begin
           channel = Wunderbar::Channel.new(port, buffer)
-          sock1.send('x',0)
-          sock1.close
+          if sock1
+            sock1.send('x',0)
+            sock1.close
+          end
           channel.instance_eval &block
         rescue Exception => exception
           channel._ :type=>:stderr, :line=>exception.inspect
@@ -149,8 +151,14 @@ module Wunderbar
         end
       end
 
-      sleep 0.3 while sock2.recv(1) != 'x'
-      sock2.close
+      if opts[:sync]
+        instance_eval &proc
+      else
+        sock1, sock2 = UNIXSocket.pair
+        submit &proc
+        sleep 0.3 while sock2.recv(1) != 'x'
+        sock2.close
+      end
 
       port
     end
