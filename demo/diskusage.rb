@@ -2,6 +2,7 @@ require 'wunderbar'
 
 _html do
   _head_ do
+    _title "Disk Usage"
     _script src: '/jquery.min.js'
     _script src: '/jquery.tablesorter.min.js'
     _style %{
@@ -22,7 +23,7 @@ _html do
     _div.msg!
 
     # directory is DOCUMENT_ROOT + PATH_INFO
-    dir = env['DOCUMENT_ROOT'].dup.untaint
+    dir = ($ROOT || env['DOCUMENT_ROOT']).dup.untaint
     prefix = "#{env['REQUEST_URI']}/" if not env['PATH_INFO'].to_s.end_with? '/'
     if env['PATH_INFO'].to_s.start_with? '/'
       info = File.expand_path(env['PATH_INFO'][1..-1].untaint, dir)
