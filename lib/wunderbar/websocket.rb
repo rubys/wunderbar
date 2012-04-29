@@ -19,10 +19,10 @@ module Wunderbar
   class Channel < EM::Channel
     attr_reader :port, :connected, :complete
 
-    def initialize(port, limit=nil)
-      TCPSocket.new('localhost', port).close
-      raise ArgumentError.new "Socket #{port} is not available"
-    rescue Errno::ECONNREFUSED
+    def initialize(port, limit)
+      # verify that the port is available
+      TCPServer.new('0.0.0.0', port).close 
+
       super()
       @port = port
       @connected = @complete = false
@@ -35,8 +35,9 @@ module Wunderbar
     end
 
     def websocket
-      ready = (@websocket != nil)
-      @websocket ||= Thread.new do
+      return @websocket if @websocket
+      ready = false
+      @websocket = Thread.new do
         EM.epoll
         EM.run do
           connection = EventMachine::WebSocket::Connection
