@@ -65,9 +65,24 @@ module Wunderbar
       @websocket
     end
 
-    def _(msg=nil, &block)
-      return self if msg==nil 
-      push(msg.to_json)
+    def _(*args, &block)
+      if block or args.length > 1 
+        begin
+        builder = Wunderbar::JsonBuilder.new(Struct.new(:params).new({}))
+        builder._! self
+        builder._(*args, &block)
+        rescue Exception => e
+          push e.inspect
+        end
+      elsif args.length == 1
+        push(args.first.to_json)
+      else
+        self
+      end
+    end
+
+    def <<(value)
+      push(value.to_json)
     end
 
     def system(command)
