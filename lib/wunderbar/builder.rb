@@ -227,7 +227,9 @@ module Wunderbar
       @_scope.params.merge(locals).each do |key,value|
         value = value.first if Array === value
         value.gsub! "\r\n", "\n" if String === value
-        instance_variable_set "@#{key.untaint}", value if key =~ /^[a-z]\w+$/
+        if key =~ /^[a-z]\w+$/
+          instance_variable_set "@#{key.dup.untaint}", value 
+        end
       end
     end
 
