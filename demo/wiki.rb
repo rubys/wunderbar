@@ -1,4 +1,3 @@
-#!/usr/bin/ruby
 require 'wunderbar'
 require 'redcarpet'
 require 'digest/md5'
