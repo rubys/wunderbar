@@ -15,6 +15,7 @@ end
 port = ARGV.find {|arg| arg =~ /--port=(.*)/}
 if port and ARGV.delete(port)
   port = $1.to_i
+  ENV['SERVER_PORT'] = port.to_s
 
   # Evaluate optional data from the script (after __END__)
   eval Wunderbar.data if Object.const_defined? :DATA

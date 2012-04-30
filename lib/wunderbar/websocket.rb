@@ -6,17 +6,10 @@ require 'socket'
 begin
   require 'em-websocket'
 rescue LoadError
-  module EM
-    class Channel
-      def initialize
-        require 'em-websocket'
-      end
-    end
-  end
 end
 
 module Wunderbar
-  class Channel < EM::Channel
+  class Channel
     attr_reader :port, :connected, :complete
 
     def initialize(port, limit)
@@ -26,8 +19,10 @@ module Wunderbar
       super()
       @port = port
       @connected = @complete = false
+      @channel1 = EM::Channel.new
+      @channel2 = EM::Channel.new
       @memory = []
-      @memory_channel = subscribe do |msg| 
+      @memory_channel = @channel1.subscribe do |msg| 
         @memory << msg.chomp unless Symbol === msg
         @memory.shift while @connected and limit and @memory.length > limit
       end
@@ -48,7 +43,7 @@ module Wunderbar
               ws.close_websocket if complete
             end
         
-            sid = subscribe do |msg| 
+            sid = @channel1.subscribe do |msg| 
               if msg == :shutdown
                 ws.close_websocket
               else
@@ -56,7 +51,9 @@ module Wunderbar
               end
             end
         
-            ws.onclose {unsubscribe sid}
+            ws.onmessage {|msg| @channel2.push msg}
+
+            ws.onclose {@channel1.unsubscribe sid}
           end
           EM.add_timer(0.1) {ready = true}
         end
@@ -65,24 +62,48 @@ module Wunderbar
       @websocket
     end
 
+    def subscribe(*args, &block)
+      @channel2.subscribe(*args, &block)
+    end
+
+    def unsubscribe(*args, &block)
+      @channel2.unsubscribe(*args, &block)
+    end
+
+    def push(*args)
+      @channel1.push(*args)
+    end
+
+    def send(*args)
+      @channel1.push(*args)
+    end
+
+    def pop(*args)
+      @channel2.pop(*args)
+    end
+
+    def recv(*args)
+      @channel2.pop(*args)
+    end
+
     def _(*args, &block)
       if block or args.length > 1 
         begin
-        builder = Wunderbar::JsonBuilder.new(Struct.new(:params).new({}))
-        builder._! self
-        builder._(*args, &block)
+          builder = Wunderbar::JsonBuilder.new(Struct.new(:params).new({}))
+          builder._! self
+          builder._(*args, &block)
         rescue Exception => e
-          push e.inspect
+          self << {:type=>'stderr', :line=>e.inspect}
         end
       elsif args.length == 1
-        push(args.first.to_json)
+        @channel1.push(args.first.to_json)
       else
         self
       end
     end
 
     def <<(value)
-      push(value.to_json)
+      @channel1.push(value.to_json)
     end
 
     def system(command)
@@ -103,12 +124,12 @@ module Wunderbar
     end
 
     def complete=(value)
-      push :shutdown if value
+      @channel1.push :shutdown if value
       @complete = value
     end
 
     def close
-      unsubscribe @memory_channel if @memory_channel
+      @channel1.unsubscribe @memory_channel if @memory_channel
       EM::WebSocket.stop
       websocket.join    
     end
@@ -116,6 +137,7 @@ module Wunderbar
 
   if defined? EventMachine::WebSocket
     def self.websocket(opts={}, &block)
+      opts = {:port => opts} if Fixnum === opts
       port = opts[:port]
       buffer = opts.fetch(:buffer,1)
 
