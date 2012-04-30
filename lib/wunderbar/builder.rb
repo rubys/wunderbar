@@ -223,11 +223,11 @@ module Wunderbar
   end
 
   class BuilderBase
-    def set_variables_from_params
-      @_scope.params.each do |key,value|
+    def set_variables_from_params(locals={})
+      @_scope.params.merge(locals).each do |key,value|
         value = value.first if Array === value
         value.gsub! "\r\n", "\n" if String === value
-        instance_variable_set "@#{key}", value if key =~ /^\w+$/
+        instance_variable_set "@#{key.untaint}", value if key =~ /^[a-z]\w+$/
       end
     end
 

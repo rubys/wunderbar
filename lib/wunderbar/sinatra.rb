@@ -43,12 +43,7 @@ module Wunderbar
     private
 
       def _evaluate(builder, scope, locals, &block)
-        builder.instance_eval do
-          scope.params.merge(locals).each do |key,value|
-            value = value.first if ::Array === value
-            instance_variable_set "@#{key}", value if key =~ /^[a-z]\w+$/
-          end
-        end
+        builder.set_variables_from_params(locals)
 
         if not block
           builder.instance_eval(data.untaint, eval_file)
