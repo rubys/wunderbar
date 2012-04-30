@@ -156,6 +156,10 @@ output.  This is accomplished by providing one or more of the following:
       code
     end
  
+    _websocket do
+      code
+    end
+
 Arbitrary Ruby code can be placed in each.  Form parameters are made available
 as instance variables (e.g., `@name`).  Host environment (CGI, Rack, Sinatra)
 values are accessible as methods of the `_` object: for example `_.headers`
@@ -285,6 +289,37 @@ output stream, which provides access to other useful methods, for example:
 
         _.print 'foo'
         _.printf "Hello %s!\n", 'world'
+
+Methods provided to Wunderbar.websocket
+---
+
+WebSocket support requires `em-websocket` to be installed.
+
+A web socket is a bidrectional channel.  `_.send` or `_.push` can be used to
+send arbitrary strings.  More commonly, the JSON array methods described above
+can be all be used, the important difference is that the individual entries
+are sent individually and as they are produced.
+
+`_.recv` or `_.pop` can be used to receive arbitrary strings.  More commonly,
+`_.subscribe` is used to register a block that is used as a callback.
+
+`_.system` will run an aritrary command.  Lines of output are sent across the
+websocket as they are received as JSON encoded hashes with two values: `type`
+is one of `stdin`, `stdout` or `stderr`; and `line` which contains the line
+itself.
+
+Options to `_websocket` are provided as a hash:  
+
+   * `:port` will chose a port number, with the default being that an
+   available one is picked for you.
+   * `:sync` set to `false` will cause the WebSocket server to be run as a 
+   daemon process.  This defaults to `true` when run from the command line and
+   to `false` when run as CGI.
+   * `buffer_limit` will limit the amount of entries retained and sent to
+   new clients on open requests.  Default is `1`.  A value of zero will disable
+   buffering.  A value of `nil` will result in unlimited buffering.  Note:
+   buffering is effectively unlimited until the first client connects.
+
 
 Secure by default
 ---
