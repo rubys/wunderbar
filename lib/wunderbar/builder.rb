@@ -78,7 +78,33 @@ module Wunderbar
     end
   end
 
-  class XmlMarkup
+  class BuilderBase
+    def set_variables_from_params(locals={})
+      @_scope.params.merge(locals).each do |key,value|
+        value = value.first if Array === value
+        value.gsub! "\r\n", "\n" if String === value
+        if key =~ /^[a-z]\w+$/
+          instance_variable_set "@#{key.dup.untaint}", value 
+        end
+      end
+    end
+
+    def get_binding
+      binding
+    end
+  end
+
+  class BuilderClass < BuilderBase
+    def websocket(*args, &block)
+      if Hash === args.last
+        args.last[:locals] = Hash[instance_variables.
+          map { |name| [name.sub('@',''), instance_variable_get(name)] } ]
+      end
+      Wunderbar.websocket(*args, &block)
+    end
+  end
+
+  class XmlMarkup < BuilderClass
     def initialize(args)
       @_scope = args.delete(:scope)
       @_builder = SpacedMarkup.new(args)
@@ -222,24 +248,8 @@ module Wunderbar
     end
   end
 
-  class BuilderBase
-    def set_variables_from_params(locals={})
-      @_scope.params.merge(locals).each do |key,value|
-        value = value.first if Array === value
-        value.gsub! "\r\n", "\n" if String === value
-        if key =~ /^[a-z]\w+$/
-          instance_variable_set "@#{key.dup.untaint}", value 
-        end
-      end
-    end
-
-    def get_binding
-      binding
-    end
-  end
-
   require 'stringio'
-  class TextBuilder < BuilderBase
+  class TextBuilder < BuilderClass
     def initialize(scope)
       @_target = StringIO.new
       @_scope = scope
@@ -290,7 +300,7 @@ module Wunderbar
     end
   end
 
-  class JsonBuilder < BuilderBase
+  class JsonBuilder < BuilderClass
     def initialize(scope)
       @_scope = scope
       @_target = {}

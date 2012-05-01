@@ -9,10 +9,10 @@ rescue LoadError
 end
 
 module Wunderbar
-  class Channel
+  class Channel < BuilderBase
     attr_reader :port, :connected, :complete
 
-    def initialize(port, limit)
+    def initialize(port, limit, locals=nil)
       # verify that the port is available
       TCPServer.new('0.0.0.0', port).close 
 
@@ -20,6 +20,7 @@ module Wunderbar
       @port = port
       @connected = @complete = false
       @onopen = @onmessage = @onerror = @onclose = Proc.new {}
+      @_scope = Struct.new(:params).new({})
       @channel1 = EM::Channel.new
       @channel2 = EM::Channel.new
       @memory = []
@@ -27,6 +28,13 @@ module Wunderbar
         @memory << msg.chomp unless Symbol === msg
         @memory.shift while @connected and limit and @memory.length > limit
       end
+
+      if locals
+        @_scope = locals['_scope'] || @_scope
+        set_variables_from_params(locals)
+        _ :type => 'stdout', :line => locals['_scope'].methods.inspect
+      end
+
       websocket.run
     end
 
@@ -106,6 +114,14 @@ module Wunderbar
       @onclose = block
     end
 
+    def method_missing(method, *args, &block)
+      if @_scope and @_scope.respond_to? :method
+        @_scope.__send__ method, *args, &block
+      else
+        super
+      end
+    end
+
     def _(*args, &block)
       if block or args.length > 1 
         begin
@@ -171,7 +187,7 @@ module Wunderbar
 
       proc = Proc.new do
         begin
-          channel = Wunderbar::Channel.new(port, buffer)
+          channel = Wunderbar::Channel.new(port, buffer, opts[:locals])
           if sock1
             sock1.send('x',0)
             sock1.close
@@ -187,7 +203,7 @@ module Wunderbar
           if channel
             channel.complete = true
             sleep 5
-            sleep 60 unless channel.connected
+            sleep 60 unless channel.connected or opts[:sync]
             channel.close
           end
         end
