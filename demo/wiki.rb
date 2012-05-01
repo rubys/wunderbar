@@ -1,7 +1,7 @@
 require 'wunderbar'
 require 'redcarpet'
 require 'digest/md5'
-require 'wunderbar'
+require 'nokogiri'
 
 Dir.chdir WIKIDATA
 
