@@ -86,10 +86,10 @@ _html do
           msg.prop('scrollTop', msg.prop("scrollHeight") - msg.height());
           if (data.type != 'stdin') msg.show();
         }
-
-        // make table sortable
-        $('table').tablesorter();
       }
+
+      // make table sortable
+      $('table').tablesorter();
     }
   end
 end
