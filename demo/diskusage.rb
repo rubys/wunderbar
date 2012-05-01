@@ -62,8 +62,8 @@ _html do
 
     _script %{
       ws = new WebSocket("ws://#{env['HTTP_HOST']}:#{port}/");
-      ws.onclose = function() {$("#status").text("socket closed.")};
-      ws.onopen  = function() {$("#status").text("socket connected...")};
+      ws.onclose = function() {$("#status").hide()};
+      ws.onopen  = function() {$("#status").text("collecting data...")};
 
       ws.onmessage = function(evt) {
         var data = JSON.parse(evt.data);
