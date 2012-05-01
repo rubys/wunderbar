@@ -19,6 +19,7 @@ module Wunderbar
       super()
       @port = port
       @connected = @complete = false
+      @onopen = @onmessage = @onerror = @onclose = Proc.new {}
       @channel1 = EM::Channel.new
       @channel2 = EM::Channel.new
       @memory = []
@@ -38,6 +39,7 @@ module Wunderbar
           connection = EventMachine::WebSocket::Connection
           EM.start_server('0.0.0.0', @port, connection, {}) do |ws|
             ws.onopen do
+              @onopen.call(ws)
               @memory.each {|msg| ws.send msg }
               @connected = true
               ws.close_websocket if complete
@@ -51,9 +53,11 @@ module Wunderbar
               end
             end
         
-            ws.onmessage {|msg| @channel2.push msg}
+            ws.onmessage {|msg| @onmessage.call(msg); @channel2.push msg}
 
-            ws.onclose {@channel1.unsubscribe sid}
+            ws.onerror {|e| @onerror.call(e)}
+
+            ws.onclose {@onclose.call(ws); @channel1.unsubscribe sid}
           end
           EM.add_timer(0.1) {ready = true}
         end
@@ -84,6 +88,22 @@ module Wunderbar
 
     def recv(*args)
       @channel2.pop(*args)
+    end
+
+    def onopen(&block)
+      @onopen = block
+    end
+
+    def onmessage(&block)
+      @onmessage = block
+    end
+
+    def onerror(&block)
+      @onerror = block
+    end
+
+    def onclose(&block)
+      @onclose = block
     end
 
     def _(*args, &block)
