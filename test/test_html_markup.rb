@@ -7,7 +7,7 @@ class HtmlMarkupTest < Test::Unit::TestCase
   def setup
     @original_log_level = Wunderbar.logger.level
     Wunderbar.log_level = :fatal
-    @x = HtmlMarkup.new(Struct.new(:params).new({}))
+    @x = Wunderbar::HtmlMarkup.new(Struct.new(:params).new({}))
   end
 
   def target
