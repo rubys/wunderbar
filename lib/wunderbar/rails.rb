@@ -9,7 +9,7 @@ module Wunderbar
       def self.call(template)
         %{
           compiled = Proc.new {#{template.source}}
-          x = HtmlMarkup.new(self);
+          x = Wunderbar::HtmlMarkup.new(self);
           instance_variables.each do |var|
             x.instance_variable_set var, instance_variable_get(var)
           end
