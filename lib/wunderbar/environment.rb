@@ -12,6 +12,22 @@ module Wunderbar
   end
 
   def self.safe?
+    if $SAFE == 0 and not @@unsafe
+      # some gems (e.g. em-websocket-0.3.6) insert unsafe entries into the
+      # path, and that prevents requires from succeeding.  If it looks like
+      # we are about to make a transition to $SAFE=1, clean up that mess
+      # before proceeding.
+      #
+      # the goal of $SAFE is not to protect us against software which was
+      # installed by the owner of the site, but from injection attacks
+      # contained within data provided by users of the site.
+      $:.each_with_index do |path, index|
+        if path.tainted?
+          $:[index] = File.expand_path(path.untaint).untaint
+        end
+      end
+    end
+
     not @@unsafe
   end
 
