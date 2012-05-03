@@ -54,8 +54,11 @@ else
     ENV['USER'] ||= $USER
   end
 
-  ENV['HOME'] ||= Dir.home($USER) rescue nil
-  ENV['HOME'] = ENV['DOCUMENT_ROOT'] if not File.exist? ENV['HOME'].to_s
+  $HOME = ENV['HOME']
+  $HOME ||= Dir.home($USER) rescue nil
+  $HOME ||= File.expand_path("~#{$USER}") rescue nil
+  $HOME = ENV['DOCUMENT_ROOT'] if not $HOME or not File.exist? $HOME
+  ENV['HOME'] = $HOME
 
   at_exit do
     if Wunderbar.queue.length > 0
