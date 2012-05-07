@@ -12,8 +12,7 @@ module Wunderbar
       self << pre + target!.pop if pre
 
       if @indent > 0
-        data.sub! /\n\s*\Z/, ''
-        data.sub! /\A\s*\n/, ''
+        data = data.sub(/\n\s*\Z/, '').sub(/\A\s*\n/, '')
 
         unindent = data.sub(/s+\Z/,'').scan(/^ *\S/).map(&:length).min || 1
 
