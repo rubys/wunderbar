@@ -77,6 +77,19 @@ else
             env['REQUEST_METHOD'].to_s.downcase == http_method
           end
         end
+
+        # split headers and content when run from the command line
+        if not ENV['REQUEST_METHOD']
+          def out(headers, &block)
+            if ARGV.delete('--head')
+              STDOUT.puts header(headers)
+            elsif not ARGV.delete('--nohead')
+              STDERR.puts header(headers)
+            end
+
+            STDOUT.puts block.call
+          end
+        end
       end
 
       # get arguments if CGI couldn't find any... 
