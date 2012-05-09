@@ -191,9 +191,34 @@ def code(element, indent='', flat=false)
       after   =  "#{indent}  "
       script.gsub! before, after
 
-      q "#{line} %{"
-      script.split("\n").each { |line| q line }
-      q "#{indent}}"
+      [ ['{','}'], ['[',']'], ['(',')'], nil ].each do |open, close|
+        if open
+          # properly matched?
+          count = low = 0
+          script.scan(Regexp.new "\\#{open}|\\#{close}") do |c| 
+            count += (c==open)? 1 : -1
+            low = count if count < low
+          end
+
+          if count == 0 and low == 0 and not script =~ /\\[#{open}|#{close}]/
+            if script.include? '\\' or script.include? '#{'
+              open = "q#{open}"
+              script.gsub!(0x5C.chr*2) {|c| c+c} # \\ => \\\\
+            end
+
+            q "#{line} %#{open}"
+            script.split("\n").each { |line| q line }
+            q "#{indent}#{close}"
+            break
+          end
+        else
+          mark = element.name.upcase
+          mark = ('A'..'Z').to_a.shuffle.join while script.include? "_#{mark}_"
+          q "#{line} <<-_#{mark}_"
+          script.split("\n").each { |line| q line }
+          q "#{indent}_#{mark}_"
+        end
+      end
     else
       flow_text "#{line} #{element.text.enquote}", "\" +\n  #{indent}\""
     end
