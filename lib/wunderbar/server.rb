@@ -78,16 +78,18 @@ else
           end
         end
 
-        # split headers and content when run from the command line
+        # return only headers or content when run from the command line
         if not ENV['REQUEST_METHOD']
           def out(headers, &block)
             if ARGV.delete('--head')
-              STDOUT.puts header(headers)
-            elsif not ARGV.delete('--nohead')
-              STDERR.puts header(headers)
+              print "HTTP/1.1 #{headers.delete('status') || '200 OK'}\r\n"
+              require 'time'
+              headers['Date'] = Time.now.utc.rfc2822.sub(/-0000$/, 'GMT')
+              headers['Content-Length'] = block.call.bytesize
+              print header(headers)
+            else
+              print block.call
             end
-
-            STDOUT.puts block.call
           end
         end
       end
