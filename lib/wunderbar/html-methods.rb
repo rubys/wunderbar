@@ -16,12 +16,6 @@ module Wunderbar
     def initialize(scope)
       @_scope = scope
       @x = XmlMarkup.new :scope => scope, :indent => 2, :target => []
-      @xthml = false
-    end
-
-    def xhtml(*args, &block)
-      @xhtml = true
-      html(*args, &block)
     end
 
     def html(*args, &block)
@@ -48,15 +42,6 @@ module Wunderbar
 
     def _html(*args, &block)
       html(*args, &block)
-    end
-
-    def _xhtml(*args, &block)
-      @xhtml = true
-      html(*args, &block)
-    end
-
-    def xhtml?
-      @xhtml
     end
 
     def method_missing(name, *args, &block)

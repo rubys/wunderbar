@@ -1,10 +1,10 @@
 require 'digest/md5'
 
 module Wunderbar
-  module CGI
+  class CGI
 
     # produce json
-    def self.json(scope, &block)
+    def json(scope, &block)
       headers = { 'type' => 'application/json', 'Cache-Control' => 'no-cache' }
       builder = JsonBuilder.new(scope)
       output = builder.encode(&block)
@@ -18,7 +18,7 @@ module Wunderbar
     end
 
     # produce text
-    def self.text(scope, &block)
+    def text(scope, &block)
       headers = {'type' => 'text/plain', 'charset' => 'UTF-8'}
       builder = TextBuilder.new(scope)
       output = builder.encode(&block)
@@ -31,7 +31,7 @@ module Wunderbar
     end
 
     # Conditionally provide output, based on ETAG
-    def self.out?(scope, headers, &block)
+    def out?(scope, headers, &block)
       content = block.call
       etag = Digest::MD5.hexdigest(content)
 
@@ -49,16 +49,53 @@ module Wunderbar
       Wunderbar.fatal exception.inspect
     end
 
+    def html2pdf(input=nil, &block)
+      require 'thread'
+      require 'open3'
+      require 'stringio'
+
+      display=":#{rand(999)+1}"
+      pid = fork do
+        # close open files
+        STDIN.reopen '/dev/null'
+        STDOUT.reopen '/dev/null', 'a'
+        STDERR.reopen STDOUT
+
+        Process.setsid
+        Wunderbar.error Process.exec("Xvfb #{display}")
+        Process.exit
+      end
+      Process.detach(pid)
+
+      ENV['DISPLAY']=display
+      input ||= block.call
+      output = StringIO.new
+
+      Open3.popen3('wkhtmltopdf - -') do |pin, pout, perr|
+        [
+          Thread.new { pin.write input; pin.close },
+          Thread.new { IO.copy_stream(pout, output) },
+          Thread.new { perr.readpartial(4096) until perr.eof? }
+        ].map(&:join)
+      end
+
+      output.string
+    ensure
+      Process.kill 'INT', pid rescue nil
+    end
+
     # produce html/xhtml
-    def self.html(scope, *args, &block)
+    def html(scope, *args, &block)
       headers = { 'type' => 'text/html', 'charset' => 'UTF-8' }
       headers['type'] = 'application/xhtml+xml' if @xhtml
 
       x = HtmlMarkup.new(scope)
 
       begin
-        if @xhtml
-          output = x.xhtml *args, &block
+        if @pdf
+          x._.pdf = true if @pdf
+          headers = { 'type' => 'application/pdf' }
+          output = html2pdf {x.html *args, &block}
         else
           output = x.html *args, &block
         end
@@ -80,23 +117,32 @@ module Wunderbar
     end
 
     def self.call(scope)
+      new.call(scope)
+    end
+
+    def call(scope)
       env = scope.env
-      accept      = env['HTTP_ACCEPT'].to_s
-      request_uri = env['REQUEST_URI'].to_s
+      accept    = env['HTTP_ACCEPT'].to_s
+      path_info = env['PATH_INFO'].to_s
 
       # implied request types
       xhr_json = Wunderbar::Options::XHR_JSON  || (accept =~ /json/)
       text = Wunderbar::Options::TEXT || 
         (accept =~ /plain/ and accept !~ /html/)
       @xhtml = (accept =~ /xhtml/ or accept == '')
-
-      # overrides via the uri query parameter
-      xhr_json ||= (request_uri =~ /\?json$/)
-      text     ||= (request_uri =~ /\?text$/)
+      @pdf   = (accept =~ /pdf/)
 
       # overrides via the command line
       xhtml_override = ARGV.include?('--xhtml')
       html_override  = ARGV.include?('--html')
+      @pdf           ||= ARGV.include?('--pdf')
+
+      # overrides via the uri query parameter
+      xhr_json       ||= (path_info.end_with? '.json')
+      text           ||= (path_info.end_with? '.text')
+      @pdf           ||= (path_info.end_with? '.pdf')
+      xhtml_override ||= (path_info.end_with? '.xhtml')
+      html_override  ||= (path_info.end_with? '.html')
 
       # disable conneg if only one handler is provided
       if Wunderbar.queue.length == 1

@@ -107,6 +107,7 @@ module Wunderbar
     def initialize(args)
       @_scope = args.delete(:scope)
       @_builder = SpacedMarkup.new(args)
+      @_pdf = false
     end
 
     # forward to Wunderbar, XmlMarkup, or @_scope
@@ -146,6 +147,14 @@ module Wunderbar
       else
         @_builder.tag! sym, *args, &block
       end
+    end
+
+    def pdf=(value)
+      @_pdf = value
+    end
+
+    def pdf?
+      @_pdf
     end
 
     # execute a system command, echoing stdin, stdout, and stderr
