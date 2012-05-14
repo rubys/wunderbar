@@ -58,7 +58,11 @@ if install and ARGV.delete(install)
     file.puts "\n#{Wunderbar.data}\n" if Object.const_defined? :DATA
 
     # Load script
-    require = "require #{"./#{File.basename(main).sub(/\.rb$/,'')}".inspect}"
+    if main.end_with? '.rb'
+      require = "require #{"./#{File.basename(main).chomp('.rb')}".inspect}"
+    else
+      require = "load #{"./#{File.basename(main)}".inspect}"
+    end
     if ARGV.delete('--rescue') or ARGV.delete('--backtrace')
       file.puts <<-EOF.gsub(/^ {8}/,'')
         begin
