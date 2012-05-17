@@ -80,13 +80,17 @@ Element with optional (omitted) attributes:
 
     _tr class: nil
 
+Text (markup characters are escaped):
+
+    _ "<3"
+
 Text (may contain markup):
 
-    _ "<em>hello</em>!!!"
+    _{"<em>hello</em>!!!"}
 
-Text (markup is escaped):
+Import of HTML/XML:
 
-    _? "<3"
+    _[Nokogiri::XML "<em>hello</em>"]
 
 Mixed content (autospaced):
 
@@ -192,7 +196,7 @@ argument inserts markup, respecting indendation.  Inserting markup without
 reguard to indendatation is done using "`_ << text`".  A number of other
 convenience methods are defined:
 
-* `_?`: insert text with indentation matching the current output
+* `_`: insert text with indentation matching the current output
 * `_!`: insert text without indenting
 * `_.post?`  -- was this invoked via HTTP POST?
 * `_.system` -- invokes a shell command, captures stdin, stdout, and stderr
@@ -325,8 +329,9 @@ Secure by default
 ---
 
 Wunderbar will properly escape all HTML and JSON output, eliminating problems
-of HTML or JavaScript injection.  This includes calls to `_` to insert markup
-directly when the input is `tainted` and not explicitly marked as `html-safe?`
+of HTML or JavaScript injection.  This includes calls to `_` to insert text
+directly.  Even calls to insert markup (`_{...}`) will escape the markup if
+the input is `tainted` and not explicitly marked as `html-safe?`
 (when using Rails).
 
 For all environments other than Rails, unless you call `Wunderbar.unsafe!` at

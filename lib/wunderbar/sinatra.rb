@@ -51,7 +51,7 @@ module Wunderbar
           builder.instance_eval(&block)
         else
           context = builder.get_binding do
-            builder.instance_eval {_ block.call}
+            builder.instance_eval {_(&block)}
           end
           context.eval(data.untaint, eval_file)
         end

@@ -142,6 +142,26 @@ module Wunderbar
 
     # avoid method_missing overhead for the most common case
     def tag!(sym, *args, &block)
+      if sym.respond_to? :children
+        node = sym
+        attributes = node.attributes
+        if node.attribute_nodes.any?(&:namespace)
+          attributes = Hash[node.attribute_nodes.map { |attr| 
+            name = attr.name
+            name = "#{attr.namespace.prefix}:#{name}" if attr.namespace
+            [name, attr.value]
+          }]
+        end
+        attributes.merge!(node.namespaces) if node.namespaces
+        args.push attributes
+        if node.namespace and node.namespace.prefix
+          args.unshift node.name.to_sym
+          sym = node.namespace.prefix
+        else
+          sym = node.name
+        end
+      end
+
       if !block and (args.empty? or args == [''])
         CssProxy.new(@_builder, @_builder.target!, sym, args)
       else
@@ -253,6 +273,72 @@ module Wunderbar
       @_builder << data
     rescue LoadError
       @_builder << data
+    end
+
+    def [](*children)
+      if children.length == 1 and children.first.respond_to? :root
+        children = [children.first.root]
+      end
+
+      # remove leading and trailing space
+      if children.first.text? and children.first.text.strip.empty?
+        children.shift
+      end
+
+      if not children.empty?
+        children.pop if children.last.text? and children.last.text.strip.empty?
+      end
+
+      children.each do |child|
+        if child.text? or child.cdata?
+          text = child.text
+          if text.strip.empty?
+            text! "\n" if text.count("\n")>1
+          elsif indentation_state!.first == 0
+            indented_text! text.gsub(/\s+/, ' ')
+          else
+            indented_text! text.strip
+          end
+        elsif child.comment?
+          comment! child.text.sub(/\A /,'').sub(/ \Z/, '')
+        elsif HtmlMarkup.flatten? child.children
+          block_element = Proc.new do |node| 
+            node.element? and HtmlMarkup::HTML5_BLOCK.include?(node.name)
+          end
+
+          if child.children.any?(&block_element)
+            # indent children, but disable indentation on consecutive
+            # sequences of non-block-elements.  Put another way: break
+            # out block elements to a new line.
+            tag!(child) do
+              children = child.children.to_a
+              while not children.empty?
+                stop = children.index(&block_element)
+                if stop == 0
+                  self[children.shift]
+                else
+                  disable_indentation! do
+                    self[*children.shift(stop || children.length)]
+                  end
+                end
+              end
+            end
+          else
+            # disable indentation on the entire element
+            disable_indentation! do
+              tag!(child) {self[*child.children]}
+            end
+          end
+        elsif child.children.empty? and HtmlMarkup::VOID.include? child.name
+          tag!(child)
+        elsif child.children.all?(&:text?)
+          tag!(child, child.text.strip)
+        elsif child.children.any?(&:cdata?) and child.text =~ /[<&]/
+          self << child
+        else
+          tag!(child) {self[*child.children]}
+        end
+      end
     end
   end
 

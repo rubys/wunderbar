@@ -73,11 +73,11 @@ class HtmlMarkupTest < Test::Unit::TestCase
 
   def test_non_xhtml_markup_import
     @x.html do
-      _div.one   {_ '<p><br>&copy;'}
-      _div.two   {_ '<script>foo</script>'}
-      _div.three {_ '<script>1<2</script>'}
-      _div.four  {_ '<style>foo</style>'}
-      _div.five  {_ '<style>a:before {content: "<"}</style>'}
+      _div.one   {_ {'<p><br>&copy;'}}
+      _div.two   {_ {'<script>foo</script>'}}
+      _div.three {_ {'<script>1<2</script>'}}
+      _div.four  {_ {'<style>foo</style>'}}
+      _div.five  {_ {'<style>a:before {content: "<"}</style>'}}
     end
     if RUBY_VERSION =~ /^1\.8/
       assert_match %r[<div class="one">\s+<p>\s+<br/>\s+\302\251\s+</p>],
@@ -141,37 +141,69 @@ class HtmlMarkupTest < Test::Unit::TestCase
   end
 
   def test_import_indented
-    @x.html {_div {_ "<p>one</p><hr><p>two</p>"}}
+    @x.html {_div {_ {"<p>one</p><hr><p>two</p>"}}}
     assert_match %r[<div>\n +<p>one</p>\n +<hr/>\n +<p>two</p>\n +</div>], 
       target
   end
 
   def test_import_collapsed
-    @x.html {_div {_ "<p>one, <em>two</em>, three</p>"}}
+    @x.html {_div {_ {"<p>one, <em>two</em>, three</p>"}}}
     assert_match %r[<div>\n +<p>one, <em>two</em>, three</p>\n +</div>], 
       target
   end
 
   def test_import_style
-    @x.html {_div {_ "<style>em {color: red}</style>"}}
+    @x.html {_div {_ {"<style>em {color: red}</style>"}}}
     assert_match %r[<div>\n +<style>\n +em \{color: red\}\n +</style>\n], 
       target
   end
 
   def test_import_comment
-    @x.html {_div {_ "<br><!-- comment --><br>"}}
+    @x.html {_div {_ {"<br><!-- comment --><br>"}}}
     assert_match %r[<div>\n +<br/>\n +<!-- comment -->\n +<br/>\n +</div>], 
       target
   end
 
   def test_import_nonvoid
-    @x.html {_div {_ "<textarea/>"}}
+    @x.html {_div {_ {"<textarea/>"}}}
     assert_match %r[<textarea></textarea>], target
   end
 
   def test_import_tainted
-    @x.html {_div {_ "<br>".taint}}
+    @x.html {_div {_ {"<br>".taint}}}
     assert_match %r[&lt;br&gt;], target
+  end
+
+  def test_node_simple
+    @x.html {_div {_[Nokogiri::XML('<br/>')]}}
+    assert_match %r[<br/>], target
+  end
+
+  def test_node_xmlns
+    @x.html do
+      _div {_[Nokogiri::XML('<svg xmlns="http://www.w3.org/2000/svg">')]}
+    end
+    assert_match %r[<svg xmlns="http://www.w3.org/2000/svg">], target
+  end
+
+  def test_node_element_prefix
+    @x.html do
+      _div do
+        _[Nokogiri::XML('<rdf:RDF xmlns:rdf="http://www.w3.org/1999/rdf#"/>')]
+      end
+    end
+    assert_match %r[<rdf:RDF xmlns:rdf="http://www.w3.org/1999/rdf#">], target
+  end
+
+  def test_node_attr_prefix
+    @x.html do
+      _div do
+        _[Nokogiri::XML('<use xlink:href="#path" 
+          xmlns:xlink="http://www.w3.org/1999/xlink"/>')]
+      end
+    end
+    assert_match %r[<use.* xlink:href="#path"], target
+    assert_match %r[<use.* xmlns:xlink="http://www.w3.org/1999/xlink"], target
   end
 
   def test_traceback
@@ -226,7 +258,7 @@ class HtmlMarkupTest < Test::Unit::TestCase
   end
 
   def test_indented_text
-    @x.html {_div {_? 'text'}}
+    @x.html {_div {_ 'text'}}
     assert_match %r[^  <div>\n    text\n  </div>], target
   end
 

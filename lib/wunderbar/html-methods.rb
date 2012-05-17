@@ -96,11 +96,9 @@ module Wunderbar
         end
 
         if String === args.first and args.first.respond_to? :html_safe?
-          if args.first.html_safe? and not block
-            if args.first.include? '>' or args.first.include? '&'
-              markup = args.shift
-              block = Proc.new {_ markup}
-            end
+          if args.first.html_safe? and not block and args.first =~ /[>&]/
+            markup = args.shift
+            block = Proc.new {_ {markup}}
           end
         end
 
@@ -188,20 +186,27 @@ module Wunderbar
       @x.tag! :math, *args, &block
     end
 
-    def _?(text)
-      @x.indented_text! text.to_s
-    end
-
     def _!(text)
       @x.text! text.to_s
     end
 
-    def _(children=nil)
-      return @x if children == nil
+    def _(text=nil, &block)
+      unless block
+        if text
+          if text.respond_to? :html_safe? and text.html_safe?
+            _ {text}
+          else
+            @x.indented_text! text.to_s
+          end
+        end
+        return @x
+      end
+
+      children = block.call
 
       if String === children
         safe = !children.tainted?
-        safe ||= children.html_safe?  if children.respond_to? :html_safe?
+        safe ||= children.html_safe? if children.respond_to? :html_safe?
 
         if safe and (children.include? '<' or children.include? '&')
           require 'nokogiri'
@@ -210,67 +215,7 @@ module Wunderbar
           return @x.indented_text! children
         end
       end
-
-      # remove leading and trailing space
-      if children.first.text? and children.first.text.strip.empty?
-        children.shift
-      end
-
-      if not children.empty?
-        children.pop if children.last.text? and children.last.text.strip.empty?
-      end
-
-      children.each do |child|
-        if child.text? or child.cdata?
-          text = child.text
-          if text.strip.empty?
-            @x.text! "\n" if text.count("\n")>1
-          elsif @x.indentation_state!.first == 0
-            @x.indented_text! text.gsub(/\s+/, ' ')
-          else
-            @x.indented_text! text.strip
-          end
-        elsif child.comment?
-          @x.comment! child.text.sub(/\A /,'').sub(/ \Z/, '')
-        elsif self.class.flatten? child.children
-          block_element = Proc.new do |node| 
-            node.element? and HTML5_BLOCK.include?(node.name)
-          end
-
-          if child.children.any?(&block_element)
-            # indent children, but disable indentation on consecutive
-            # sequences of non-block-elements.  Put another way: break
-            # out block elements to a new line.
-            @x.tag!(child.name, child.attributes) do
-              children = child.children.to_a
-              while not children.empty?
-                stop = children.index(&block_element)
-                if stop == 0
-                  _ [children.shift]
-                else
-                  @x.disable_indentation! do
-                    _ children.shift(stop || children.length)
-                  end
-                end
-              end
-            end
-          else
-            # disable indentation on the entire element
-            @x.disable_indentation! do
-              @x.tag!(child.name, child.attributes) {_ child.children}
-            end
-          end
-        elsif child.children.empty? and VOID.include? child.name
-          @x.tag!(child.name, child.attributes)
-        elsif child.children.all? {|gchild| gchild.text?}
-          @x.tag!(child.name, child.text.strip, child.attributes)
-        elsif child.children.any? {|gchild| gchild.cdata?} and 
-          (child.text.include? '<' or child.text.include? '&')
-          @x << child
-        else
-          @x.tag!(child.name, child.attributes) {_ child.children}
-        end
-      end
+      @x[*children]
     end
 
     def _coffeescript(text)

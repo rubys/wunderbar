@@ -143,9 +143,7 @@ def code(element, indent='', flat=false)
         text = child.text.gsub(/\s+/, ' ')
         text = text.strip unless flatten
         next if text.empty?
-        method = (text.include? '<' or text.include? '&') ? '_?' : '_'
-        flow_text "#{indent}  #{method} #{text.enquote}", 
-          "\" +\n    #{indent}\""
+        flow_text "#{indent}  _ #{text.enquote}", "\" +\n    #{indent}\""
         first = true # stop break
       elsif child.comment?
         flow_text "#{indent}  _.comment #{child.text.strip.enquote}", 
