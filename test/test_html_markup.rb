@@ -267,6 +267,11 @@ class HtmlMarkupTest < Test::Unit::TestCase
     assert_match %r[^  <div>\ntext\n  </div>], target
   end
 
+  def test_unindented_pre
+    @x.html {_div {_pre {_{'before <b><i>middle</i></b> after'}}}}
+    assert_match %r[^    <pre>before <b><i>middle</i></b> after</pre>], target
+  end
+
   def test_declare
     @x._.declare :DOCTYPE, 'html'
     assert_equal %{<!DOCTYPE "html">\n}, target

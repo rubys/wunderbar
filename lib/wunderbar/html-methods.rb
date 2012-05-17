@@ -185,6 +185,10 @@ module Wunderbar
       end
       @x.tag! :math, *args, &block
     end
+    
+    def _pre(*args, &block)
+      @x.disable_indentation! { @x.tag! :pre, *args, &block }
+    end
 
     def _!(text)
       @x.text! text.to_s
