@@ -179,16 +179,22 @@ module Wunderbar
 
     # execute a system command, echoing stdin, stdout, and stderr
     def system(command, opts={})
-      if command.respond_to? :join
+      if command.respond_to? :flatten
+        flat = command.flatten
+        secret = command - flat
         begin
           # if available, use escape as it does prettier quoting
           require 'escape'
-          command = Escape.shell_command(command).untaint
+          echo = Escape.shell_command(command.compact - secret)
+          command = Escape.shell_command(flat.compact).untaint
         rescue LoadError
           # std-lib function that gets the job done
           require 'shellwords'
-          command = Shellwords.join(command).untaint
+          echo = Shellwords.join(command.compact - secret)
+          command = Shellwords.join(flat.compact).untaint
         end
+      else
+        echo = command
       end
 
       require 'open3'
@@ -198,7 +204,7 @@ module Wunderbar
       stdout = output_class[:stdout] || '_stdout'
       stderr = output_class[:stderr] || '_stderr'
 
-      @_builder.tag! tag, command, :class=>stdin unless opts[:echo] == false
+      @_builder.tag! tag, echo, :class=>stdin unless opts[:echo] == false
 
       require 'thread'
       semaphore = Mutex.new

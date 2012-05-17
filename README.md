@@ -310,7 +310,9 @@ are sent individually and as they are produced.
 `_.system` will run an aritrary command.  Lines of output are sent across the
 websocket as they are received as JSON encoded hashes with two values: `type`
 is one of `stdin`, `stdout` or `stderr`; and `line` which contains the line
-itself.
+itself.  If the command is an array, the elements of the array will be escaped
+as Shell command arguments.  Nested arrays may be used to hide elements from
+the echoing of the command to stdin.  Nil values are omitted.
 
 Options to `_websocket` are provided as a hash:  
 
