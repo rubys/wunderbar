@@ -295,7 +295,7 @@ module Wunderbar
           if text.strip.empty?
             text! "\n" if text.count("\n")>1
           elsif indentation_state!.first == 0
-            indented_text! text.gsub(/\s+/, ' ')
+            indented_text! text
           else
             indented_text! text.strip
           end

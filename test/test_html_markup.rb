@@ -268,8 +268,8 @@ class HtmlMarkupTest < Test::Unit::TestCase
   end
 
   def test_unindented_pre
-    @x.html {_div {_pre {_{'before <b><i>middle</i></b> after'}}}}
-    assert_match %r[^    <pre>before <b><i>middle</i></b> after</pre>], target
+    @x.html {_div {_pre {_{"before\n<b><i>middle</i></b>\nafter"}}}}
+    assert_match %r[^    <pre>before\n<b><i>middle</i></b>\nafter</pre>], target
   end
 
   def test_declare
