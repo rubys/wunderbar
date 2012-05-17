@@ -54,12 +54,12 @@ else
     ENV['USER'] ||= $USER
   end
 
-  if ENV['HTTP_AUTH']
+  if ENV['HTTP_AUTHORIZATION']
     # RewriteEngine on
-    # RewriteRule ^.*$ - [E=HTTP_AUTH:%{HTTP:Authorization}]
+    # RewriteRule ^.*$ - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
     begin
       require 'base64'
-      $PASSWORD = Base64.decode64(ENV['HTTP_AUTH'] \
+      $PASSWORD = Base64.decode64(ENV['HTTP_AUTHORIZATION'] \
         [/^Basic ([A-Za-z0-9+\/=]+)$/,1])[/^#{$USER}:(.*)/,1]
     rescue
     end
