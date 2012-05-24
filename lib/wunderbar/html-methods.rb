@@ -175,7 +175,7 @@ module Wunderbar
     def _svg(*args, &block)
       args << {} if args.empty?
       args.first['xmlns'] = 'http://www.w3.org/2000/svg' if Hash === args.first
-      @x.tag! :svg, *args, &block
+      @x.proxiable_tag! :svg, *args, &block
     end
 
     def _math(*args, &block)
@@ -183,7 +183,7 @@ module Wunderbar
       if Hash === args.first
         args.first['xmlns'] = 'http://www.w3.org/1998/Math/MathML'
       end
-      @x.tag! :math, *args, &block
+      @x.proxiable_tag! :math, *args, &block
     end
     
     def _pre(*args, &block)

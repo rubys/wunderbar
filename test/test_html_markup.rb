@@ -247,6 +247,12 @@ class HtmlMarkupTest < Test::Unit::TestCase
     assert_match %r[^  <h1 id="content">Content</h1>], target
   end
 
+  def test_svg_class_attribute
+    @x.html {_svg.pie {_circle :r => 10}}
+    assert_match %r[<svg.*? class="pie".*>]m, target
+    assert_match %r[<svg.*? xmlns="http://www.w3.org/2000/svg".*?>], target
+  end
+
   def test_boolean_attribute_false
     @x.html {_option :selected => false}
     assert_match %r[^  <option></option>], target

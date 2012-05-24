@@ -36,11 +36,8 @@ module Wunderbar
         @attrs[:class] = @attrs[:class] ? "#{@attrs[:class]} #{id}".strip : id
       end
 
-      unless args.empty?
-        if args.last.respond_to? :to_hash
-          @attrs.merge! args.pop.to_hash
-        end
-      end
+      @attrs.merge! args.pop.to_hash  if args.last.respond_to? :to_hash
+      @attrs.merge! @args.pop.to_hash if @args.last.respond_to? :to_hash
 
       args.push(@attrs)
       args = @args + args unless block or String === args.first

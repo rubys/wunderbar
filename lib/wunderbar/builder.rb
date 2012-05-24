@@ -169,6 +169,14 @@ module Wunderbar
       end
     end
 
+    def proxiable_tag!(sym, *args, &block)
+      if block
+        tag!(sym, *args, &block)
+      else
+        CssProxy.new(@_builder, @_builder.target!, sym, args)
+      end
+    end
+
     def pdf=(value)
       @_pdf = value
     end
