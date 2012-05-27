@@ -66,9 +66,11 @@ else
   end
 
   $HOME = ENV['HOME']
-  $HOME ||= Dir.home($USER) rescue nil
-  $HOME ||= File.expand_path("~#{$USER}") rescue nil
-  $HOME = ENV['DOCUMENT_ROOT'] if not $HOME or not File.exist? $HOME
+  if $HOME.nil? and $USER == Etc.getlogin
+    $HOME ||= Dir.home($USER) rescue nil
+    $HOME ||= File.expand_path("~#{$USER}") rescue nil
+  end
+  $HOME = ENV['DOCUMENT_ROOT'] if $HOME.nil? or not File.exist? $HOME
   ENV['HOME'] = $HOME
 
   at_exit do
