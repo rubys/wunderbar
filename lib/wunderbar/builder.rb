@@ -204,6 +204,12 @@ module Wunderbar
       else
         echo = command
       end
+      
+      patterns = opts[:hilite] || []
+      patterns=[patterns] if String === patterns or Regexp === patterns
+      patterns.map! do |pattern| 
+        String === pattern ? Regexp.new(Regexp.escape(pattern)) : pattern
+      end
 
       require 'open3'
       tag  = opts[:tag]  || 'pre'
@@ -211,6 +217,7 @@ module Wunderbar
       stdin  = output_class[:stdin]  || '_stdin'
       stdout = output_class[:stdout] || '_stdout'
       stderr = output_class[:stderr] || '_stderr'
+      hilite = output_class[:hilite] || '_stdout _hilite'
 
       @_builder.tag! tag, echo, :class=>stdin unless opts[:echo] == false
 
@@ -222,7 +229,11 @@ module Wunderbar
             until pout.eof?
               out_line = pout.readline.chomp
               semaphore.synchronize do
-                @_builder.tag! tag, out_line, :class=>stdout
+                if patterns.any? {|pattern| out_line =~ pattern}
+                  @_builder.tag! tag, out_line, :class=>hilite
+                else
+                  @_builder.tag! tag, out_line, :class=>stdout
+                end
               end
             end
           end,
