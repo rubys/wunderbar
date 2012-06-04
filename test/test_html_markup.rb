@@ -60,6 +60,11 @@ class HtmlMarkupTest < Test::Unit::TestCase
     assert_match %r[^    if], target
   end
 
+  def test_p_indent
+    @x.html {_p "a\nb"}
+    assert_match %r[^    a], target
+  end
+
   def test_script_unwrapped
     @x.html {_script "if (i>1) {}"}
     assert_match %r[<script.*>\s*if \(i>1\) \{\}\s*</script>], target

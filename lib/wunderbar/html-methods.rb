@@ -172,6 +172,17 @@ module Wunderbar
       end
     end
 
+    def _p(*args, &block)
+      if args.length >= 1 and String === args.first and args.first.include? "\n"
+        text = args.shift
+        @x.tag! :p, *args do
+          @x.indented_text! text
+        end
+      else
+        super
+      end
+    end
+
     def _svg(*args, &block)
       args << {} if args.empty?
       args.first['xmlns'] = 'http://www.w3.org/2000/svg' if Hash === args.first
