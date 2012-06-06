@@ -39,6 +39,10 @@ module Wunderbar
       @attrs.merge! args.pop.to_hash  if args.last.respond_to? :to_hash
       @attrs.merge! @args.pop.to_hash if @args.last.respond_to? :to_hash
 
+      # delete attrs with false/nil values; change true to attribute name
+      @attrs.delete_if {|key, value| !value}
+      @attrs.each {|key, value| @attrs[key]=key if value == true}
+
       args.push(@attrs)
       args = @args + args unless block or String === args.first
 

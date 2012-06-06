@@ -268,6 +268,16 @@ class HtmlMarkupTest < Test::Unit::TestCase
     assert_match %r[^  <option selected="selected"></option>], target
   end
 
+  def test_class_boolean_attribute_false
+    @x.html {_option.name :selected => false}
+    assert_match %r[^  <option class="name"></option>], target
+  end
+
+  def test_class_boolean_attribute_true
+    @x.html {_option.name :selected => true}
+    assert_match %r[selected="selected"], target
+  end
+
   def test_indented_text
     @x.html {_div {_ 'text'}}
     assert_match %r[^  <div>\n    text\n  </div>], target
