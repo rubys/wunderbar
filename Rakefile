@@ -9,6 +9,10 @@ Rake::TestTask.new do |t|
   t.verbose = true
 end
 
+task :push => %w(clean test package) do
+  sh 'git push origin master'
+  sh "gem push #{Dir['pkg/*.gem'].last}"
+end
 
 task :default => ["test"]
 
