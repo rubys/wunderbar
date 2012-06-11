@@ -194,15 +194,15 @@ module Wunderbar
           # if available, use escape as it does prettier quoting
           require 'escape'
           echo = Escape.shell_command(command.compact - secret)
-          command = Escape.shell_command(flat.compact).untaint
         rescue LoadError
           # std-lib function that gets the job done
           require 'shellwords'
           echo = Shellwords.join(command.compact - secret)
-          command = Shellwords.join(flat.compact).untaint
         end
+        command = flat.compact.map(&:untaint)
       else
         echo = command
+        command = [command]
       end
       
       patterns = opts[:hilite] || []
@@ -223,7 +223,7 @@ module Wunderbar
 
       require 'thread'
       semaphore = Mutex.new
-      Open3.popen3(command) do |pin, pout, perr|
+      Open3.popen3(*command) do |pin, pout, perr, wait|
         [
           Thread.new do
             until pout.eof?
@@ -257,6 +257,7 @@ module Wunderbar
             pin.close
           end
         ].each {|thread| thread.join}
+        wait and wait.value.exitstatus
       end
     end
 
