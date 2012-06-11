@@ -293,6 +293,16 @@ class HtmlMarkupTest < Test::Unit::TestCase
     assert_match %r[^    <pre>before\n<b><i>middle</i></b>\nafter</pre>], target
   end
 
+  def test_chomped_pre
+    @x.html {_div {_pre "before\nmiddle\nafter\n"}}
+    assert_match %r[^    <pre>before\nmiddle\nafter</pre>], target
+  end
+
+  def test_chomped_pre
+    @x.html {_div {_pre.x "before\nmiddle\nafter\n"}}
+    assert_match %r[^    <pre class="x">before\nmiddle\nafter</pre>], target
+  end
+
   def test_declare
     @x._.declare :DOCTYPE, 'html'
     assert_equal %{<!DOCTYPE "html">\n}, target

@@ -198,6 +198,7 @@ module Wunderbar
     end
     
     def _pre(*args, &block)
+      args.first.chomp! if String === args.first and args.first.end_with? "\n"
       @x.disable_indentation! { @x.tag! :pre, *args, &block }
     end
 

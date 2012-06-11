@@ -46,6 +46,10 @@ module Wunderbar
       args.push(@attrs)
       args = @args + args unless block or String === args.first
 
+      if @sym == :pre
+        args.first.chomp! if String === args.first and args.first.end_with? "\n"
+      end
+
       while @stream.length > @original_stream_length
         @stream.pop
       end
