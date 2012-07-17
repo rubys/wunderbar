@@ -10,6 +10,7 @@ Dir.chdir WIKIDATA
 flag ||= '?' if env['REQUEST_URI'].to_s.include? '?'
 file ||= 'index'
 file.untaint
+rev.untaint
 
 markdown = Redcarpet::Markdown.new(Redcarpet::Render::XHTML)
 
