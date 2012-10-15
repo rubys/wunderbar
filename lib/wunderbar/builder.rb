@@ -73,7 +73,18 @@ module Wunderbar
       _newline if @pending_newline
       @pending_newline = @pending_margin
       @first_tag = @pending_margin = false
-      super
+      # workaround for https://github.com/jimweirich/builder/commit/7c824996637d2d76455c87ad47d76ba440937e38
+      sym = "#{sym}:#{args.shift}" if args.first.kind_of?(::Symbol)
+      if not block and args.first == ''
+        attrs = {}
+        attrs.merge!(args.last) if ::Hash === args.last
+        _indent
+        _start_tag(sym, attrs)
+        _end_tag(sym)
+        _newline
+      else
+        super
+      end
     end
   end
 
