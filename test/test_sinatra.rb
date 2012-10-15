@@ -239,7 +239,7 @@ class SintraTest < Test::Unit::TestCase
       TestApp.new
     end
 
-  rescue LoadError => Exception
+  rescue LoadError => exception
 
     attr_accessor :default_test
     public_instance_methods.grep(/^test_/).each do |method|
