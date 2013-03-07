@@ -43,10 +43,12 @@ elsif defined? ActionView::Template
 else
 
   require 'etc'
-  $USER = ENV['REMOTE_USER'] ||= ENV['USER'] || Etc.getlogin
-  if $USER.nil?
+  user = Etc.getlogin
+
+  $USER = ENV['REMOTE_USER'] ||= ENV['USER'] || user
+  if $USER.nil? or $USER == '_securityagent'
     if RUBY_PLATFORM =~ /darwin/i
-      $USER = `dscl . -search /Users UniqueID #{Process.uid}`.split.first
+      user = $USER = `dscl . -search /Users UniqueID #{Process.uid}`.split.first
     elsif RUBY_PLATFORM =~ /linux/i
       $USER = `getent passwd #{Process.uid}`.split(':').first
     end
@@ -66,7 +68,8 @@ else
   end
 
   $HOME = ENV['HOME']
-  if $HOME.nil? and $USER == Etc.getlogin
+  $HOME = nil if $HOME == '/var/empty'
+  if $HOME.nil? and $USER == user
     $HOME ||= Dir.home($USER) rescue nil
     $HOME ||= File.expand_path("~#{$USER}") rescue nil
   end
