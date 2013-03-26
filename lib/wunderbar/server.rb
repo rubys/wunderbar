@@ -50,7 +50,7 @@ else
     if RUBY_PLATFORM =~ /darwin/i
       user = $USER = `dscl . -search /Users UniqueID #{Process.uid}`.split.first
     elsif RUBY_PLATFORM =~ /linux/i
-      $USER = `getent passwd #{Process.uid}`.split(':').first
+      user = $USER = `getent passwd #{Process.uid}`.split(':').first
     end
 
     ENV['USER'] ||= $USER
