@@ -68,7 +68,7 @@ else
   end
 
   $HOME = ENV['HOME']
-  $HOME = nil if $HOME == '/var/empty'
+  $HOME = nil if $HOME == '/var/empty' or $HOME == ENV['DOCUMENT_ROOT']
   if $HOME.nil? and $USER == user
     $HOME ||= Dir.home($USER) rescue nil
     $HOME ||= File.expand_path("~#{$USER}") rescue nil
