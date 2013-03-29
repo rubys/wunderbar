@@ -210,7 +210,7 @@ module Wunderbar
           require 'shellwords'
           echo = Shellwords.join(command.compact - secret)
         end
-        command = flat.compact.map(&:untaint)
+        command = flat.compact.map(&:dup).map(&:untaint)
       else
         echo = command
         command = [command]
