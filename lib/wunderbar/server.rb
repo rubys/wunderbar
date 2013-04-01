@@ -43,10 +43,10 @@ elsif defined? ActionView::Template
 else
 
   require 'etc'
-  user = Etc.getlogin
+  user = Etc.getpwuid.name
 
   $USER = ENV['REMOTE_USER'] ||= ENV['USER'] || user
-  if $USER.nil? or $USER == '_securityagent'
+  if $USER.nil?
     if RUBY_PLATFORM =~ /darwin/i
       user = $USER = `dscl . -search /Users UniqueID #{Process.uid}`.split.first
     elsif RUBY_PLATFORM =~ /linux/i
