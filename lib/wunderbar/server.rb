@@ -56,6 +56,8 @@ else
     ENV['USER'] ||= $USER
   end
 
+  $USER = ENV['HTTP_USER'] if $USER == 'vagrant' and ENV['HTTP_USER']
+
   if ENV['HTTP_AUTHORIZATION']
     # RewriteEngine on
     # RewriteRule ^.*$ - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
