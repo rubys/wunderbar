@@ -35,6 +35,11 @@ class HtmlMarkupTest < Test::Unit::TestCase
     assert_match %r{<textarea></textarea>}, target
   end
 
+  def test_normal_element_with_nil
+    @x.html {_textarea nil, :rows => 6}
+    assert_match %r{<textarea rows="6"></textarea>}, target
+  end
+
   def test_namespaced_element
     @x.html {_g :plusone}
     assert_match %r{<g:plusone></g:plusone>}, target

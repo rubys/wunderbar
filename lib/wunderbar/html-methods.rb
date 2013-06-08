@@ -88,6 +88,7 @@ module Wunderbar
 
         # ensure that non-void elements are explicitly closed
         if not block and not VOID.include?(name)
+          args[0] = '' if args.length > 1 and args.first == nil
           symbol = (args.shift if args.length > 0 and Symbol === args.first)
           if args.length == 0 or (args.length == 1 and Hash === args.first)
             args.unshift ''
