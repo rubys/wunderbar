@@ -49,6 +49,8 @@ module Wunderbar
         name, flag = $1, $2
       elsif @_scope and @_scope.respond_to? name
         return @_scope.__send__ name, *args, &block
+      elsif TOPLEVEL_BINDING.eval('local_variables').include? name
+        return TOPLEVEL_BINDING.eval(name.to_s)
       else
         err = NameError.new "undefined local variable or method `#{name}'", name
         err.set_backtrace caller
@@ -210,7 +212,9 @@ module Wunderbar
     def _(text=nil, &block)
       unless block
         if text
-          if text.respond_to? :html_safe? and text.html_safe?
+          if Proc === text
+            instance_eval &text
+          elsif text.respond_to? :html_safe? and text.html_safe?
             _ {text}
           else
             @x.indented_text! text.to_s

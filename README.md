@@ -294,6 +294,35 @@ output stream, which provides access to other useful methods, for example:
         _.print 'foo'
         _.printf "Hello %s!\n", 'world'
 
+Extensions
+---
+
+At times it becomes convenient to factor out HTML (or JSON) fragments into
+a separate definition.  Wunderbar support for this is provided in two parts:
+
+1) Passing an instance of a `Proc` to `_` causes that proc to be evaluated
+in context.  Full access is provided to @instance_variables and toplevel
+(main) variables.  Any output produced by the procedure is included in the
+result.
+
+2) `_.attr_accessor` can be used to define additional attributes that are
+shared with extensions.  Access to such variables is via `_.name`. 
+
+3) `Wunderbar::Extension` is a base class that makes it easier to define
+procs.  An example definition and usage:
+
+    class MyExtension < Wunderbar::Extension
+      proc :header
+        _h1 'Welcome'
+      end
+    end
+
+    _html do
+      _body do
+        _ MyExtension::header
+      end
+    end
+
 Methods provided to Wunderbar.websocket
 ---
 

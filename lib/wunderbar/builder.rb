@@ -151,6 +151,11 @@ module Wunderbar
       super
     end
 
+    # expose a new attribute
+    def attr_accessor(*names)
+      (class << self; self; end).instance_eval {attr_accessor *names}
+    end
+
     # avoid method_missing overhead for the most common case
     def tag!(sym, *args, &block)
       if sym.respond_to? :children
@@ -443,6 +448,11 @@ module Wunderbar
       @_target
     end
 
+    # expose a new attribute
+    def attr_accessor(*names)
+      (class << self; self; end).instance_eval {attr_accessor *names}
+    end
+
     # forward to Wunderbar, @_target, or @_scope
     def method_missing(method, *args, &block)
 
@@ -454,6 +464,8 @@ module Wunderbar
         return @_target.send method, *args, &block
       elsif @_scope and @_scope.respond_to? method
         return @_scope.send method, *args, &block
+      elsif TOPLEVEL_BINDING.eval('local_variables').include? method
+        return TOPLEVEL_BINDING.eval(method.to_s)
       else
         super
       end
@@ -496,13 +508,17 @@ module Wunderbar
 
         @_target[name.to_s] = result
       elsif args.length == 0 or (args.length == 1 and not block)
-        @_target = [] if @_target == {}
+        if Proc === result
+          instance_eval &result 
+        else
+          @_target = [] if @_target == {}
 
-        if Hash === @_target 
-          ::Kernel::raise ::ArgumentError, "mixed hash and array calls"
+          if Hash === @_target 
+            ::Kernel::raise ::ArgumentError, "mixed hash and array calls"
+          end
+
+          @_target << result
         end
-
-        @_target << result
       else
         @_target = result
       end
@@ -535,6 +551,15 @@ module Wunderbar
         JSON.pretty_generate(@_target)+ "\n"
       rescue
         @_target.to_json + "\n"
+      end
+    end
+  end
+
+  # make it easier to define extensions
+  class Extension
+    def self.proc(name, &block)
+      (class << self; self; end).instance_eval do
+        define_method(name) {Proc.new &block}
       end
     end
   end
