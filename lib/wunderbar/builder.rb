@@ -558,8 +558,16 @@ module Wunderbar
   # make it easier to define extensions
   class Extension
     def self.proc(name, &block)
-      (class << self; self; end).instance_eval do
-        define_method(name) {Proc.new &block}
+      (class << self; self; end).instance_eval do |*args|
+        parameters = block.parameters.map(&:last).join(',')
+        if parameters.empty?
+          result = eval "Proc.new {instance_eval(&block)}"
+          method = eval "Proc.new {result}"
+        else
+          result = eval "Proc.new {instance_exec(#{parameters},&block)}"
+          method = eval "Proc.new {|#{parameters}| result}"
+        end
+        define_method(name, &method)
       end
     end
   end
