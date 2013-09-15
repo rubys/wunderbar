@@ -172,6 +172,7 @@ module Wunderbar
       @x.tag!('head', *args) do
         @x.tag! :meta, :charset => 'utf-8'
         block.call if block
+        instance_eval &Wunderbar::Asset.declarations
       end
     end
 

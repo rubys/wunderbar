@@ -3,6 +3,7 @@ require 'builder'
 require 'json'
 
 require 'wunderbar/environment'
+require 'wunderbar/asset'
 require 'wunderbar/builder'
 require 'wunderbar/cgi-methods'
 require 'wunderbar/cssproxy'
