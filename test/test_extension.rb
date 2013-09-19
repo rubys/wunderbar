@@ -14,10 +14,6 @@ class Extension < Wunderbar::Extension
   proc :toplevel do
     _toplevel main_variable
   end
-
-  proc :argument do |n|
-    _argument n+1
-  end
 end
 
 class HtmlExtensionTest < Test::Unit::TestCase
@@ -56,14 +52,6 @@ class HtmlExtensionTest < Test::Unit::TestCase
     end
 
     assert_match %r{<toplevel>plugh</toplevel>}, target
-  end
-
-  def test_argument
-    @x.html do
-      _ Extension.argument, 41
-    end
-
-    assert_match %r{<argument>42</argument>}, target
   end
 end
 
