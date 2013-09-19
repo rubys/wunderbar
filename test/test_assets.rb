@@ -23,4 +23,16 @@ class AssetTest < Test::Unit::TestCase
     assert_match %r{<script src="assets/jquery-min.js"}, target
   end
 
+  def test_opal
+    load 'wunderbar/opal.rb'
+    @x.html {_head}
+    assert_match %r{<script src="assets/opal.js"}, target
+  end
+
+  def test_opal_jquery
+    load 'wunderbar/opal-jquery.rb'
+    @x.html {_head}
+    assert_match %r{<script src="assets/opal-jquery.js"}, target
+  end
+
 end

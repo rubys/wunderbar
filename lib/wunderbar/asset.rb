@@ -26,20 +26,34 @@ module Wunderbar
     @path = '../' * ENV['PATH_INFO'].to_s.count('/')
     @root = File.dirname(ENV['SCRIPT_FILENAME']) if ENV['SCRIPT_FILENAME']
 
+    # Options: typically :name plus either :file or :contents
+    #   :name => name to be used for the asset
+    #   :file => source for the asset
+    #   :contents => contents of the asset
     def initialize(options)
-      if (source=options[:file])
-        options[:name] ||= File.basename(options[:file])
+      source = options[:file] || __FILE__
+      @contents = options[:contents]
+
+      options[:name] ||= File.basename(options[:file]) if source
+
+      if options[:name]
         @path = "assets/#{options[:name]}"
         dest = File.expand_path(@path, Asset.root || Dir.pwd)
+
         if not File.exist?(dest) or File.mtime(dest) < File.mtime(source)
           begin
             FileUtils.mkdir_p File.dirname(dest)
-            FileUtils.cp source, dest, :preserve => true
+            if options[:file]
+              FileUtils.cp source, dest, :preserve => true
+            else
+              open(dest, 'w') {|file| file.write @contents}
+            end
           rescue
             @path = nil
-            @contents = File.read(source)
+            @contents ||= File.read(source)
           end
         end
+      else
       end
     end
 
