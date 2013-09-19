@@ -2,24 +2,42 @@ require 'fileutils'
 
 module Wunderbar
   class Asset
-    @@scripts = []
-    @@stylesheets = []
-    attr_reader :path, :source
+    class << self
+      # URI path prepended to individual asset path
+      attr_accessor :path
 
-    @@root = '../' * ENV['PATH_INFO'].to_s.count('/')
+      # location where the asset directory is to be found/placed
+      attr_accessor :root
+    end
+
+    # asset file location
+    attr_reader :path
+
+    # asset contents
+    attr_reader :contents
+
+    def self.clear
+      @@scripts = []
+      @@stylesheets = []
+    end
+
+    clear
+
+    @path = '../' * ENV['PATH_INFO'].to_s.count('/')
+    @root = File.dirname(ENV['SCRIPT_FILENAME']) if ENV['SCRIPT_FILENAME']
 
     def initialize(options)
       if (source=options[:file])
         options[:name] ||= File.basename(options[:file])
         @path = "assets/#{options[:name]}"
-        dest = File.expand_path(@path)
+        dest = File.expand_path(@path, Asset.root || Dir.pwd)
         if not File.exist?(dest) or File.mtime(dest) < File.mtime(source)
           begin
             FileUtils.mkdir_p File.dirname(dest)
             FileUtils.cp source, dest, :preserve => true
           rescue
             @path = nil
-            @source = File.read(source)
+            @contents = File.read(source)
           end
         end
       end
@@ -37,18 +55,18 @@ module Wunderbar
       Proc.new do 
         @@scripts.each do |script|
           if script.path
-            _script :src => @@root+script.path
-          elsif script.source
-            _script script.source
+            _script :src => Asset.path+script.path
+          elsif script.contents
+            _script script.contents
           end
         end
 
         @@stylesheets.each do |stylesheet|
           if stylesheet.path
-            _link :rel => "stylesheet", :href => @@root+stylesheet.path,
+            _link :rel => "stylesheet", :href => Asset.path+stylesheet.path,
               :type => "text/css"
-          elsif stylesheet.source
-            _style stylesheet.source
+          elsif stylesheet.contents
+            _style stylesheet.contents
           end
         end
       end
