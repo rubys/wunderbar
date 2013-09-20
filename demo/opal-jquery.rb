@@ -9,8 +9,8 @@ _html do
     _span 0
     _button 'increment'
     _script do
-      Element.find('button').on :click do
-        span = Element.find('span')
+      $document.find('button').on :click do
+        span = $document.find('span')
         span.text = span.text.to_i+1
       end
     end
