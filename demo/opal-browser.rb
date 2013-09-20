@@ -11,7 +11,7 @@ _html do
     _script do
       $document.at('button').on :click do
         span = $document.at('span')
-        span.content = span.content.to_i+1
+        span.text = span.text.to_i+1
       end
     end
   end
