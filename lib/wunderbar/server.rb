@@ -28,7 +28,8 @@ if port and ARGV.delete(port)
     # start the server
     require 'rack'
     require 'wunderbar/rack'
-    Rack::Server.start :app => Wunderbar::RackApp.new, :Port => port,
+    app = Rack::Lock.new(Wunderbar::RackApp.new)
+    Rack::Server.start :app => app, :Port => port,
       :environment => (ENV['RACK_ENV'] || 'development')
   end
 
