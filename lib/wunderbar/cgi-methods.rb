@@ -121,6 +121,16 @@ module Wunderbar
     end
 
     def call(scope)
+      # asset support for Rack
+      request = (scope.respond_to? :request) ? scope.request : nil
+      if request and request.path =~ %r{/assets/\w[-.\w]+}
+        path = ('.' + scope.request.path).untaint
+        headers = {'type' => 'text/plain'}
+        headers['type'] = 'application/javascript' if path =~ /\.js$/
+        out?(scope, headers) { File.read path if File.exist? path }
+        return
+      end
+
       env = scope.env
       accept    = env['HTTP_ACCEPT'].to_s
       path_info = env['PATH_INFO'].to_s
@@ -132,6 +142,13 @@ module Wunderbar
         (accept =~ /plain/ and accept !~ /html/)
       @xhtml = (accept =~ /xhtml/ or accept == '')
       @pdf   = (accept =~ /pdf/)
+
+      # parse json arguments
+      if xhr_json and request and request.respond_to? :body
+        if env['CONTENT_TYPE'] =~ %r{^application/json(;.*)?$}
+          scope.params.merge! JSON.parse(scope.request.body.read)
+        end
+      end
 
       # overrides via the command line
       xhtml_override = ARGV.include?('--xhtml')
