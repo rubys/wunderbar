@@ -84,7 +84,17 @@ else
       ARGV.push '' if ARGV.empty?
       ARGV.delete('--prompt') or ARGV.delete('--offline')
 
+      payload = nil
+      if env['CONTENT_TYPE'] =~ %r{^application/json(;.*)?$}
+        # read payload before CGI.new eats $stdin
+        payload = JSON.parse($stdin.read) rescue nil
+      end
+
       cgi = CGI.new
+
+      cgi.params.merge!(payload) if payload rescue nil
+      payload = nil
+
       cgi.instance_variable_set '@env', ENV
       class << cgi
         attr_accessor :env

@@ -126,7 +126,8 @@ module Wunderbar
       path_info = env['PATH_INFO'].to_s
 
       # implied request types
-      xhr_json = Wunderbar::Options::XHR_JSON  || (accept =~ /json/)
+      xhr_json = Wunderbar::Options::XHR_JSON || (accept =~ /json/) ||
+        env['HTTP_X_REQUESTED_WITH'].to_s == 'XMLHttpRequest'
       text = Wunderbar::Options::TEXT || 
         (accept =~ /plain/ and accept !~ /html/)
       @xhtml = (accept =~ /xhtml/ or accept == '')
