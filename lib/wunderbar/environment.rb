@@ -23,7 +23,7 @@ module Wunderbar
       # contained within data provided by users of the site.
       $:.each_with_index do |path, index|
         if path.tainted?
-          $:[index] = File.expand_path(path.untaint).untaint
+          $:[index] = File.expand_path(path.dup.untaint).untaint
         end
       end
     end

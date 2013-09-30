@@ -1,4 +1,9 @@
 begin
+  require 'minitest' 
+rescue LoadError
+end
+
+begin
   require 'action_controller'
   require 'wunderbar/rails'
 
@@ -15,7 +20,7 @@ begin
 
   WunderbarTestRoutes.draw do
     resources :products
-    match ':controller(/:action(/:id(.:format)))'
+    match ':controller(/:action(/:id(.:format)))', :via => [:get, :post]
   end
 
 rescue LoadError =>  exception

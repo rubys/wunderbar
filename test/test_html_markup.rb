@@ -1,7 +1,6 @@
 require 'test/unit'
 require 'rubygems'
 require 'wunderbar'
-require 'nokogiri'
 
 class HtmlMarkupTest < Test::Unit::TestCase
   def setup
@@ -114,7 +113,8 @@ class HtmlMarkupTest < Test::Unit::TestCase
     if RUBY_VERSION =~ /^1\.8/
       assert_match %r[<div class="one">\s+<p><br/>\302\251</p>], target
     else
-      assert_match %r[<div class="one">\s+<p><br/>&#169;</p>], target
+      assert_match %r[<div class="one">\s+<p><br/>(\302\251|&#169;)</p>]u,
+        target
     end
     assert_match %r[<div class="two">\s+<script>foo</script>], target
     assert_match %r[<div\sclass="three">\s+<script>//<!\[CDATA\[\s+
@@ -184,36 +184,42 @@ class HtmlMarkupTest < Test::Unit::TestCase
     assert_match %r[&lt;br&gt;], target
   end
 
-  def test_node_simple
-    @x.html {_div {_[Nokogiri::XML('<br/>')]}}
-    assert_match %r[<br/>], target
-  end
+  begin
+    require 'nokogiri'
 
-  def test_node_xmlns
-    @x.html do
-      _div {_[Nokogiri::XML('<svg xmlns="http://www.w3.org/2000/svg">')]}
+    def test_node_simple
+      @x.html {_div {_[Nokogiri::XML('<br/>')]}}
+      assert_match %r[<br/>], target
     end
-    assert_match %r[<svg xmlns="http://www.w3.org/2000/svg">], target
-  end
 
-  def test_node_element_prefix
-    @x.html do
-      _div do
-        _[Nokogiri::XML('<rdf:RDF xmlns:rdf="http://www.w3.org/1999/rdf#"/>')]
+    def test_node_xmlns
+      @x.html do
+        _div {_[Nokogiri::XML('<svg xmlns="http://www.w3.org/2000/svg">')]}
       end
+      assert_match %r[<svg xmlns="http://www.w3.org/2000/svg">], target
     end
-    assert_match %r[<rdf:RDF xmlns:rdf="http://www.w3.org/1999/rdf#">], target
-  end
 
-  def test_node_attr_prefix
-    @x.html do
-      _div do
-        _[Nokogiri::XML('<use xlink:href="#path" 
-          xmlns:xlink="http://www.w3.org/1999/xlink"/>')]
+    def test_node_element_prefix
+      @x.html do
+        _div do
+          _[Nokogiri::XML('<rdf:RDF xmlns:rdf="http://www.w3.org/1999/rdf#"/>')]
+        end
       end
+      assert_match %r[<rdf:RDF xmlns:rdf="http://www.w3.org/1999/rdf#">], target
     end
-    assert_match %r[<use.* xlink:href="#path"], target
-    assert_match %r[<use.* xmlns:xlink="http://www.w3.org/1999/xlink"], target
+
+    def test_node_attr_prefix
+      @x.html do
+        _div do
+          _[Nokogiri::XML('<use xlink:href="#path" 
+            xmlns:xlink="http://www.w3.org/1999/xlink"/>')]
+        end
+      end
+      assert_match %r[<use.* xlink:href="#path"], target
+      assert_match %r[<use.* xmlns:xlink="http://www.w3.org/1999/xlink"], target
+    end
+  rescue LoadError => exception
+    define_method(:test_nokogiri) {skip exception.inspect}
   end
 
   def test_traceback
@@ -303,7 +309,7 @@ class HtmlMarkupTest < Test::Unit::TestCase
     assert_match %r[^    <pre>before\nmiddle\nafter</pre>], target
   end
 
-  def test_chomped_pre
+  def test_chomped_pre_class
     @x.html {_div {_pre.x "before\nmiddle\nafter\n"}}
     assert_match %r[^    <pre class="x">before\nmiddle\nafter</pre>], target
   end
