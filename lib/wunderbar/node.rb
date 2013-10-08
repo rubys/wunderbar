@@ -171,6 +171,18 @@ module Wunderbar
     end
   end
 
+  class IndentedTextNode < Node
+    def serialize(result, indent)
+      if indent
+        text = CDATANode.normalize(name, indent)
+      else
+        text = name
+      end
+
+      result << text.to_s.gsub(/[&<>]/,ESCAPE)
+    end
+  end
+
   class ScriptNode < CDATANode
     def pre; "//<![CDATA["; end
     def post; "//]]>"; end

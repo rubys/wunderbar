@@ -27,7 +27,8 @@ module Wunderbar
     end
 
     def indented_text!(text)
-      indented_data!(text) {|data| text! data}
+      return if text.strip.length == 0
+      @node.children << IndentedTextNode.new(text)
     end
 
     def <<(data)
@@ -40,24 +41,6 @@ module Wunderbar
 
     def target!
       "#{@doc.serialize.join("\n")}\n"
-    end
-
-    def indented_data!(data, pre=nil, post=nil, &block)
-      return if data.strip.length == 0
-
-      @node.children.unshift pre if pre
-
-      if @indent > 0
-        data = CDATANode.normalize(data, " " * (@level * @indent))
-      end
-
-      if block
-        block.call(data)
-      else
-        self << data
-      end
-
-      self << post if post
     end
 
     def compact!(width, &block)
