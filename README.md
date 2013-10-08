@@ -227,6 +227,12 @@ If one of the attributes passed on the `_html` declaration is `:_width`, an
 attempt will be made to reflow text in order to not exceed this line width.
 This won't be done if it will affect what actually is displayed.
 
+If none of the child elements for the `html` element are either `head` or
+`body`, then these tags will be created for you, and the relevant children
+will be moved to the appropriate section.  If the body contains a `h1`
+element, and the `head` doesn't contain a `title`, a title element will be
+created based on the text supplied to the first `h1` element.
+
 Methods provided to Wunderbar.json
 ---
 

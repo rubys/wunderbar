@@ -77,13 +77,8 @@ module Wunderbar
           scope.response.status = 500
           builder.clear!
           builder.html do
-            _head do
-              _title 'Internal Server Error'
-            end
-            _body do
-              _h1 'Internal Server Error'
-              _exception exception
-            end
+            _h1 'Internal Server Error'
+            _exception exception
           end
         end
         builder._.target!

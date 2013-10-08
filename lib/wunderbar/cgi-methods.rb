@@ -103,13 +103,8 @@ module Wunderbar
         headers['status'] =  "500 Internal Server Error"
         x.clear!
         output = x.html(*args) do
-          _head do
-            _title 'Internal Server Error'
-          end
-          _body do
-            _h1 'Internal Server Error'
-            _exception exception
-          end
+          _h1 'Internal Server Error'
+          _exception exception
         end
       end
 

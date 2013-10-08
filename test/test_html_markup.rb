@@ -61,12 +61,12 @@ class HtmlMarkupTest < Test::Unit::TestCase
 
   def test_script_indent
     @x.html {_script "if (i<1) {}"}
-    assert_match %r[^    if], target
+    assert_match %r[^ {6}if], target
   end
 
   def test_p_indent
     @x.html {_p "a\nb"}
-    assert_match %r[^    a], target
+    assert_match %r[^ {6}a], target
   end
 
   def test_script_unwrapped
@@ -130,7 +130,7 @@ class HtmlMarkupTest < Test::Unit::TestCase
       true
     end
     @x.html {_p markup}
-    assert_match %r[<p>\n    <b>bold</b>\n  </p>], target
+    assert_match %r[<p>\n {6}<b>bold</b>\n {4}</p>], target
   end
 
   def test_disable_indent
@@ -250,7 +250,7 @@ class HtmlMarkupTest < Test::Unit::TestCase
 
   def test_nil_attribute
     @x.html {_div :class => nil}
-    assert_match %r[^  <div></div>], target
+    assert_match %r[^ +<div></div>], target
   end
 
   def test_class_attribute
@@ -260,7 +260,7 @@ class HtmlMarkupTest < Test::Unit::TestCase
 
   def test_id_attribute
     @x.html {_h1.content! 'Content'}
-    assert_match %r[^  <h1 id="content">Content</h1>], target
+    assert_match %r[^ +<h1 id="content">Content</h1>], target
   end
 
   def test_svg_class_attribute
@@ -271,17 +271,17 @@ class HtmlMarkupTest < Test::Unit::TestCase
 
   def test_boolean_attribute_false
     @x.html {_option :selected => false}
-    assert_match %r[^  <option></option>], target
+    assert_match %r[^ +<option></option>], target
   end
 
   def test_boolean_attribute_true
     @x.html {_option :selected => true}
-    assert_match %r[^  <option selected="selected"></option>], target
+    assert_match %r[^ +<option selected="selected"></option>], target
   end
 
   def test_class_boolean_attribute_false
     @x.html {_option.name :selected => false}
-    assert_match %r[^  <option class="name"></option>], target
+    assert_match %r[^ +<option class="name"></option>], target
   end
 
   def test_class_boolean_attribute_true
@@ -291,27 +291,27 @@ class HtmlMarkupTest < Test::Unit::TestCase
 
   def test_indented_text
     @x.html {_div {_ 'text'}}
-    assert_match %r[^  <div>\n    text\n  </div>], target
+    assert_match %r[^ {4}+<div>\n {6}text\n {4}</div>], target
   end
 
   def test_unindented_text
     @x.html {_div {_! "text\n"}}
-    assert_match %r[^  <div>\ntext\n  </div>], target
+    assert_match %r[^ +<div>\ntext\n +</div>], target
   end
 
   def test_unindented_pre
     @x.html {_div {_pre {_{"before\n<b><i>middle</i></b>\nafter"}}}}
-    assert_match %r[^    <pre>before\n<b><i>middle</i></b>\nafter</pre>], target
+    assert_match %r[^ +<pre>before\n<b><i>middle</i></b>\nafter</pre>], target
   end
 
   def test_chomped_pre
     @x.html {_div {_pre "before\nmiddle\nafter\n"}}
-    assert_match %r[^    <pre>before\nmiddle\nafter</pre>], target
+    assert_match %r[^ +<pre>before\nmiddle\nafter</pre>], target
   end
 
   def test_chomped_pre_class
     @x.html {_div {_pre.x "before\nmiddle\nafter\n"}}
-    assert_match %r[^    <pre class="x">before\nmiddle\nafter</pre>], target
+    assert_match %r[^ +<pre class="x">before\nmiddle\nafter</pre>], target
   end
 
   def test_declare
@@ -326,12 +326,12 @@ class HtmlMarkupTest < Test::Unit::TestCase
 
   def test_svg
     @x.html {_svg}
-    assert_match %r[^  <svg xmlns="http://www.w3.org/2000/svg"/?>], target
+    assert_match %r[^ +<svg xmlns="http://www.w3.org/2000/svg"/?>], target
   end
 
   def test_math
     @x.html {_math}
-    assert_match %r[^  <math xmlns="http://www.w3.org/1998/Math/MathML"/?>],
+    assert_match %r[^ +<math xmlns="http://www.w3.org/1998/Math/MathML"/?>],
       target
   end
 
@@ -358,7 +358,18 @@ class HtmlMarkupTest < Test::Unit::TestCase
         5.times {|i| _a i, :href=>i; _ ', '}
       end
     end
-    assert_match /<a href="1">1<\/a>, <a href="2">2<\/a>,\n  <a href="3">/, 
+    assert_match /<a href="1">1<\/a>, <a href="2">2<\/a>,\n {4}<a href="3">/, 
       target
+  end
+
+  def test_implicit_elements
+    @x.html do
+      _h1 'title'
+    end
+    assert_match /^  <head>/, target
+    assert_match /^    <title>title<\/title>/, target
+    assert_match /^  <\/head>\n\n/, target
+    assert_match /^  <body>/, target
+    assert_match /^    <h1>title<\/h1>/, target
   end
 end

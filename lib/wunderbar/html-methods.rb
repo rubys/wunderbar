@@ -13,6 +13,8 @@ module Wunderbar
       hr noscript ol output p pre section table tfoot ul video
     )
 
+    HEAD = %w(title base link style meta)
+
     def initialize(scope)
       @_scope = scope
       @x = XmlMarkup.new :scope => scope, :indent => 2, :target => []
@@ -33,9 +35,53 @@ module Wunderbar
       end
 
       @x.declare! :DOCTYPE, :html
-      @x.tag! :html, *args do 
+      html = @x.tag! :html, *args do 
         set_variables_from_params
         instance_eval(&block)
+      end
+
+      pending_head = []
+      pending_body = []
+      head = nil
+      body = nil
+      html.children.each do |child| 
+        next unless child
+        if child.name == 'head'
+          head = child
+        elsif child.name == 'body'
+          body = child
+        elsif HEAD.include? child.name
+          pending_head << child
+        elsif child.name == 'script'
+          if pending_body.empty?
+            pending_head << child
+          else
+            pending_body << child
+          end
+        else
+          pending_body << child
+        end
+      end
+
+      @x.instance_eval {@node = html}
+      head = _head_ if not head
+      body = _body nil if not body
+      html.children.unshift(head.parent.children.delete(head))
+      html.children.push(body.parent.children.delete(body))
+      head.parent = body.parent = html
+      head.children.compact!
+      body.children.compact!
+
+      [ [pending_head, head], [pending_body, body] ].each do |list, node|
+        list.each do |child|
+          html.children.delete(child)
+          node.add_child child
+        end
+      end
+
+      if not head.children.any? {|child| child.name == 'title'}
+        h1 = body.children.find {|child| child.name == 'h1'}
+        head.add_child Node.new('title', h1.text) if h1 and h1.text
       end
 
       bom + @x.target!
