@@ -7,15 +7,11 @@ module Wunderbar
   #
   # See the README for examples.
   class CssProxy
-    def initialize(builder, stream, sym, args)
+    def initialize(builder, sym, args)
       @builder = builder
-      @indent  = builder.indentation_state!
-      @stream  = stream
       @sym     = sym
       @args    = args
       @attrs   = {}
-
-      @original_stream_length = @stream.length
 
       @builder.tag! sym, *args
     end
@@ -50,20 +46,10 @@ module Wunderbar
         args.first.chomp! if String === args.first and args.first.end_with? "\n"
       end
 
-      while @stream.length > @original_stream_length
-        @stream.pop
-      end
-
-      begin
-        indent = @builder.indentation_state! @indent
-
-        if block
-          @builder.tag! @sym, *args, &block
-        else
-          @builder.tag! @sym, *args
-        end
-      ensure
-        @builder.indentation_state! indent
+      if block
+        @builder.tag! @sym, *args, &block
+      else
+        @builder.tag! @sym, *args
       end
 
       self

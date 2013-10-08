@@ -1,5 +1,4 @@
 require 'cgi'
-require 'builder'
 require 'json'
 
 require 'wunderbar/environment'
@@ -11,6 +10,7 @@ require 'wunderbar/html-methods'
 require 'wunderbar/installation'
 require 'wunderbar/job-control'
 require 'wunderbar/logger'
+require 'wunderbar/node'
 require 'wunderbar/server'
 require 'wunderbar/websocket'
 

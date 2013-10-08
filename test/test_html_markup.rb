@@ -10,7 +10,7 @@ class HtmlMarkupTest < Test::Unit::TestCase
   end
 
   def target
-    @x._.target!.join
+    @x._.target!
   end
 
   def teardown
@@ -71,7 +71,7 @@ class HtmlMarkupTest < Test::Unit::TestCase
 
   def test_script_unwrapped
     @x.html {_script "if (i>1) {}"}
-    assert_match %r[<script.*>\s*if \(i>1\) \{\}\s*</script>], target
+    assert_match %r[<script.*>\S*\s*if \(i>1\) \{\}\s*\S*</script>], target
   end
 
   def test_script_wrapped
@@ -316,7 +316,7 @@ class HtmlMarkupTest < Test::Unit::TestCase
 
   def test_declare
     @x._.declare :DOCTYPE, 'html'
-    assert_equal %{<!DOCTYPE "html">\n}, target
+    assert_equal %{<!DOCTYPE html>\n}, target
   end
 
   def test_comment
@@ -326,12 +326,12 @@ class HtmlMarkupTest < Test::Unit::TestCase
 
   def test_svg
     @x.html {_svg}
-    assert_match %r[^  <svg xmlns="http://www.w3.org/2000/svg"/>], target
+    assert_match %r[^  <svg xmlns="http://www.w3.org/2000/svg"/?>], target
   end
 
   def test_math
     @x.html {_math}
-    assert_match %r[^  <math xmlns="http://www.w3.org/1998/Math/MathML"/>],
+    assert_match %r[^  <math xmlns="http://www.w3.org/1998/Math/MathML"/?>],
       target
   end
 
@@ -358,7 +358,7 @@ class HtmlMarkupTest < Test::Unit::TestCase
         5.times {|i| _a i, :href=>i; _ ', '}
       end
     end
-    assert_match /<a href="2">2<\/a>, <a href="3">3<\/a>,\n  <a href="4">/, 
+    assert_match /<a href="1">1<\/a>, <a href="2">2<\/a>,\n  <a href="3">/, 
       target
   end
 end

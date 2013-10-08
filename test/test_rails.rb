@@ -1,11 +1,15 @@
 begin
-  require 'minitest' 
+  gem 'minitest', '~> 4.2'
+  require 'minitest/autorun' 
 rescue LoadError
+  require 'test/unit'
+  Minitest = Test
 end
 
 begin
   require 'action_controller'
   require 'wunderbar/rails'
+  require 'wunderbar'
 
   class RailsTestController < ActionController::Base
     append_view_path File.expand_path(File.join File.dirname(__FILE__), 'views')
@@ -23,10 +27,19 @@ begin
     match ':controller(/:action(/:id(.:format)))', :via => [:get, :post]
   end
 
+  # http://stackoverflow.com/questions/3546107/testing-view-helpers#answer-3802286
+  require 'ostruct'
+  module ActionController::UrlFor
+    def _routes
+      helpers = OpenStruct.new
+      helpers.url_helpers = Module.new
+      helpers
+    end
+  end
+
 rescue LoadError =>  exception
-  require 'test/unit'
   ActionController = Module.new do
-    const_set :TestCase, Class.new(Test::Unit::TestCase) {
+    const_set :TestCase, Class.new(Minitest::Unit::TestCase) {
       define_method(:default_test) {}
       define_method(:skip_reason) do
         exception.inspect
@@ -36,6 +49,7 @@ rescue LoadError =>  exception
 end
 
 class WunderbarOnRailsTest < ActionController::TestCase
+
   def setup
     @request = ActionController::TestRequest.new
     @response = ActionController::TestResponse.new
@@ -61,7 +75,7 @@ class WunderbarOnRailsTest < ActionController::TestCase
     assert_equal 1_000, response['products'][0]['quantity']
   end
 
-  if superclass.superclass == Test::Unit::TestCase
+  if superclass.superclass == Minitest::Unit::TestCase
     remove_method :setup
     attr_accessor :default_test
     public_instance_methods.grep(/^test_/).each do |method|

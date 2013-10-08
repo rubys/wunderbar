@@ -43,7 +43,6 @@ spec = Gem::Specification.new do |s|
 
   # If you want to depend on other gems, add them here, along with any
   # relevant versions
-  s.add_dependency("builder", ">= 3.0")
   s.add_dependency("json")
 
   # If your tests use any gems, include them here

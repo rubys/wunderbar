@@ -14,7 +14,7 @@ module Wunderbar
             x.instance_variable_set var, instance_variable_get(var)
           end
           x.instance_eval &compiled
-          x._.target!.join
+          x._.target!
         }.strip # take care to preserve line numbers in original source
       end
     end

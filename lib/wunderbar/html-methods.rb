@@ -26,18 +26,19 @@ module Wunderbar
       end
       @_width = args.first.delete(:_width) if Hash === args.first
 
-      @x.text! "\xEF\xBB\xBF"
+      if ''.respond_to? :encoding
+        bom = "\ufeff"
+      else
+        bom = "\xEF\xBB\xBF"
+      end
+
       @x.declare! :DOCTYPE, :html
       @x.tag! :html, *args do 
         set_variables_from_params
         instance_eval(&block)
       end
 
-      if @_width
-        self.class.reflow(@x.target!, @_width)
-      end
-
-      @x.target!.join
+      bom + @x.target!
     end
 
     def _html(*args, &block)
@@ -56,44 +57,15 @@ module Wunderbar
       end
 
       if name.sub!(/_$/,'')
-        @x.margin!
+        @x.spaced!
         return __send__ "_#{name}", *args, &block if respond_to? "_#{name}"
       end
 
       if flag != '!'
         if %w(script style).include?(name)
-          if String === args.first and not block
-            text = args.shift
-            if !text.include? '&' and !text.include? '<'
-              block = Proc.new do
-                @x.indented_data!(text)
-              end
-            elsif name == 'style'
-              block = Proc.new do
-                @x.indented_data!(text, "/*<![CDATA[*/", "/*]]>*/")
-              end
-            else
-              block = Proc.new do
-                @x.indented_data!(text, "//<![CDATA[", "//]]>")
-              end
-            end
-          end
-
-          args << {} if args.length == 0
-          if Hash === args.last
-            args.last[:lang] ||= 'text/javascript' if name == 'script'
-            args.last[:type] ||= 'text/css' if name == 'style'
-          end
-        end
-
-        # ensure that non-void elements are explicitly closed
-        if not block and not VOID.include?(name)
-          args[0] = '' if args.length > 1 and args.first == nil
-          symbol = (args.shift if args.length > 0 and Symbol === args.first)
-          if args.length == 0 or (args.length == 1 and Hash === args.first)
-            args.unshift ''
-          end
-          args.unshift(symbol) if symbol
+          args << {} unless Hash === args.last
+          args.last[:lang] ||= 'text/javascript' if name == 'script'
+          args.last[:type] ||= 'text/css' if name == 'style'
         end
 
         if String === args.first and args.first.respond_to? :html_safe?
@@ -102,20 +74,10 @@ module Wunderbar
             block = Proc.new {_ {markup}}
           end
         end
-
-        if Hash === args.last
-          # remove attributes with nil, false values
-          args.last.delete_if {|key, value| !value}
-
-          # replace boolean 'true' attributes with the name of the attribute
-          args.last.each {|key, value| args.last[key]=key if value == true}
-        end
       end
 
       if flag == '!'
-        @x.disable_indentation! do
-          @x.tag! name, *args, &block
-        end
+        @x.compact!(@_width) { @x.tag! name, *args, &block }
       elsif flag == '?'
         # capture exceptions, produce filtered tracebacks
         @x.tag!(name, *args) do
@@ -128,13 +90,7 @@ module Wunderbar
           end
         end
       else
-        target = @x.tag! name, *args, &block
-        if block and %w(script style).include?(name)
-          if %w{//]]> /*]]>*/}.include? target[-4]
-            target[-4], target[-3] = target[-3], target[-4]
-          end
-        end
-        target
+        @x.tag! name, *args, &block
       end
     end
 
@@ -201,11 +157,11 @@ module Wunderbar
     
     def _pre(*args, &block)
       args.first.chomp! if String === args.first and args.first.end_with? "\n"
-      @x.disable_indentation! { @x.tag! :pre, *args, &block }
+      @x.compact!(@_width) { @x.tag! :pre, *args, &block }
     end
 
     def _!(text)
-      @x.text! text.to_s
+      @x.text! text.to_s.chomp
     end
 
     def _(text=nil, &block)
@@ -263,66 +219,6 @@ module Wunderbar
         end
       end
       flatten
-    end
-
-    # reflow long lines
-    def self.reflow(stream, width)
-      source = stream.slice!(0..-1)
-      indent = col = 0
-      breakable = true
-      pre = false
-      while not source.empty?
-        token = source.shift
-        indent = token[/^ */].length if col == 0
-
-        if token.start_with? '<'
-          breakable = false
-          pre = true if token == '<pre'
-        end
-
-        # flow text
-        while token.length + col > width and breakable and not pre
-          break if token[0...-1].include? "\n"
-          split = token.rindex(' ', [width-col,0].max) || token.index(' ')
-          break unless split
-          break if col+split < indent+width/2
-          stream << token[0...split] << "\n" << (' '*indent)
-          col = indent
-          token = token[split+1..-1]
-        end
-
-        # break around tags
-        if token.end_with? '>'
-          if col > indent + 4 and stream[-2..-1] == ['<br', '/']
-            stream << token << "\n"
-            col = 0
-            token = ' '*indent
-            source[0] = source.first.lstrip unless source.empty?
-          elsif col > width and not pre
-            # break on previous space within text
-            pcol = col
-            stream.reverse_each do |xtoken|
-              break if xtoken.include? "\n"
-              split = xtoken.rindex(' ')
-              breakable = false if xtoken.end_with? '>'
-              if breakable and split
-                col = col - pcol + xtoken.length - split + indent
-                xtoken[split] = "\n#{' '*indent}" 
-                break
-              end
-              breakable = true if xtoken.start_with? '<'
-              pcol -= xtoken.length
-              break if pcol < (width + indent)/2
-            end
-          end
-          breakable = true
-          pre = false if token == '</pre>'
-        end
-
-        stream << token
-        col += token.length
-        col = 0 if token.end_with? "\n"
-      end
     end
   end
 end

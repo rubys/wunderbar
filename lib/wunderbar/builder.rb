@@ -1,28 +1,54 @@
 module Wunderbar
   # XmlMarkup handles indentation of elements beautifully, this class extends
   # that support to text, data, and spacing between elements
-  class SpacedMarkup < Builder::XmlMarkup
+  class SpacedMarkup
+    attr_reader :indentation_enabled
+
+    def initialize(args)
+      @level = 0
+      @indent = args[:indent]
+      @doc = Node.new(nil)
+      @node = @doc
+      @indentation_enabled = true
+      @width = nil
+      @spaced = false
+    end
+
+    def text! text
+      @node.add_text text
+    end
+
+    def declare! *args
+      @node.children << DocTypeNode.new(*args)
+    end
+
+    def comment! text
+      @node.children << CommentNode.new(text)
+    end
+
     def indented_text!(text)
       indented_data!(text) {|data| text! data}
+    end
+
+    def <<(data)
+      if String === data
+        @node.children << data
+      else
+        @node.add_child data
+      end
+    end
+
+    def target!
+      "#{@doc.serialize.join("\n")}\n"
     end
 
     def indented_data!(data, pre=nil, post=nil, &block)
       return if data.strip.length == 0
 
-      self << pre + target!.pop if pre
+      @node.children.unshift pre if pre
 
       if @indent > 0
-        data = data.sub(/\n\s*\Z/, '').sub(/\A\s*\n/, '')
-
-        unindent = data.sub(/s+\Z/,'').scan(/^ *\S/).map(&:length).min || 1
-
-        before  = ::Regexp.new('^'.ljust(unindent))
-        after   =  " " * (@level * @indent)
-        data.gsub! before, after
-
-        _newline if @pending_newline and not @first_tag
-        @pending_newline = @pending_margin
-        @first_tag = @pending_margin = false
+        data = CDATANode.normalize(data, " " * (@level * @indent))
       end
 
       if block
@@ -31,60 +57,57 @@ module Wunderbar
         self << data
       end
 
-      _newline unless data =~ /\n\Z/
-
       self << post if post
     end
 
-    def disable_indentation!(&block)
-      indent, level, pending_newline, pending_margin = 
-        indentation_state! [0, 0, @pending_newline, @pending_margin]
-      text! " "*indent*level
-      block.call
-    ensure
-      indentation_state! [indent, level, pending_newline, pending_margin]
-    end
-
-    def indentation_state! new_state=nil
-      result = [@indent, @level, @pending_newline, @pending_margin]
-      if new_state
-        text! "\n" if @indent == 0 and new_state.first > 0
-        @indent, @level, @pending_newline, @pending_margin = new_state
+    def compact!(width, &block)
+      begin
+        @width = width
+        @indent = 0
+        @indentation_enabled = false
+        block.call
+      ensure
+        @indentation_enabled = true
       end
-      result
     end
 
-    def margin!
-      _newline unless @first_tag
-      @pending_newline = false
-      @pending_margin = true
+    def spaced!
+      @spaced = true
     end
 
-    def _nested_structures(*args)
-      pending_newline = @pending_newline
-      @pending_newline = false
-      @first_tag = true
-      super
-      @first_tag = @pending_margin = false
-      @pending_newline = pending_newline
-    end
-
-    def tag!(sym, *args, &block)
-      _newline if @pending_newline
-      @pending_newline = @pending_margin
-      @first_tag = @pending_margin = false
-      # workaround for https://github.com/jimweirich/builder/commit/7c824996637d2d76455c87ad47d76ba440937e38
-      sym = "#{sym}:#{args.shift}" if args.first.kind_of?(::Symbol)
-      if not block and args.first == ''
-        attrs = {}
-        attrs.merge!(args.last) if ::Hash === args.last
-        _indent
-        _start_tag(sym, attrs)
-        _end_tag(sym)
-        _newline
+    def tag!(name, *args, &block)
+      if name == 'script'
+        node = ScriptNode.new name, *args
+      elsif name == 'style'
+        node = StyleNode.new name, *args
       else
-        super
+        node = Node.new name, *args
       end
+
+      unless @indentation_enabled
+        node.extend CompactNode 
+        node.width = @width
+      end
+
+      if @spaced
+        node.extend SpacedNode
+        @spaced = false
+      end
+
+      node.text = args.first if String === args.first
+      @node.add_child node
+      @node = node
+      if block
+        begin
+          @level += 1
+          block.call(self)
+          @node.children << nil
+        ensure
+          @level -= 1
+        end
+      end
+      @node = @node.parent
+      node
     end
   end
 
@@ -174,7 +197,7 @@ module Wunderbar
       end
 
       if !block and (args.empty? or args == [''])
-        CssProxy.new(@_builder, @_builder.target!, sym, args)
+        CssProxy.new(@_builder, sym, args)
       else
         @_builder.tag! sym, *args, &block
       end
@@ -184,7 +207,7 @@ module Wunderbar
       if block
         tag!(sym, *args, &block)
       else
-        CssProxy.new(@_builder, @_builder.target!, sym, args)
+        CssProxy.new(@_builder, sym, args)
       end
     end
 
@@ -331,10 +354,8 @@ module Wunderbar
           text = child.text
           if text.strip.empty?
             text! "\n" if text.count("\n")>1
-          elsif indentation_state!.first == 0
-            indented_text! text
           else
-            indented_text! text.strip
+            indented_text! text
           end
         elsif child.comment?
           comment! child.text.sub(/\A /,'').sub(/ \Z/, '')
@@ -354,7 +375,7 @@ module Wunderbar
                 if stop == 0
                   self[children.shift]
                 else
-                  disable_indentation! do
+                  compact!(nil) do
                     self[*children.shift(stop || children.length)]
                   end
                 end
@@ -362,7 +383,7 @@ module Wunderbar
             end
           else
             # disable indentation on the entire element
-            disable_indentation! do
+            compact!(nil) do
               tag!(child) {self[*child.children]}
             end
           end

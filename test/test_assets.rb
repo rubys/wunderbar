@@ -9,7 +9,7 @@ class AssetTest < Test::Unit::TestCase
   end
 
   def target
-    @x._.target!.join
+    @x._.target!
   end
 
   def teardown

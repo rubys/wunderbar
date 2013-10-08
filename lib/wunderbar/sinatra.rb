@@ -86,7 +86,7 @@ module Wunderbar
             end
           end
         end
-        builder._.target!.join
+        builder._.target!
       end
     end
 

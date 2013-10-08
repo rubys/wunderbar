@@ -8,7 +8,7 @@ that conforms to the
 the emerging results from the [XML Error Recovery Community
 Group](http://www.w3.org/community/xml-er/wiki/Main_Page).
 
-Wunderbar is both inspired by, and builds upon Jim Weirich's 
+Wunderbar was inspired by Jim Weirich's 
 [Builder](https://github.com/jimweirich/builder#readme), and provides 
 the element id and class id syntax and based on the implementation from
 [Markaby](http://markaby.rubyforge.org/).
@@ -406,3 +406,11 @@ The following gems, if installed, will produce cleaner and prettier output:
 
 * `nokogiri` cleans up HTML fragments inserted via `<<`
 * `escape` prettier quoting of `system` commands
+
+Related efforts:
+---
+* [Builder](https://github.com/jimweirich/builder#readme)
+* [JBuilder](https://github.com/rails/jbuilder)
+* [Markaby](http://markaby.rubyforge.org/)
+* [Nokogiri::HTML::Builder](http://nokogiri.org/Nokogiri/HTML/Builder.html)
+* [Tagz](https://github.com/ahoward/tagz)
