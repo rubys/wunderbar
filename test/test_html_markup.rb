@@ -261,6 +261,13 @@ class HtmlMarkupTest < Test::Unit::TestCase
   def test_id_attribute
     @x.html {_h1.content! 'Content'}
     assert_match %r[^ +<h1 id="content">Content</h1>], target
+    assert_no_match %r[<h1>], target
+  end
+
+  def test_multiple_proxy
+    @x.html {_h1.a.b.content! 'Content'}
+    assert_match %r[^ +<h1 class="a b" id="content">Content</h1>], target
+    assert_no_match %r[><\/h1>], target
   end
 
   def test_svg_class_attribute
@@ -371,5 +378,18 @@ class HtmlMarkupTest < Test::Unit::TestCase
     assert_match /^  <\/head>\n\n/, target
     assert_match /^  <body>/, target
     assert_match /^    <h1>title<\/h1>/, target
+  end
+
+  def test_underscore_to_dash
+    @x.html do
+      _span :data_foo => 'bar'
+      _x_element
+      _div 'data_foo' => 'bar'
+      _.tag! 'under_bar'
+    end
+    assert_match /<span data-foo="bar">/, target
+    assert_match /<x-element>/, target
+    assert_match /<div data_foo="bar">/, target
+    assert_match /<under_bar>/, target
   end
 end
