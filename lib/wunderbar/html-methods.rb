@@ -92,7 +92,7 @@ module Wunderbar
     end
 
     def method_missing(name, *args, &block)
-      if name.to_s =~ /^_(\w+)(!|\?|)$/
+      if name =~ /^_(\w+)(!|\?|)$/
         name, flag = $1, $2
       elsif @_scope and @_scope.respond_to? name
         return @_scope.__send__ name, *args, &block
@@ -106,6 +106,8 @@ module Wunderbar
         @x.spaced!
         return __send__ "_#{name}", *args, &block if respond_to? "_#{name}"
       end
+
+      name = name.to_s.gsub('_', '-')
 
       if flag != '!'
         if %w(script style).include?(name)

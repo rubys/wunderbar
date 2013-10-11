@@ -67,6 +67,7 @@ module Wunderbar
 
       attrs.each do |name, value| 
         next unless value
+        name = name.to_s.gsub('_','-') if Symbol === name
         value=name if value==true
         line += " #{name}=\"#{value.to_s.gsub(/[&\"<>]/,ESCAPE)}\""
       end

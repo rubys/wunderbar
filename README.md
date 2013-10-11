@@ -208,6 +208,10 @@ Access to all of the builder _defined_ methods (typically these end in an esclam
 * `_.tag! :foo`: insert elements where the name can be dynamic
 * `_.error 'Log message'`: write a message to the server log
 
+Underscores in element and attribute names are converted to dashes.  To
+disable this behavior, express attribute names as strings and use the `_.tag!`
+method for element names.
+
 XHTML differs from HTML in the escaping of inline style and script elements.
 XHTML will also fall back to HTML output unless the user agent indicates it
 supports XHTML via the HTTP Accept header.
