@@ -1,4 +1,5 @@
 require 'sinatra'
+require 'wunderbar'
 require 'digest/md5'
 require 'nokogiri'
 
