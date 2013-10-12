@@ -251,16 +251,6 @@ module Wunderbar
       end
     end
 
-    # declaration (DOCTYPE, etc)
-    def declare(*args)
-      declare!(*args)
-    end
-
-    # comment
-    def comment(*args)
-      comment! *args
-    end
-
     # insert verbatim
     def <<(data)
       if not String === data or data.include? '<' or data.include? '&'

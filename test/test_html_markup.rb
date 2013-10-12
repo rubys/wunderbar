@@ -322,12 +322,12 @@ class HtmlMarkupTest < Test::Unit::TestCase
   end
 
   def test_declare
-    @x._.declare :DOCTYPE, 'html'
+    @x._.declare! :DOCTYPE, 'html'
     assert_equal %{<!DOCTYPE html>\n}, target
   end
 
   def test_comment
-    @x._.comment 'foo'
+    @x._.comment! 'foo'
     assert_equal %{<!-- foo -->\n}, target
   end
 
