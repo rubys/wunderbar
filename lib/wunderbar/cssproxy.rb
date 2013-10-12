@@ -14,7 +14,7 @@ module Wunderbar
     # Adds attributes to an element.  Bang methods set the :id attribute.
     # Other methods add to the :class attribute.
     def method_missing(id_or_class, *args, &block)
-      empty = (args.empty? or args == [''])
+      empty = args.empty?
       attrs = @node.attrs
 
       if id_or_class.to_s =~ /(.*)!$/
@@ -28,20 +28,14 @@ module Wunderbar
       attrs.merge! args.pop.to_hash if args.last.respond_to? :to_hash
       args.push(attrs)
 
-      args.first.chomp! if @node.name == :pre and ::String === args.first
-
       @node.parent.children.delete(@node)
 
-      if block
-        @node = @builder.tag! @node.name, *args, &block
+      if empty and not block
+        @builder.proxiable_tag! @node.name, *args
+      elsif SpacedNode === @node
+        @builder.__send__ "_#{@node.name}_", *args, &block
       else
-        @node = @builder.tag! @node.name, *args
-      end
-
-      if !block and empty
-        self
-      else
-        @node
+        @builder.__send__ "_#{@node.name}", *args, &block
       end
     end
   end

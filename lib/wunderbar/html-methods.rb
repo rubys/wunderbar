@@ -35,7 +35,7 @@ module Wunderbar
       end
 
       @x.declare! :DOCTYPE, :html
-      html = @x.tag! :html, *args do 
+      html = tag! :html, *args do 
         set_variables_from_params
         instance_eval(&block)
       end
@@ -125,10 +125,10 @@ module Wunderbar
       end
 
       if flag == '!'
-        @x.compact!(@_width) { @x.tag! name, *args, &block }
+        @x.compact!(@_width) { tag! name, *args, &block }
       elsif flag == '?'
         # capture exceptions, produce filtered tracebacks
-        @x.tag!(name, *args) do
+        tag!(name, *args) do
           begin
             block.call
           rescue ::Exception => exception
@@ -156,7 +156,25 @@ module Wunderbar
           Wunderbar.templates.delete 'yield' unless save_yield
         end
       else
-        @x.tag! name, *args, &block
+        tag! name, *args, &block
+      end
+    end
+
+    def tag!(name, *args, &block)
+      node = @x.tag! name, *args, &block
+      if !block and args.empty?
+        CssProxy.new(self, node)
+      else
+        node
+      end
+    end
+
+    def proxiable_tag!(name, *args, &block)
+      node = @x.tag! name, *args, &block
+      if !block
+        CssProxy.new(self, node)
+      else
+        node
       end
     end
 
@@ -179,9 +197,9 @@ module Wunderbar
         end
    
         if traceback_class
-          @x.tag! :pre, text, :class=>traceback_class
+          tag! :pre, text, :class=>traceback_class
         else
-          @x.tag! :pre, text, :style=>traceback_style
+          tag! :pre, text, :style=>traceback_style
         end
       else
         super
@@ -189,8 +207,8 @@ module Wunderbar
     end
 
     def _head(*args, &block)
-      @x.tag!('head', *args) do
-        @x.tag! :meta, :charset => 'utf-8'
+      tag!('head', *args) do
+        tag! :meta, :charset => 'utf-8'
         block.call if block
         instance_eval &Wunderbar::Asset.declarations
       end
@@ -199,7 +217,7 @@ module Wunderbar
     def _p(*args, &block)
       if args.length >= 1 and String === args.first and args.first.include? "\n"
         text = args.shift
-        @x.tag! :p, *args do
+        tag! :p, *args do
           @x.indented_text! text
         end
       else
@@ -210,7 +228,7 @@ module Wunderbar
     def _svg(*args, &block)
       args << {} if args.empty?
       args.first['xmlns'] = 'http://www.w3.org/2000/svg' if Hash === args.first
-      @x.proxiable_tag! :svg, *args, &block
+      proxiable_tag! :svg, *args, &block
     end
 
     def _math(*args, &block)
@@ -218,12 +236,12 @@ module Wunderbar
       if Hash === args.first
         args.first['xmlns'] = 'http://www.w3.org/1998/Math/MathML'
       end
-      @x.proxiable_tag! :math, *args, &block
+      proxiable_tag! :math, *args, &block
     end
     
     def _pre(*args, &block)
       args.first.chomp! if String === args.first and args.first.end_with? "\n"
-      @x.compact!(@_width) { @x.tag! :pre, *args, &block }
+      @x.compact!(@_width) { tag! :pre, *args, &block }
     end
 
     def _!(text)

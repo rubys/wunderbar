@@ -151,20 +151,7 @@ module Wunderbar
       end
       @node = @node.parent
 
-      if !block and (args.empty? or args == [''])
-        CssProxy.new(self, node)
-      else
-        node
-      end
-    end
-
-    def proxiable_tag!(sym, *args, &block)
-      node = tag!(sym, *args, &block)
-      if block
-        node
-      else
-        CssProxy.new(self, node)
-      end
+      node
     end
 
     def pdf=(value)
