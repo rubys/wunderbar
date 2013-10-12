@@ -2,11 +2,7 @@ module Wunderbar
   # XmlMarkup handles indentation of elements beautifully, this class extends
   # that support to text, data, and spacing between elements
   class SpacedMarkup
-    attr_reader :indentation_enabled
-
     def initialize(args)
-      @level = 0
-      @indent = args[:indent]
       @doc = Node.new(nil)
       @node = @doc
       @indentation_enabled = true
@@ -51,7 +47,6 @@ module Wunderbar
     def compact!(width, &block)
       begin
         @width = width
-        @indent = 0
         @indentation_enabled = false
         block.call
       ensure
@@ -86,13 +81,8 @@ module Wunderbar
       @node.add_child node
       @node = node
       if block
-        begin
-          @level += 1
-          block.call(self)
-          @node.children << nil
-        ensure
-          @level -= 1
-        end
+        block.call(self)
+        @node.children << nil if @node.children.empty?
       end
       @node = @node.parent
       node
@@ -298,28 +288,27 @@ module Wunderbar
       if not String === data or data.include? '<' or data.include? '&'
         require 'nokogiri'
         data = Nokogiri::HTML::fragment(data.to_s).to_xml
-      end
 
-      # fix CDATA in most cases (notably scripts)
-      data.gsub!(/<!\[CDATA\[(.*?)\]\]>/m) do |cdata|
-        if $1.include? '<' or $1.include? '&'
-          "//<![CDATA[\n#{$1}\n//]]>"
-        else
-          $1
+        # fix CDATA in most cases (notably scripts)
+        data.gsub!(/<!\[CDATA\[(.*?)\]\]>/m) do
+          if $1.include? '<' or $1.include? '&'
+            "//<![CDATA[\n#{$1}\n//]]>"
+          else
+            $1
+          end
+        end
+
+        # fix CDATA for style elements
+        data.gsub!(/<style([^>])*>\/\/<!\[CDATA\[\n(.*?)\s+\/\/\]\]>/m) do
+          if $2.include? '<' or $2.include? '&'
+            "<style#{$1}>/*<![CDATA[*/\n#{$2.gsub("\n\Z",'')}\n/*]]>*/"
+          else
+            $1
+          end
         end
       end
-
-      # fix CDATA for style elements
-      data.gsub!(/<style([^>])*>\/\/<!\[CDATA\[\n(.*?)\s+\/\/\]\]>/m) do |cdata|
-        if $2.include? '<' or $2.include? '&'
-          "<style#{$1}>/*<![CDATA[*/\n#{$2.gsub("\n\Z",'')}\n/*]]>*/"
-        else
-          $1
-        end
-      end
-
-      @_builder << data
     rescue LoadError
+    ensure
       @_builder << data
     end
 
