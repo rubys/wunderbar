@@ -392,4 +392,23 @@ class HtmlMarkupTest < Test::Unit::TestCase
     assert_match /<div data_foo="bar">/, target
     assert_match /<under_bar>/, target
   end
+
+  def test_template
+    Wunderbar.templates['website-layout'] = Proc.new do
+      _h1 @title
+      _div.content do
+        _yield
+      end
+    end
+
+    @x.html do
+      _website_layout title: 'template test' do
+        _p 'It worked!'
+      end
+    end
+    assert_match %r{<title>template test</title>}, target
+    assert_match %r{<div class="content">\s+<p>It worked!</p>}, target
+  ensure
+    Wunderbar.templates.clear
+  end
 end

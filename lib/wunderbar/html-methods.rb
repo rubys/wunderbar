@@ -137,6 +137,24 @@ module Wunderbar
             _exception exception, options
           end
         end
+      elsif Wunderbar.templates.include? name
+        x = self.class.new({})
+        instance_variables.each do |ivar|
+          x.instance_variable_set ivar, instance_variable_get(ivar)
+        end
+        if Hash === args.last
+          args.last.each do |name, value|
+            x.instance_variable_set "@#{name}", value
+          end
+        end
+        save_yield = Wunderbar.templates['yield']
+        begin
+          Wunderbar.templates['yield'] = block if block
+          x.instance_eval &Wunderbar.templates[name]
+        ensure
+          Wunderbar.templates['yield'] = save_yield
+          Wunderbar.templates.delete 'yield' unless save_yield
+        end
       else
         @x.tag! name, *args, &block
       end

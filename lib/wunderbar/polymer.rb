@@ -10,10 +10,6 @@ if self.to_s == 'main'
     def _polymer_element(*args, &block)
       Wunderbar.polymer_element(*args, &block)
     end
-
-    def _template(*args, &block)
-      Wunderbar.template(*args, &block)
-    end
   end
 
   module Wunderbar
@@ -23,25 +19,8 @@ if self.to_s == 'main'
       end
       @queue << [callback, args, block]
     end
-
-    def self.template(*args, &block)
-      # @queue << [:template, args, block]
-      callback = Proc.new do |scope, args, block| 
-        template(scope, *args, &block)
-      end
-      @queue << [callback, args, block]
-    end
     
     class CGI
-      def template(scope, *args, &block)
-        name = args.first
-        name = name.to_s.gsub('_','-') if Symbol === name
-        polymer_element(scope, :name => name) do
-          _template { instance_eval &block }
-          _script "Polymer(#{name});"
-        end
-      end
-
       def polymer_element(scope, *args, &block)
         headers = { 'type' => 'text/html', 'charset' => 'UTF-8' }
         x = HtmlMarkup.new(scope)

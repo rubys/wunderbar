@@ -37,6 +37,12 @@ module Wunderbar
       @env = env
     end
   end
+
+  @@templates = {}
+
+  def self.templates
+    @@templates
+  end
 end
 
 require 'socket'
@@ -73,6 +79,10 @@ if self.to_s == 'main'
     def _websocket(*args, &block)
       args.last[:sync]=args.last.fetch(:sync,true) if Hash === args.last
       Wunderbar.websocket(*args, &block)
+    end
+
+    def _template(name, &block)
+      Wunderbar.templates[name.to_s.gsub('_','-')] = block
     end
 
     def env
