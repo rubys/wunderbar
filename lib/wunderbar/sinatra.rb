@@ -165,3 +165,7 @@ Tilt.register '_json',  Wunderbar::Template::Json
 Tilt.register '_text',  Wunderbar::Template::Text
 
 helpers Wunderbar::SinatraHelpers
+
+get '/assets/:name' do
+  File.read("assets/#{params[:name]}")
+end

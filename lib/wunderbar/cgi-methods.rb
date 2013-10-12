@@ -187,6 +187,11 @@ module Wunderbar
             self.text(scope, *args, &block)
             return
           end
+        when Proc
+          unless xhr_json or text
+            instance_exec scope, args, block, &type
+            return
+          end
         end
       end
     end
