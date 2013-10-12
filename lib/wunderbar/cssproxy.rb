@@ -4,10 +4,9 @@ module Wunderbar
   #
   # See the README for examples.
   class CssProxy < BasicObject
-    def initialize(builder, sym, args)
+    def initialize(builder, node)
       @builder = builder
-
-      @node = @builder.tag! sym, *args
+      @node = node
     end
 
   private

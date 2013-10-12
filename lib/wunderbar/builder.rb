@@ -1,94 +1,4 @@
 module Wunderbar
-  # XmlMarkup handles indentation of elements beautifully, this class extends
-  # that support to text, data, and spacing between elements
-  class SpacedMarkup
-    def initialize(args)
-      @doc = Node.new(nil)
-      @node = @doc
-      @indentation_enabled = true
-      @width = nil
-      @spaced = false
-    end
-
-    def text! text
-      @node.add_text text
-    end
-
-    def declare! *args
-      @node.children << DocTypeNode.new(*args)
-    end
-
-    def comment! text
-      @node.children << CommentNode.new(text)
-    end
-
-    def indented_text!(text)
-      return if text.strip.length == 0
-      @node.children << IndentedTextNode.new(text)
-    end
-
-    def <<(data)
-      if String === data
-        @node.children << data
-      else
-        @node.add_child data
-      end
-    end
-
-    def target!
-      "#{@doc.serialize.join("\n")}\n"
-    end
-
-    def clear!
-      @doc.children.clear
-      @node = @doc
-    end
-
-    def compact!(width, &block)
-      begin
-        @width = width
-        @indentation_enabled = false
-        block.call
-      ensure
-        @indentation_enabled = true
-      end
-    end
-
-    def spaced!
-      @spaced = true
-    end
-
-    def tag!(name, *args, &block)
-      if name == 'script'
-        node = ScriptNode.new name, *args
-      elsif name == 'style'
-        node = StyleNode.new name, *args
-      else
-        node = Node.new name, *args
-      end
-
-      unless @indentation_enabled
-        node.extend CompactNode 
-        node.width = @width
-      end
-
-      if @spaced
-        node.extend SpacedNode
-        @spaced = false
-      end
-
-      node.text = args.first if String === args.first
-      @node.add_child node
-      @node = node
-      if block
-        block.call(self)
-        @node.children << nil if @node.children.empty?
-      end
-      @node = @node.parent
-      node
-    end
-  end
-
   class BuilderBase
     def set_variables_from_params(locals={})
       @_scope.params.merge(locals).each do |key,value|
@@ -118,18 +28,18 @@ module Wunderbar
   class XmlMarkup < BuilderClass
     def initialize(args)
       @_scope = args.delete(:scope)
-      @_builder = SpacedMarkup.new(args)
       @_pdf = false
+      @doc = Node.new(nil)
+      @node = @doc
+      @indentation_enabled = true
+      @width = nil
+      @spaced = false
     end
 
-    # forward to Wunderbar, XmlMarkup, or @_scope
+    # forward to Wunderbar or @_scope
     def method_missing(method, *args, &block)
       if Wunderbar.respond_to? method
         Wunderbar.send method, *args, &block
-      elsif SpacedMarkup.public_instance_methods.include? method
-        @_builder.__send__ method, *args, &block
-      elsif SpacedMarkup.public_instance_methods.include? method.to_s
-        @_builder.__send__ method, *args, &block
       elsif @_scope and @_scope.respond_to? method
         @_scope.send method, *args, &block
       else
@@ -150,6 +60,46 @@ module Wunderbar
       respond true if SpacedMarkup.public_instance_methods.include?  method.to_s
       respond true if @_scope and @_scope.respond_to? method?
       super
+    end
+
+    def text! text
+      @node.add_text text
+    end
+
+    def declare! *args
+      @node.children << DocTypeNode.new(*args)
+    end
+
+    def comment! text
+      @node.children << CommentNode.new(text)
+    end
+
+    def indented_text!(text)
+      return if text.strip.length == 0
+      @node.children << IndentedTextNode.new(text)
+    end
+
+    def target!
+      "#{@doc.serialize.join("\n")}\n"
+    end
+
+    def clear!
+      @doc.children.clear
+      @node = @doc
+    end
+
+    def compact!(width, &block)
+      begin
+        @width = width
+        @indentation_enabled = false
+        block.call
+      ensure
+        @indentation_enabled = true
+      end
+    end
+
+    def spaced!
+      @spaced = true
     end
 
     # avoid method_missing overhead for the most common case
@@ -174,18 +124,46 @@ module Wunderbar
         end
       end
 
-      if !block and (args.empty? or args == [''])
-        CssProxy.new(@_builder, sym, args)
+      if sym == 'script'
+        node = ScriptNode.new sym, *args
+      elsif sym == 'style'
+        node = StyleNode.new sym, *args
       else
-        @_builder.tag! sym, *args, &block
+        node = Node.new sym, *args
+      end
+
+      unless @indentation_enabled
+        node.extend CompactNode 
+        node.width = @width
+      end
+
+      if @spaced
+        node.extend SpacedNode
+        @spaced = false
+      end
+
+      node.text = args.first if String === args.first
+      @node.add_child node
+      @node = node
+      if block
+        block.call(self)
+        @node.children << nil if @node.children.empty?
+      end
+      @node = @node.parent
+
+      if !block and (args.empty? or args == [''])
+        CssProxy.new(self, node)
+      else
+        node
       end
     end
 
     def proxiable_tag!(sym, *args, &block)
+      node = tag!(sym, *args, &block)
       if block
-        tag!(sym, *args, &block)
+        node
       else
-        CssProxy.new(@_builder, sym, args)
+        CssProxy.new(self, node)
       end
     end
 
@@ -231,7 +209,7 @@ module Wunderbar
       stderr = output_class[:stderr] || '_stderr'
       hilite = output_class[:hilite] || '_stdout _hilite'
 
-      @_builder.tag! tag, echo, :class=>stdin unless opts[:echo] == false
+      tag! tag, echo, :class=>stdin unless opts[:echo] == false
 
       require 'thread'
       semaphore = Mutex.new
@@ -242,9 +220,9 @@ module Wunderbar
               out_line = pout.readline.chomp
               semaphore.synchronize do
                 if patterns.any? {|pattern| out_line =~ pattern}
-                  @_builder.tag! tag, out_line, :class=>hilite
+                  tag! tag, out_line, :class=>hilite
                 else
-                  @_builder.tag! tag, out_line, :class=>stdout
+                  tag! tag, out_line, :class=>stdout
                 end
               end
             end
@@ -254,7 +232,7 @@ module Wunderbar
             until perr.eof?
               err_line = perr.readline.chomp
               semaphore.synchronize do 
-                @_builder.tag! tag, err_line, :class=>stderr
+                tag! tag, err_line, :class=>stderr
               end
             end
           end,
@@ -275,12 +253,12 @@ module Wunderbar
 
     # declaration (DOCTYPE, etc)
     def declare(*args)
-      @_builder.declare!(*args)
+      declare!(*args)
     end
 
     # comment
     def comment(*args)
-      @_builder.comment! *args
+      comment! *args
     end
 
     # insert verbatim
@@ -309,7 +287,11 @@ module Wunderbar
       end
     rescue LoadError
     ensure
-      @_builder << data
+      if String === data
+        @node.children << data
+      else
+        @node.add_child data
+      end
     end
 
     def [](*children)
