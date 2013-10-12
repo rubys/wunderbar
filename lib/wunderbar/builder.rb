@@ -43,6 +43,11 @@ module Wunderbar
       "#{@doc.serialize.join("\n")}\n"
     end
 
+    def clear!
+      @doc.children.clear
+      @node = @doc
+    end
+
     def compact!(width, &block)
       begin
         @width = width

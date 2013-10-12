@@ -266,7 +266,7 @@ module Wunderbar
     end
 
     def clear!
-      @x.target!.clear
+      @x.clear!
     end
 
     def self.flatten?(children)
