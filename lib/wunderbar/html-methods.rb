@@ -10,6 +10,13 @@ module Wunderbar
     end
 
     def _style(*args, &block)
+      if args == [:system]
+        args[0] = %{
+          pre._stdin {font-weight: bold; color: #800080; margin: 1em 0 0 0}
+          pre._stdout {font-weight: bold; color: #000; margin: 0}
+          pre._stderr {font-weight: bold; color: #F00; margin: 0}
+        }
+      end
       args << {} unless Hash === args.last
       args.last[:type] ||= 'text/css'
       args.unshift StyleNode

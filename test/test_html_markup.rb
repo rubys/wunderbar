@@ -59,6 +59,11 @@ class HtmlMarkupTest < Test::Unit::TestCase
     assert_match %r[<style type="text/css">], target
   end
 
+  def test_style_system
+    @x.html {_style :system}
+    assert_match %r[pre\._stderr], target
+  end
+
   def test_script_plain
     @x.html {_script! 'alert("foo");'}
     assert_match %r[<script>alert\("foo"\);</script>], target
