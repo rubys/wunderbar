@@ -411,4 +411,28 @@ class HtmlMarkupTest < Test::Unit::TestCase
   ensure
     Wunderbar.templates.clear
   end
+
+  def test_ul_array
+    @x.html do
+      _ul %w(apple orange pear)
+    end
+    assert_match %r{<ul>\s+<li>apple</li>}, target
+  end
+
+  def test_ol_class_array
+    @x.html do
+      _ol.fruit %w(apple orange pear)
+    end
+    assert_match %r{<ol class="fruit">}, target
+    assert_match %r{<li>orange</li>}, target
+  end
+
+  def test_tr
+    @x.html do
+      _table do
+        _tr %w(apple orange pear)
+      end
+    end
+    assert_match %r{<tr>\s+<td>apple</td>}, target
+  end
 end

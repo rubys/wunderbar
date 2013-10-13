@@ -130,12 +130,20 @@ Capture exceptions:
 
 Class attribute shortcut (equivalent to class="front"):
 
-    div.front do
+    _div.front do
     end
 
 Id attributes shortcut (equivalent to id="search"):
 
-    div.search! do
+    _div.search! do
+    end
+
+Complete lists/rows can be defined using arrays:
+
+    _ul %w(apple orange pear)
+    _ol %w(apple orange pear)
+    _table do
+      _tr %w(apple orange pear)
     end
 
 Basic interface

@@ -244,6 +244,36 @@ module Wunderbar
       @x.compact!(@_width) { tag! :pre, *args, &block }
     end
 
+    def _ul(*args, &block)
+      iterable = args.first.respond_to? :each
+      if iterable and (args.length > 1 or not args.first.respond_to? :to_hash)
+        list = args.shift.dup
+        tag!(:ul, *args) {list.each {|arg| _li arg }}
+      else
+        super
+      end
+    end
+
+    def _ol(*args, &block)
+      iterable = args.first.respond_to? :each
+      if iterable and (args.length > 1 or not args.first.respond_to? :to_hash)
+        list = args.shift
+        tag!(:ol, *args) {list.each {|arg| _li arg }}
+      else
+        super
+      end
+    end
+
+    def _tr(*args, &block)
+      iterable = args.first.respond_to? :each
+      if iterable and (args.length > 1 or not args.first.respond_to? :to_hash)
+        list = args.shift
+        tag!(:tr, *args) {list.each {|arg| _td arg }}
+      else
+        super
+      end
+    end
+
     def _!(text)
       @x.text! text.to_s.chomp
     end
