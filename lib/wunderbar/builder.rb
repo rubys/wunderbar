@@ -124,10 +124,8 @@ module Wunderbar
         end
       end
 
-      if sym == 'script'
-        node = ScriptNode.new sym, *args
-      elsif sym == 'style'
-        node = StyleNode.new sym, *args
+      if Class === args.first and args.first < Node
+        node = args.shift.new sym, *args
       else
         node = Node.new sym, *args
       end

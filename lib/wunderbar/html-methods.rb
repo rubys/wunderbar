@@ -1,6 +1,23 @@
 # Wrapper class that understands HTML
 module Wunderbar
-  class HtmlMarkup < BuilderBase
+  # factored out so that these methods can be overriden (e.g., by opal.rb)
+  class Overridable < BuilderBase
+    def _script(*args, &block)
+      args << {} unless Hash === args.last
+      args.last[:lang] ||= 'text/javascript'
+      args.unshift ScriptNode
+      proxiable_tag! 'script', *args, &block
+    end
+
+    def _style(*args, &block)
+      args << {} unless Hash === args.last
+      args.last[:type] ||= 'text/css'
+      args.unshift StyleNode
+      proxiable_tag! 'style', *args, &block
+    end
+  end
+
+  class HtmlMarkup < Overridable
     VOID = %w(
       area base br col command embed hr img input keygen
       link meta param source track wbr
@@ -110,12 +127,6 @@ module Wunderbar
       name = name.to_s.gsub('_', '-')
 
       if flag != '!'
-        if %w(script style).include?(name)
-          args << {} unless Hash === args.last
-          args.last[:lang] ||= 'text/javascript' if name == 'script'
-          args.last[:type] ||= 'text/css' if name == 'style'
-        end
-
         if String === args.first and args.first.respond_to? :html_safe?
           if args.first.html_safe? and not block and args.first =~ /[>&]/
             markup = args.shift

@@ -49,6 +49,11 @@ class HtmlMarkupTest < Test::Unit::TestCase
     assert_match %r[<script lang="text/javascript">], target
   end
 
+  def test_script_id
+    @x.html {_script.id!}
+    assert_match %r[<script[^>]* id="id"[^>]*>], target
+  end
+
   def test_style_type
     @x.html {_style}
     assert_match %r[<style type="text/css">], target
