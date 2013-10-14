@@ -21,6 +21,12 @@ class BuilderTest < Test::Unit::TestCase
     assert_equal %{<script>\n  alert('danger');\n</script>\n}, x.target!
   end
 
+  def test_indent
+    x = Wunderbar::XmlMarkup.new :indent => 8
+    x.tag!(:a) { x.tag!(:b) }
+    assert_match %r{<a>\n {8}<b></b>\n</a>\n}, x.target!
+  end
+
   def test_exception
     x = Wunderbar::XmlMarkup.new :indent => 2
     x.tag!(:body) do

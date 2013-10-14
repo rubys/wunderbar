@@ -28,6 +28,7 @@ module Wunderbar
   class XmlMarkup < BuilderClass
     def initialize(args)
       @_scope = args.delete(:scope)
+      @_indent = args.delete(:indent) or 2
       @_pdf = false
       @doc = Node.new(nil)
       @node = @doc
@@ -80,7 +81,7 @@ module Wunderbar
     end
 
     def target!
-      "#{@doc.serialize.join("\n")}\n"
+      "#{@doc.serialize(indent: ' ' * @_indent).join("\n")}\n"
     end
 
     def clear!

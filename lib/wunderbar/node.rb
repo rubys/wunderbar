@@ -45,8 +45,8 @@ module Wunderbar
       @children << text.to_s.gsub(/[&<>]/,ESCAPE)
     end
 
-    def walk(result, indent)
-      indent += '  ' if indent and parent
+    def walk(result, indent, options)
+      indent += options[:indent] if indent and parent
       first = true
       spaced = false
       children.each do |child| 
@@ -55,14 +55,14 @@ module Wunderbar
         if String === child
           result << child
         else
-          child.serialize(result, indent)
+          child.serialize(options, result, indent)
         end
         first = false
         spaced = (SpacedNode === child)
       end
     end
 
-    def serialize(result = [], indent='', pre=nil, post=nil)
+    def serialize(options = {}, result = [], indent = '')
       line = "#{indent}<#{name}"
 
       attrs.each do |name, value| 
@@ -74,8 +74,8 @@ module Wunderbar
 
       if children.empty? 
         if text
-          if pre
-            line += ">#{pre}#{text}#{post}</#{name}>"
+          if options[:pre]
+            line += ">#{options[:pre]}#{text}#{options[:post]}</#{name}>"
           else
             line += ">#{text.to_s.gsub(/[&<>]/,ESCAPE)}</#{name}>"
           end
@@ -86,7 +86,7 @@ module Wunderbar
         end
       elsif CompactNode === self
         work = []
-        walk(work, nil)
+        walk(work, nil, options)
         if @width
           line += ">"
           (work+["</#{name}>"]).each do |node|
@@ -100,11 +100,11 @@ module Wunderbar
           line += ">#{work.join}</#{name}>"
         end
       else
-        result <<  line+">#{pre}" if parent
+        result <<  line+">#{options[:pre]}" if parent
 
-        walk(result, indent) unless children.empty?
+        walk(result, indent, options) unless children.empty?
 
-        line = "#{indent}#{post}</#{name}>"
+        line = "#{indent}#{options[:post]}</#{name}>"
       end
 
       result << line if parent
@@ -117,7 +117,7 @@ module Wunderbar
       @text = text
     end
 
-    def serialize(result, indent)
+    def serialize(options, result, indent)
       result << "#{indent}<!-- #{@text} -->"
       result
     end
@@ -129,7 +129,7 @@ module Wunderbar
       @name = args.shift
     end
 
-    def serialize(result, indent)
+    def serialize(options, result, indent)
       result << "<!#{@declare} #{@name.to_s}>"
       result
     end
@@ -148,9 +148,9 @@ module Wunderbar
       data
     end
 
-    def serialize(result = [], indent='')
+    def serialize(options = {}, result = [], indent='')
       if @text and @text.include? "\n"
-        tindent = (indent ? "#{indent}  " : indent)
+        tindent = (indent ? "#{indent}#{options[:indent]}" : indent)
         children.unshift CDATANode.normalize(@text, tindent).rstrip
         @text = nil
       end
@@ -159,9 +159,9 @@ module Wunderbar
         indent += '  ' if indent
         children.unshift @text.gsub(/^/, indent).gsub(/^ +$/,'').rstrip
         @text = nil
-        super(result, indent, pre, post)
+        super(options.merge(pre: pre, post: post), result, indent)
       elsif children && children.any? {|node| String===node && node =~ /[<^>]/}
-        super(result, indent, pre, post)
+        super(options.merge(pre: pre, post: post), result, indent)
       else
         super
       end
@@ -173,7 +173,7 @@ module Wunderbar
   end
 
   class IndentedTextNode < Node
-    def serialize(result, indent)
+    def serialize(options, result, indent)
       if indent
         text = CDATANode.normalize(name, indent)
       else

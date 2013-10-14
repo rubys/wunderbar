@@ -41,7 +41,7 @@ module Wunderbar
 
     def initialize(scope)
       @_scope = scope
-      @x = XmlMarkup.new :scope => scope, :indent => 2, :target => []
+      @x = XmlMarkup.new :scope => scope, :indent => 2
     end
 
     def html(*args, &block)
