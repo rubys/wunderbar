@@ -28,7 +28,24 @@ if port and ARGV.delete(port)
     # start the server
     require 'rack'
     require 'wunderbar/rack'
+
+    class QueueCleanup
+      def initialize(app)
+        @app = app
+        @queue = []
+      end
+
+      def call(env)
+        if Wunderbar.queue != @queue
+          @queue.each {|item| Wunderbar.queue.delete(item)}
+          @queue = Wunderbar.queue.dup
+        end
+        @app.call(env)
+      end
+    end
+
     app = Rack::Lock.new(Wunderbar::RackApp.new)
+    app = Rack::Reloader.new(QueueCleanup.new(app), 0)
     Rack::Server.start :app => app, :Port => port,
       :environment => (ENV['RACK_ENV'] || 'development')
   end
