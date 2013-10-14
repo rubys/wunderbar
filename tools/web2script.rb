@@ -75,9 +75,12 @@ def code(element, indent='', flat=false)
     element_name += ',' unless element.attributes.empty?
   end
 
+  element['_width'] ||= $width if $width and element_name == 'html'
+  element_name = 'xhtml' if $xhtml and element_name == 'html'
+
   attributes = []
-  element.attributes.keys.each do |key|
-    value = element[key]
+  element.attributes.each do |key, value|
+    value = value.to_s
 
     # resolve relative links
     if %w(a img link script).include? element.name and %w(href src).include? key
@@ -103,18 +106,6 @@ def code(element, indent='', flat=false)
     else
       attributes << " #{key.enquote} => #{value.enquote}"
     end
-
-    # add _width to html element
-    if element_name == 'html'
-      element_name = 'xhtml' if $xhtml
-      if $width
-        if RUBY_VERSION =~ /^1\.8/
-          attributes << " :_width => #{$width}"
-        else
-          attributes << " _width: #{$width}"
-        end
-      end
-    end
   end
 
   line = "#{indent}_#{element_name}#{attributes.join(',')}"
@@ -125,7 +116,7 @@ def code(element, indent='', flat=false)
   # element has children
   elsif element.children.any? {|child| child.element?}
     # do any of the text nodes need special processing to preserve spacing?
-    flatten = flat || HtmlMarkup.flatten?(element.children)
+    flatten = flat || Wunderbar::HtmlMarkup.flatten?(element.children)
     line.sub! /(\w)( |\.|$)/, '\1!\2' if flatten and not flat
 
     q "#{line} do"
@@ -146,7 +137,7 @@ def code(element, indent='', flat=false)
         flow_text "#{indent}  _ #{text.enquote}", "\" +\n    #{indent}\""
         first = true # stop break
       elsif child.comment?
-        flow_text "#{indent}  _.comment #{child.text.strip.enquote}", 
+        flow_text "#{indent}  _.comment! #{child.text.strip.enquote}", 
           "\" +\n    #{indent}\""
       else
         code(child, indent + '  ', flatten)

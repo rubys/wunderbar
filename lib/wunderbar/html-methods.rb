@@ -49,8 +49,8 @@ module Wunderbar
       args << {} if args.empty?
       if Hash === args.first
         args.first[:xmlns] ||= 'http://www.w3.org/1999/xhtml'
+        @_width = args.first.delete(:_width).to_i if args.first[:_width]
       end
-      @_width = args.first.delete(:_width) if Hash === args.first
 
       if ''.respond_to? :encoding
         bom = "\ufeff"
