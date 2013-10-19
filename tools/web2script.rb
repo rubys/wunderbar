@@ -1,8 +1,7 @@
-require 'net/http'
 require 'rubygems'
-require 'nokogiri'
 require 'optparse'
 require 'wunderbar'
+require 'net/http'
 
 # Convert a webpage to a Wunderbar script
 
@@ -27,6 +26,25 @@ OptionParser.new { |opts|
     $xhtml = true
   end
 }.parse!
+
+# prefer nokogumbo / gumbo-parser, fallback to nokogiri / lixml2
+begin
+  require 'nokogumbo'
+  $namespaced = {}
+rescue LoadError 
+  require 'nokogiri'
+  module Nokogiri
+    module HTML5
+      def self.get(uri)
+        doc = Net::HTTP.get(uri)
+        $namespaced = Hash[doc.scan(/<\/(\w+):(\w+)>/).uniq.
+          map {|p,n| [n, "#{p} :#{n}"]}]
+        $namespaced.delete_if {|name, value| doc =~ /<#{name}[ >]/}
+        Nokogiri::HTML(doc)
+      end
+    end
+  end
+end
 
 # Method to "enquote" a string
 class String
@@ -68,9 +86,15 @@ def flow_attrs(line, attributes, indent)
 end
 
 def code(element, indent='', flat=false)
-  # restore namespaces that Nokogiri::HTML dropped
   element_name = element.name
-  if $namespaced[element.name]
+
+  # fixup namespaces
+  if element_name =~ /^(\w+)(:\w+)$/
+    # split qname and element name in Nokogumbo parsed output
+    element_name = "#{$1} #{$2}" 
+    element_name += ',' unless element.attributes.empty?
+  elsif $namespaced[element.name]
+    # restore namespaces that Nokogiri::HTML dropped
     element_name = $namespaced[element.name]
     element_name += ',' unless element.attributes.empty?
   end
@@ -225,11 +249,7 @@ end
 # fetch and convert each web page
 ARGV.each do |arg|
   $uri = URI.parse arg
-  doc = Net::HTTP.get($uri)
-  $namespaced = Hash[doc.scan(/<\/(\w+):(\w+)>/).uniq.
-    map {|p,n| [n, "#{p} :#{n}"]}]
-  $namespaced.delete_if {|name, value| doc =~ /<#{name}[ >]/}
-  code Nokogiri::HTML(doc).root
+  code Nokogiri::HTML5.get($uri).root
 end
 
 # she-bang
