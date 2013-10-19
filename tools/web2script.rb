@@ -85,6 +85,11 @@ def flow_attrs(line, attributes, indent)
   q line
 end
 
+ITEMS = %w{
+  button dd dt figcaption h1 h2 h3 h4 h5 h6 input label
+  legend li meter option output progress td th title
+}
+
 def code(element, indent='', flat=false)
   element_name = element.name
 
@@ -112,6 +117,12 @@ def code(element, indent='', flat=false)
     # resolve relative links
     if %w(a img link script).include? element.name and %w(href src).include? key
       value = ($uri + value).to_s rescue nil
+    end
+
+    if ITEMS.include? element.name and element.text.end_with? "\n"
+      unless element.children.any? {|child| child.element?}
+        element.content = element.text.chomp
+      end
     end
 
     if key =~ /^\w+$/
