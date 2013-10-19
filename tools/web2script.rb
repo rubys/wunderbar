@@ -65,7 +65,7 @@ end
 
 def flow_text(line, join)
   while $width and line.length>$width
-    line.sub! /(.{1,#{$width-4}})(\s+|\Z)/, "\\1 #{join}"
+    line.sub! /(.{#{join.length}},#{$width-4}})(\s+|\Z)/, "\\1 #{join}"
     break unless line.include? "\n"
     q line.split("\n").first
     line = line[/\n(.*)/,1]
