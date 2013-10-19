@@ -107,8 +107,11 @@ def code(element, indent='', flat=false)
   element['_width'] ||= $width if $width and element_name == 'html'
   element_name = 'xhtml' if $xhtml and element_name == 'html'
 
-  return if element_name == 'meta' and 
-    element['http-equiv'].downcase == 'content-type'
+  # drop meta content-type and charset elements
+  if element_name == 'meta'
+    return if element['http-equiv'].to_s.downcase == 'content-type'
+    return if element['charset']
+  end
 
   attributes = []
   element.attributes.each do |key, value|
