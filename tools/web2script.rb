@@ -119,7 +119,7 @@ def code(element, indent='', flat=false)
 
     # resolve relative links
     if %w(a img link script).include? element.name and %w(href src).include? key
-      value = ($uri + value).to_s rescue nil
+      value = ($uri + value).to_s rescue value
     end
 
     if ITEMS.include? element.name and element.text.end_with? "\n"
