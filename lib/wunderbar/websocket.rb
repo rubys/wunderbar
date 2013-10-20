@@ -5,7 +5,7 @@ require 'socket'
 
 begin
   require 'em-websocket'
-rescue LoadError
+rescue LoadError => $em_loaderror
 end
 
 module Wunderbar
@@ -171,54 +171,54 @@ module Wunderbar
     end
   end
 
-  if defined? EventMachine::WebSocket
-    def self.websocket(opts={}, &block)
-      opts = {:port => opts} if Fixnum === opts
-      port = opts[:port]
-      buffer = opts.fetch(:buffer,1)
+  def self.websocket(opts={}, &block)
+    raise $em_loaderror if $em_loaderror
 
-      if not port
-        socket = TCPServer.new(0)
-        port = Socket.unpack_sockaddr_in(socket.getsockname).first
-        socket.close
-      end
+    opts = {:port => opts} if Fixnum === opts
+    port = opts[:port]
+    buffer = opts.fetch(:buffer,1)
 
-      sock1 = nil
-
-      proc = Proc.new do
-        begin
-          channel = Wunderbar::Channel.new(port, buffer, opts[:locals])
-          if sock1
-            sock1.send('x',0)
-            sock1.close
-          end
-          channel.instance_eval &block
-        rescue Exception => exception
-          channel._ :type=>:stderr, :line=>exception.inspect
-          exception.backtrace.each do |frame| 
-            next if Wunderbar::CALLERS_TO_IGNORE.any? {|re| frame =~ re}
-            channel._ :type=>:stderr, :line=>"  #{frame}"
-          end
-        ensure
-          if channel
-            channel.complete = true
-            sleep 5
-            sleep 60 unless channel.connected or opts[:sync]
-            channel.close
-          end
-        end
-      end
-
-      if opts[:sync]
-        instance_eval &proc
-      else
-        sock1, sock2 = UNIXSocket.pair
-        submit &proc
-        sleep 0.3 while sock2.recv(1) != 'x'
-        sock2.close
-      end
-
-      port
+    if not port
+      socket = TCPServer.new(0)
+      port = Socket.unpack_sockaddr_in(socket.getsockname).first
+      socket.close
     end
+
+    sock1 = nil
+
+    proc = Proc.new do
+      begin
+	channel = Wunderbar::Channel.new(port, buffer, opts[:locals])
+	if sock1
+	  sock1.send('x',0)
+	  sock1.close
+	end
+	channel.instance_eval &block
+      rescue Exception => exception
+	channel._ :type=>:stderr, :line=>exception.inspect
+	exception.backtrace.each do |frame| 
+	  next if Wunderbar::CALLERS_TO_IGNORE.any? {|re| frame =~ re}
+	  channel._ :type=>:stderr, :line=>"  #{frame}"
+	end
+      ensure
+	if channel
+	  channel.complete = true
+	  sleep 5
+	  sleep 60 unless channel.connected or opts[:sync]
+	  channel.close
+	end
+      end
+    end
+
+    if opts[:sync]
+      instance_eval &proc
+    else
+      sock1, sock2 = UNIXSocket.pair
+      submit &proc
+      sleep 0.3 while sock2.recv(1) != 'x'
+      sock2.close
+    end
+
+    port
   end
 end
