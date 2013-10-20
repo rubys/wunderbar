@@ -19,7 +19,7 @@ module Wunderbar
     def websocket(*args, &block)
       if Hash === args.last
         args.last[:locals] = Hash[instance_variables.
-          map { |name| [name.sub('@',''), instance_variable_get(name)] } ]
+          map { |name| [name.to_s.sub('@',''), instance_variable_get(name)] } ]
       end
       Wunderbar.websocket(*args, &block)
     end
