@@ -12,6 +12,5 @@ require 'wunderbar/job-control'
 require 'wunderbar/logger'
 require 'wunderbar/node'
 require 'wunderbar/server'
-require 'wunderbar/websocket'
 
 W_ = Wunderbar

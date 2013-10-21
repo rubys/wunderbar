@@ -3,10 +3,7 @@ require 'rubygems'
 require 'open3'
 require 'socket'
 
-begin
-  require 'em-websocket'
-rescue LoadError => $em_loaderror
-end
+require 'em-websocket'
 
 module Wunderbar
   class Channel < BuilderBase
@@ -172,8 +169,6 @@ module Wunderbar
   end
 
   def self.websocket(opts={}, &block)
-    raise $em_loaderror if $em_loaderror
-
     opts = {:port => opts} if Fixnum === opts
     port = opts[:port]
     buffer = opts.fetch(:buffer,1)
