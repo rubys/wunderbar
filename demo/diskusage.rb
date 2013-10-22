@@ -1,4 +1,4 @@
-require 'wunderbar'
+require 'wunderbar/websocket'
 
 _html do
   _head_ do

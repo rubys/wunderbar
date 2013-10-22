@@ -2,7 +2,8 @@
 # same script from the command line.  Point multiple browsers at the CGI
 # window, and change the textarea from in each.
 
-require 'wunderbar'
+require 'wunderbar/jquery'
+require 'wunderbar/websocket'
 
 port = 8080
 
@@ -11,13 +12,13 @@ if ENV['SERVER_PORT']
   _html do
     _head do
       _title 'Chat server'
-      _script src: '/jquery.min.js'
       _style %{
         textarea {width: 100%; height: 10em}
         #error {color: red; margin-top: 1em}
         #error pre {margin: 0}
       }
     end
+
     _body do
       _h1 "Chat on port # #{port}"
       _textarea
