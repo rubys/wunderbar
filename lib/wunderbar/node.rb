@@ -41,10 +41,6 @@ module Wunderbar
       child.parent = self
     end
 
-    def add_text(text)
-      @children << text.to_s.gsub(/[&<>]/,ESCAPE)
-    end
-
     def walk(result, indent, options)
       indent += options[:indent] if indent and parent
       first = true
@@ -166,18 +162,24 @@ module Wunderbar
         super
       end
     end
+  end
 
-    def add_text(text)
-      @children << text
+  class TextNode < Node
+    def initialize(*args)
+      super(nil, *args)
+    end
+
+    def serialize(options, result, indent)
+      result << @text.to_s.gsub(/[&<>]/,ESCAPE)
     end
   end
 
-  class IndentedTextNode < Node
+  class IndentedTextNode < TextNode
     def serialize(options, result, indent)
       if indent
-        text = CDATANode.normalize(name, indent)
+        text = CDATANode.normalize(@text, indent)
       else
-        text = name
+        text = @text
       end
 
       result << text.to_s.gsub(/[&<>]/,ESCAPE)

@@ -154,6 +154,12 @@ class HtmlMarkupTest < Test::Unit::TestCase
       target
   end
 
+  def test_spaced_text
+    @x.html {_div {_ 'one'; __; _ 'two'}}
+    assert_match %r[<div>\n +one\n\n +two\n +</div>], 
+      target
+  end
+
   def test_spaced_collapsed
     @x.html {_div {_p_ 'one'; _hr_; _p_ 'two'}}
     assert_match %r[<div>\n +<p>one</p>\n\n +<hr/>\n\n +<p>two</p>\n +</div>], 

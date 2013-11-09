@@ -61,7 +61,7 @@ module Wunderbar
     end
 
     def text! text
-      @node.add_text text
+      @node.children << TextNode.new(text)
     end
 
     def declare! *args
@@ -73,8 +73,11 @@ module Wunderbar
     end
 
     def indented_text!(text)
-      return if text.strip.length == 0
-      @node.children << IndentedTextNode.new(text)
+      return if text.length == 0 and not @spaced
+      text = IndentedTextNode.new(text)
+      text.extend SpacedNode if @spaced
+      @node.children << text
+      @spaced = false
     end
 
     def target!

@@ -69,8 +69,10 @@ module Wunderbar
       head = nil
       body = nil
       html.children.each do |child| 
-        next unless child
-        if child.name == 'head'
+        next unless child 
+        if String === child
+          pending_body << child
+        elsif child.name == 'head'
           head = child
         elsif child.name == 'body'
           body = child
@@ -227,8 +229,8 @@ module Wunderbar
     def _head(*args, &block)
       tag!('head', *args) do
         tag! :meta, :charset => 'utf-8'
-        block.call if block
         instance_eval &Wunderbar::Asset.declarations
+        block.call if block
       end
     end
 
@@ -322,6 +324,15 @@ module Wunderbar
         end
       end
       @x[*children]
+    end
+
+    def __(text=nil)
+      if text
+        @x.spaced!
+        @x.indented_text! text
+      else
+        @x.text! ""
+      end
     end
 
     def _coffeescript(text)
