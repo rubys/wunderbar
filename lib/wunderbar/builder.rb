@@ -50,16 +50,13 @@ module Wunderbar
 
     def methods
       result = super + Wunderbar.methods
-      result += SpacedMarkup.public_instance_methods
       result += @_scope.methods if @_scope
       result.uniq
     end
 
     def respond_to?(method)
       respond true if Wunderbar.respond_to? method
-      respond true if SpacedMarkup.public_instance_methods.include? method
-      respond true if SpacedMarkup.public_instance_methods.include?  method.to_s
-      respond true if @_scope and @_scope.respond_to? method?
+      respond true if @_scope and @_scope.respond_to? method
       super
     end
 
