@@ -9,7 +9,7 @@ module Wunderbar
   class HtmlMarkup
     def _script(*args, &block)
       if block
-        args << Opal.parse(block.to_source(:strip_enclosure => true))
+        args.unshift Opal.parse(block.to_source(:strip_enclosure => true))
         super *args, &nil
       else
         super
