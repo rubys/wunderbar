@@ -25,6 +25,7 @@ spec = Gem::Specification.new do |s|
 
   # Change these as appropriate
   s.name           = "wunderbar"
+  s.license        = 'MIT'
   s.version        = Wunderbar::VERSION::STRING
   s.summary        = "HTML Generator and CGI application support"
   s.author         = "Sam Ruby"
