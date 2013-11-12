@@ -9,8 +9,7 @@ module Wunderbar
   class HtmlMarkup
     def _script(*args, &block)
       if block
-        args.unshift Ruby2JS.convert(block, 
-          filters: [Ruby2JS::Filter::AngularRB])
+        args.unshift Ruby2JS.convert(block)
         super *args, &nil
       else
         super
