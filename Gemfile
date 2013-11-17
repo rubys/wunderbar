@@ -8,8 +8,7 @@ group :test do
   gem 'actionpack'
   gem 'sinatra'
   gem 'nokogiri'
-  gem 'opal'
-  gem 'opal-jquery'
+  gem 'ruby2js'
   gem 'sourcify'
   gem 'coffee-script'
 end

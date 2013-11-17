@@ -22,28 +22,4 @@ class AssetTest < Test::Unit::TestCase
     @x.html {_head}
     assert_match %r{<script src="assets/jquery-min.js"}, target
   end
-
-  begin
-    require 'opal'
- 
-    def test_opal
-      load 'wunderbar/opal.rb'
-      @x.html {_head}
-      assert_match %r{<script src="assets/opal.js"}, target
-    end
-
-    begin
-      require 'opal-jquery'
-
-      def test_opal_jquery
-        load 'wunderbar/opal-jquery.rb'
-        @x.html {_head}
-        assert_match %r{<script src="assets/opal-jquery.js"}, target
-      end
-    rescue LoadError => exception
-      define_method(:test_opal_jquery) {skip exception.inspect}
-    end
-  rescue LoadError => exception
-    define_method(:test_opal) {skip exception.inspect}
-  end
 end
