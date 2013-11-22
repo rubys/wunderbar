@@ -1,4 +1,5 @@
-require 'wunderbar'
+require 'wunderbar/script'
+require 'wunderbar/jquery'
 require 'redcarpet'
 require 'digest/md5'
 require 'nokogiri'
@@ -39,7 +40,6 @@ _html _width: $WIDTH do
       .buttons form {display: inline}
     }
     _script src: '/showdown.js'
-    _script src: '/jquery.min.js'
   end
 
   _body? do
@@ -155,79 +155,80 @@ _html _width: $WIDTH do
       end
     end
 
-    _script %{
-      // autosave every 5 seconds
-      var dirty = false;
-      setInterval(function() {
-        if (!dirty) return;
-        dirty = false;
+    @uri = env['REQUEST_URI'].to_json
+    _script do
+      # autosave every 5 seconds
+      dirty = false
+      setInterval proc {
+        return unless dirty
+        dirty = false
 
-        var params = {
-          markup: $('textarea[name=markup]').val(),
-          hash:   $('input[name=hash]').val()
-        };
+        params = {
+          markup: ~'textarea[name=markup]'.val,
+          hash:   ~'input[name=hash]'.val
+        }
 
-        $.post(#{env['REQUEST_URI'].to_json}, params, function(_) {
-          $('input[name=hash]').val(_.hash);
-          if (_.time) {
-            var time = new Date(_.time).toLocaleTimeString();
-            $('#message').text("Autosaved at " + time).show().fadeOut(5000);
-          } else {
-            $('.input').val(_.markup).attr('readonly', true);
-            $('#message').css({'font-weight': 'bold'}).text(_.error).show();
-          }
+        $$.post(`@uri`, params, proc { |response|
+          ~'input[name=hash]'.val = response.hash
+          if response.time
+            time = Date.new(response.time).toLocaleTimeString()
+            ~'#message'.text("Autosaved at #{time}").show.fadeOut(5000)
+          else
+            ~'.input'.val(_.markup).readonly = true
+            ~'#message'.css(fontWeight: 'bold').text(response.error).show
+          end
 
-          if ($('#comment').val() != '') $('#save').attr('disabled', false);
-        }, 'json');
-      }, 5000);
+          ~'#save'.disabled = false if ~'#comment'.val != ''
+        }, 'json')
+      }, 5000
 
-      // regenerate output every second
-      var updated = false;
-      setInterval(function() {
-        if (!updated) return;
-        updated = false;
-        $('.output').html(converter.makeHtml($('.input').val()));
-      }, 1000);
+      # regenerate output every second
+      updated = false
+      setInterval proc {
+        return unless updated
+        updated = false
+        ~'.output'.html = converter.makeHtml(~'.input'.val)
+      }, 1000
 
-      // update output pane and mark dirty whenever input changes
-      var converter = new Showdown.converter();
-      $('.input').bind('input', function() {
-        updated = dirty = true;
-        $('#save').attr('disabled', true);
-      });
+      # update output pane and mark dirty whenever input changes
+      converter = Showdown.new.converter()
+      ~'.input'.on(:input) do
+        updated = dirty = true
+        ~'#save'.disabled = true
+      end
 
-      // watch for updates
-      var watch = $('<input type="submit" value="watch"/>');
-      watch.click(function() {
-        var watcher = function() {
-          $.ajax({url: #{env['REQUEST_URI'].to_json}, ifModified: true,
+      # watch for updates
+      watch = ~'<input type="submit" value="watch"/>'
+      watch.click do
+        watcher = proc do
+          $$.ajax(url: `@uri`, ifModified: true,
             dataType: 'text', accepts: {text: 'text/plain'},
-            success: function(_) { 
-              $('.content').html(converter.makeHtml(_));
-              var time = new Date().toLocaleTimeString();
-              $('#message').text("Updated at " + time).show().fadeOut(5000);
-            }
-          });
-        };
-        watcher();
-        setInterval(watcher, 10000);
-        $(this).hide();
-        return false;
-      });
-      $('.buttons form').first().prepend(watch);
+            success: proc do |markup|
+              ~'.content'.html = converter.makeHtml(markup)
+              time = Date.new().toLocaleTimeString()
+              ~'#message'.text("Updated at #{time}").show.fadeOut(5000)
+            end
+          )
+        end
+        watcher()
+        setInterval(watcher, 10000)
+        ~this.hide
+        return false
+      end
+      ~'.buttons form'.first.prepend(watch)
 
-      // disable save button until there is a commit message
-      $('#save').attr('disabled', true);
-      $('#comment').bind('input', function() {
-        if (!dirty) $('#save').attr('disabled', false);
-      });
+      # disable save button until there is a commit message
+      ~'#save'.disabled = true
+      ~'#comment'.on(:input) do
+        ~'#save'.disabled = false unless dirty
+      end
 
-      // resize based on window size
-      var reserve = $('header').height() * 3 + $('.buttons').height();
-      $(window).resize(function() {
-        $('.input,.output').height($(window).height()-reserve);
-      }).trigger('resize');
-    }
+      # resize based on window size
+      reserve = ~'header'.height * 3 + ~'.buttons'.height
+      ~window.resize {
+        ~'.input,.output'.height(~window.height - reserve)
+      }.trigger(:resize)
+    end
   end
 end
 
