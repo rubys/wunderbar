@@ -288,7 +288,7 @@ module Wunderbar
         if child.text? or child.cdata?
           text = child.text
           if text.strip.empty?
-            text! "\n" if text.count("\n")>1
+            text! "" if text.count("\n")>1
           else
             indented_text! text
           end

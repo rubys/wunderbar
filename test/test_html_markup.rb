@@ -327,6 +327,11 @@ class HtmlMarkupTest < Test::Unit::TestCase
     assert_match %r[^ +<pre>before\n<b><i>middle</i></b>\nafter</pre>], target
   end
 
+  def test_literal_markup
+    @x.html {_{"<p>one</p>\n\n<p>two</p>\n"}}
+    assert_match %r[^( +)<p>one</p>\n\n\1<p>two</p>], target
+  end
+
   def test_chomped_pre
     @x.html {_div {_pre "before\nmiddle\nafter\n"}}
     assert_match %r[^ +<pre>before\nmiddle\nafter</pre>], target
