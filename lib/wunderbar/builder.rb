@@ -284,10 +284,12 @@ module Wunderbar
         children.pop if children.last.text? and children.last.text.strip.empty?
       end
 
-      children.each do |child|
+      children.map do |child|
         if child.text? or child.cdata?
           text = child.text
-          if text.strip.empty?
+          if not @indentation_enabled
+            text! text
+          elsif text.strip.empty?
             text! "" if text.count("\n")>1
           else
             indented_text! text
@@ -328,6 +330,8 @@ module Wunderbar
           tag!(child, child.text.strip)
         elsif child.children.any?(&:cdata?) and child.text =~ /[<&]/
           self << child
+        elsif child.name == 'pre'
+          compact!(nil) { tag!(child) {self[*child.children]} }
         else
           tag!(child) {self[*child.children]}
         end

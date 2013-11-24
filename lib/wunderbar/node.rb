@@ -88,7 +88,7 @@ module Wunderbar
           (work+["</#{name}>"]).each do |node|
             if line.length + node.length > @width
               result << line.rstrip
-              line = indent
+              line = indent.to_s
             end
             line += node
           end
@@ -132,7 +132,7 @@ module Wunderbar
   end
 
   class CDATANode < Node
-    def self.normalize(data, indent)
+    def self.normalize(data, indent='')
       data = data.sub(/\n\s*\Z/, '').sub(/\A\s*\n/, '')
 
       unindent = data.sub(/s+\Z/,'').scan(/^ *\S/).map(&:length).min || 0

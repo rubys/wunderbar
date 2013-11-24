@@ -266,7 +266,7 @@ module Wunderbar
     
     def _pre(*args, &block)
       args.first.chomp! if String === args.first and args.first.end_with? "\n"
-      @x.compact!(@_width) { tag! :pre, *args, &block }
+      @x.compact!(nil) { tag! :pre, *args, &block }
     end
 
     def _ul(*args, &block)
@@ -338,13 +338,6 @@ module Wunderbar
       else
         @x.text! ""
       end
-    end
-
-    def _coffeescript(text)
-      require 'coffee-script'
-      _script CoffeeScript.compile(text)
-    rescue LoadError
-      _script text, :lang => 'text/coffeescript'
     end
 
     def clear!

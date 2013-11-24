@@ -11,4 +11,6 @@ group :test do
   gem 'ruby2js'
   gem 'sourcify'
   gem 'coffee-script'
+  gem 'kramdown'
+  gem 'coderay'
 end
