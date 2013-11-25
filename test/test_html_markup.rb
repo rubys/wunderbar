@@ -274,6 +274,11 @@ class HtmlMarkupTest < Test::Unit::TestCase
     assert_match %r[<div class="header">.*</div>]m, target
   end
 
+  def test_class_with_dash
+    @x.html {_div.header_4 {_span.text 'foo'}}
+    assert_match %r[<div class="header-4">.*</div>]m, target
+  end
+
   def test_id_attribute
     @x.html {_h1.content! 'Content'}
     assert_match %r[^ +<h1 id="content">Content</h1>], target

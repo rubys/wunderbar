@@ -16,8 +16,9 @@ module Wunderbar
     def method_missing(id_or_class, *args, &block)
       empty = args.empty?
       attrs = @node.attrs
+      id_or_class = id_or_class.to_s.gsub('_', '-')
 
-      if id_or_class.to_s =~ /(.*)!$/
+      if id_or_class =~ /(.*)!$/
         attrs[:id] = $1
       elsif attrs[:class]
         attrs[:class] = "#{attrs[:class]} #{id_or_class}"
