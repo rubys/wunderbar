@@ -239,30 +239,30 @@ module Wunderbar
 
     # insert verbatim
     def <<(data)
-      if not String === data or data.include? '<' or data.include? '&'
-        require 'nokogiri'
-        data = Nokogiri::HTML::fragment(data.to_s).to_xml
+      if defined? Nokogiri
+        if not String === data or data.include? '<' or data.include? '&'
+          data = Nokogiri::HTML::fragment(data.to_s).to_xml
 
-        # fix CDATA in most cases (notably scripts)
-        data.gsub!(/<!\[CDATA\[(.*?)\]\]>/m) do
-          if $1.include? '<' or $1.include? '&'
-            "//<![CDATA[\n#{$1}\n//]]>"
-          else
-            $1
+          # fix CDATA in most cases (notably scripts)
+          data.gsub!(/<!\[CDATA\[(.*?)\]\]>/m) do
+            if $1.include? '<' or $1.include? '&'
+              "//<![CDATA[\n#{$1}\n//]]>"
+            else
+              $1
+            end
           end
-        end
 
-        # fix CDATA for style elements
-        data.gsub!(/<style([^>])*>\/\/<!\[CDATA\[\n(.*?)\s+\/\/\]\]>/m) do
-          if $2.include? '<' or $2.include? '&'
-            "<style#{$1}>/*<![CDATA[*/\n#{$2.gsub("\n\Z",'')}\n/*]]>*/"
-          else
-            $1
+          # fix CDATA for style elements
+          data.gsub!(/<style([^>])*>\/\/<!\[CDATA\[\n(.*?)\s+\/\/\]\]>/m) do
+            if $2.include? '<' or $2.include? '&'
+              "<style#{$1}>/*<![CDATA[*/\n#{$2.gsub("\n\Z",'')}\n/*]]>*/"
+            else
+              $1
+            end
           end
         end
       end
-    rescue LoadError
-    ensure
+
       if String === data
         @node.children << data
       else

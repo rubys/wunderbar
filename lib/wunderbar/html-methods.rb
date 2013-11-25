@@ -320,14 +320,15 @@ module Wunderbar
       if String === children
         safe = !children.tainted?
         safe ||= children.html_safe? if children.respond_to? :html_safe?
+        safe &&= defined? Nokogiri
 
         if safe and (children.include? '<' or children.include? '&')
-          require 'nokogiri'
           children = Nokogiri::HTML::fragment(children.to_s).children
         else
           return @x.indented_text! children
         end
       end
+
       @x[*children]
     end
 

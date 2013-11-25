@@ -1,5 +1,6 @@
 require 'wunderbar'
 require 'coderay'
+require 'nokogiri'
 
 # workaround for https://github.com/rubychan/coderay/pull/159
 module CodeRay::PluginHost
