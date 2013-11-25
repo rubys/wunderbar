@@ -1,3 +1,6 @@
+require 'wunderbar'
+require 'rack'
+
 module Wunderbar
   class RackApp
     # entry point for Rack
@@ -42,3 +45,12 @@ module Wunderbar
     end
   end
 end
+
+class Rack::Builder
+  include Wunderbar::API
+
+  def _app
+    Wunderbar::RackApp.new
+  end
+end
+

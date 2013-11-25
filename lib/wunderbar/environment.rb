@@ -43,23 +43,8 @@ module Wunderbar
   def self.templates
     @@templates
   end
-end
 
-require 'socket'
-$SERVER = ENV['HTTP_HOST'] || Socket::gethostname
-
-# set encoding to UTF-8
-ENV['LANG'] ||= "en_US.UTF-8"
-if defined? Encoding
-  Encoding.default_external = Encoding::UTF_8
-  Encoding.default_internal = Encoding::UTF_8
-else
-  $KCODE = 'U'
-end
-
-# Add methods to the 'main' object
-if self.to_s == 'main'
-  class << self
+  module API
     def _html(*args, &block)
       Wunderbar.html(*args, &block)
     end
@@ -84,6 +69,25 @@ if self.to_s == 'main'
     def _template(name, &block)
       Wunderbar.templates[name.to_s.gsub('_','-')] = block
     end
+  end
+end
+
+require 'socket'
+$SERVER = ENV['HTTP_HOST'] || Socket::gethostname
+
+# set encoding to UTF-8
+ENV['LANG'] ||= "en_US.UTF-8"
+if defined? Encoding
+  Encoding.default_external = Encoding::UTF_8
+  Encoding.default_internal = Encoding::UTF_8
+else
+  $KCODE = 'U'
+end
+
+# Add methods to the 'main' object
+if self.to_s == 'main'
+  class << self
+    include Wunderbar::API
 
     def env
       ENV

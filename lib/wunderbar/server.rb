@@ -14,8 +14,7 @@ end
 
 port = ARGV.find {|arg| arg =~ /--port=(.*)/}
 if port and ARGV.delete(port)
-  port = $1.to_i
-  ENV['SERVER_PORT'] = port.to_s
+  ENV['SERVER_PORT'] = port.split('=').last
 
   # Evaluate optional data from the script (after __END__)
   eval Wunderbar.data if Object.const_defined? :DATA
@@ -26,7 +25,6 @@ if port and ARGV.delete(port)
 
   at_exit do
     # start the server
-    require 'rack'
     require 'wunderbar/rack'
 
     class QueueCleanup
@@ -44,10 +42,11 @@ if port and ARGV.delete(port)
       end
     end
 
-    app = Rack::Lock.new(Wunderbar::RackApp.new)
-    app = Rack::Reloader.new(QueueCleanup.new(app), 0)
-    Rack::Server.start :app => app, :Port => port,
-      :environment => (ENV['RACK_ENV'] || 'development')
+    app = Wunderbar::RackApp.new
+    app = QueueCleanup.new(app)
+    app = Rack::Reloader.new(app, 0)
+    Rack::Server.start app: app, Port: ENV['SERVER_PORT'].to_i,
+      environment: (ENV['RACK_ENV'] || 'development')
   end
 
 elsif defined? Sinatra
@@ -57,6 +56,10 @@ elsif defined? Sinatra
 elsif defined? ActionView::Template
 
   require 'wunderbar/rails'
+
+elsif defined? Rack
+
+  require 'wunderbar/rack'
 
 else
 
