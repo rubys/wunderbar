@@ -323,7 +323,27 @@ module Wunderbar
         safe &&= defined? Nokogiri
 
         if safe and (children.include? '<' or children.include? '&')
-          children = Nokogiri::HTML::fragment(children.to_s).children
+          children = Nokogiri::HTML::fragment(children.to_s).children.to_a
+
+          # ignore leading whitespace
+          while not children.empty? and children.first.text?
+            break unless children.first.text.strip.empty?
+            children.shift
+          end
+
+          # gather up candidate head elements
+          pending_head = []
+          while not children.empty? and children.first.element?
+            break unless (HEAD+['script']).include? children.first.name
+            pending_head << children.shift
+          end
+
+          # rebuild head element if any candidates were found
+          unless pending_head.empty?
+            head = Nokogiri::XML::Node.new('head', pending_head.first.document) 
+            pending_head.each {|child| head << child}
+            children.unshift head
+          end
         else
           return @x.indented_text! children
         end

@@ -332,6 +332,15 @@ module Wunderbar
           self << child
         elsif child.name == 'pre'
           compact!(nil) { tag!(child) {self[*child.children]} }
+        elsif child.name == 'head'
+          head = tag!(child) {self[*child.children]}
+          html = @doc.children.last
+          if html.name == :html
+            head.parent.children.pop
+            html.children.unshift head
+            head.parent = html
+          end
+          head
         else
           tag!(child) {self[*child.children]}
         end
