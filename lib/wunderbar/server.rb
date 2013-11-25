@@ -21,12 +21,15 @@ if port and ARGV.delete(port)
 
   # Allow optional environment override
   environment = ARGV.find {|arg| arg =~ /--environment=(.*)/}
-  ENV['RACK_ENV'] = environment if environment and ARGV.delete(environment)
+  if environment and ARGV.delete(environment)
+    ENV['RACK_ENV'] = environment.split('=').last
+  end
 
   at_exit do
     # start the server
     require 'wunderbar/rack'
 
+    # whenever reloading adds to the queue, cull old entries
     class QueueCleanup
       def initialize(app)
         @app = app
@@ -42,11 +45,15 @@ if port and ARGV.delete(port)
       end
     end
 
+    # avoid Ruby 1.9.3 bug if var names match those used to extract from ARGV
+    app_port = ENV['SERVER_PORT'].to_i
+    app_env = (ENV['RACK_ENV'] || 'development')
+
     app = Wunderbar::RackApp.new
     app = QueueCleanup.new(app)
-    app = Rack::Reloader.new(app, 0)
-    Rack::Server.start app: app, Port: ENV['SERVER_PORT'].to_i,
-      environment: (ENV['RACK_ENV'] || 'development')
+    app = Rack::Reloader.new(app, 0) if app_env == 'development'
+
+    Rack::Handler.default.run app, environment: app_env, Port: app_port
   end
 
 elsif defined? Sinatra
