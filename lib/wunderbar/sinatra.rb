@@ -28,14 +28,6 @@ module Wunderbar
         Wunderbar::Template::Xhtml.evaluate('_xhtml', self, *args)
       end
     end
-
-    def _json(*args, &block)
-      Wunderbar::Template::Json.evaluate('_json', self, *args, &block)
-    end
-
-    def _text(*args, &block)
-      Wunderbar::Template::Text.evaluate('_text', self, *args, &block)
-    end
   end
 
   # Tilt template implementation
@@ -124,8 +116,9 @@ module Wunderbar
       self.default_mime_type = 'application/xhtml+xml'
     end
 
-    class Json < Base
-      self.default_mime_type = 'application/json'
+    module Json
+      def self.ext; :_json; end
+      def self.mime; 'application/json'; end
 
       def evaluate(scope, locals, &block)
         builder = JsonBuilder.new(scope)
@@ -140,8 +133,9 @@ module Wunderbar
       end
     end
 
-    class Text < Base
-      self.default_mime_type = 'text/plain'
+    module Text
+      def self.ext; :_text; end
+      def self.mime; 'text/plain'; end
 
       def evaluate(scope, locals, &block)
         builder = TextBuilder.new(scope)
@@ -162,9 +156,11 @@ module Wunderbar
         self.default_mime_type = language.mime
         include language
       end
+
       SinatraHelpers.send :define_method, language.ext do |*args, &block|
         template.evaluate(language.ext, self, *args, &block)
       end
+
       Tilt.register language.ext.to_s, template
     end
 
@@ -177,8 +173,6 @@ end
 
 Tilt.register '_html',  Wunderbar::Template::Html
 Tilt.register '_xhtml', Wunderbar::Template::Xhtml
-Tilt.register '_json',  Wunderbar::Template::Json
-Tilt.register '_text',  Wunderbar::Template::Json
 
 helpers Wunderbar::SinatraHelpers
 
