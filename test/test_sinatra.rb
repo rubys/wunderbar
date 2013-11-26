@@ -221,8 +221,20 @@ class SintraTest < Test::Unit::TestCase
     assert_equal "_FATAL oh, dear\n", $stderr.string
   end
 
+  def test_js_data
+    get '/js/data' do
+      _js :data
+    end
+
+    assert_equal "var data", last_response.body
+    assert_equal 200, last_response.status
+    assert_equal 'application/javascript;charset=utf-8',
+      last_response.content_type
+  end
+
   begin
     require 'wunderbar/sinatra'
+    require 'wunderbar/script'
     require 'rack/test'
     include Rack::Test::Methods
 

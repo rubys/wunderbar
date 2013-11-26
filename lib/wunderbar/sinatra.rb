@@ -4,6 +4,40 @@ require 'digest/md5'
 require 'nokogiri'
 
 module Wunderbar
+  module SinatraHelpers
+    def _html(*args, &block)
+      if block
+        Wunderbar::Template::Html.evaluate('_html', self) do
+          _html(*args) { instance_eval &block }
+        end
+      else
+        Wunderbar::Template::Html.evaluate('_html', self, *args)
+      end
+    end
+
+    def _xhtml(*args, &block)
+      if env['HTTP_ACCEPT'] and not env['HTTP_ACCEPT'].include? 'xhtml'
+        return _html(*args, &block)
+      end
+
+      if block
+        Wunderbar::Template::Xhtml.evaluate('_xhtml', self) do
+          _xhtml(*args) { instance_eval &block }
+        end
+      else
+        Wunderbar::Template::Xhtml.evaluate('_xhtml', self, *args)
+      end
+    end
+
+    def _json(*args, &block)
+      Wunderbar::Template::Json.evaluate('_json', self, *args, &block)
+    end
+
+    def _text(*args, &block)
+      Wunderbar::Template::Text.evaluate('_text', self, *args, &block)
+    end
+  end
+
   # Tilt template implementation
   module Template
     class Base < Tilt::Template
@@ -122,39 +156,21 @@ module Wunderbar
         builder.target!
       end
     end
-  end
 
-  module SinatraHelpers
-    def _html(*args, &block)
-      if block
-        Wunderbar::Template::Html.evaluate('_html', self) do
-          _html(*args) { instance_eval &block }
-        end
-      else
-        Wunderbar::Template::Html.evaluate('_html', self, *args)
+    def self.register(language, base=Base)
+      template = Class.new(Template::Base) do 
+        self.default_mime_type = language.mime
+        include language
       end
+      SinatraHelpers.send :define_method, language.ext do |*args, &block|
+        template.evaluate(language.ext, self, *args, &block)
+      end
+      Tilt.register language.ext.to_s, template
     end
 
-    def _xhtml(*args, &block)
-      if env['HTTP_ACCEPT'] and not env['HTTP_ACCEPT'].include? 'xhtml'
-        return _html(*args, &block)
-      end
-
-      if block
-        Wunderbar::Template::Xhtml.evaluate('_xhtml', self) do
-          _xhtml(*args) { instance_eval &block }
-        end
-      else
-        Wunderbar::Template::Xhtml.evaluate('_xhtml', self, *args)
-      end
-    end
-
-    def _json(*args, &block)
-      Wunderbar::Template::Json.evaluate('_json', self, *args, &block)
-    end
-
-    def _text(*args, &block)
-      Wunderbar::Template::Text.evaluate('_text', self, *args, &block)
+    constants.each do |language|
+      language = const_get(language)
+      register language if language.respond_to? :mime
     end
   end
 end
@@ -162,7 +178,7 @@ end
 Tilt.register '_html',  Wunderbar::Template::Html
 Tilt.register '_xhtml', Wunderbar::Template::Xhtml
 Tilt.register '_json',  Wunderbar::Template::Json
-Tilt.register '_text',  Wunderbar::Template::Text
+Tilt.register '_text',  Wunderbar::Template::Json
 
 helpers Wunderbar::SinatraHelpers
 
