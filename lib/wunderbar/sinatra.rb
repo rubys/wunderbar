@@ -3,6 +3,11 @@ require 'wunderbar'
 require 'digest/md5'
 require 'nokogiri'
 
+begin
+  require "sinatra/reloader" if development? # gem install sinatra-contrib
+rescue LoadError
+end
+
 module Wunderbar
   module SinatraHelpers
     def _html(*args, &block)
