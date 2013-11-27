@@ -35,6 +35,8 @@ module Wunderbar
         @builder.proxiable_tag! @node.name, *args
       elsif SpacedNode === @node
         @builder.__send__ "_#{@node.name}_", *args, &block
+      elsif CompactNode === @node and @node.name != :pre
+        @builder.__send__ "_#{@node.name}!", *args, &block
       else
         @builder.__send__ "_#{@node.name}", *args, &block
       end

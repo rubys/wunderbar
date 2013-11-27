@@ -271,7 +271,12 @@ class HtmlMarkupTest < Test::Unit::TestCase
 
   def test_class_attribute
     @x.html {_div.header {_span.text 'foo'}}
-    assert_match %r[<div class="header">.*</div>]m, target
+    assert_match %r[<div class="header">\n.*\s+</div>]m, target
+  end
+
+  def test_class_compact_attribute
+    @x.html {_div!.header {_span 'foo'}}
+    assert_match %r[<div class="header"><span>.*</span></div>]m, target
   end
 
   def test_class_with_dash
@@ -282,6 +287,12 @@ class HtmlMarkupTest < Test::Unit::TestCase
   def test_id_attribute
     @x.html {_h1.content! 'Content'}
     assert_match %r[^ +<h1 id="content">Content</h1>], target
+    assert_no_match %r[<h1>], target
+  end
+
+  def test_compact_id_attribute
+    @x.html {_h3!.content! {_em 'Content'}}
+    assert_match %r[^ +<h3 id="content"><em>Content</em></h3>], target
     assert_no_match %r[<h1>], target
   end
 
