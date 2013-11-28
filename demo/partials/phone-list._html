@@ -1,0 +1,28 @@
+_div.container_fluid do
+  _div.row_fluid do
+    _div.span2 do
+      # Sidebar content
+      _ 'Search'
+      _input ng_model: 'query'
+      _ 'Sort by:'
+      _select ng_model: 'orderProp' do
+        _option 'Alphabetical', value: 'name'
+        _option 'Newest', value: 'age'
+      end
+    end
+
+    _div_.span10 do
+      # Body content
+      _ul.phones do
+        selection = "phone in phones | filter:query | orderBy:orderProp"
+        _li.thumbnail ng_repeat: selection do
+          _a!.thumb href: "#/phones/{{phone.id}}" do
+            _img ng_src: "{{phone.imageUrl}}"
+          end
+          _a "{{phone.name}}", href: "#/phones/{{phone.id}}"
+          _p "{{phone.snippet}}"
+        end
+      end
+    end
+  end
+end
