@@ -19,6 +19,10 @@ OptionParser.new { |opts|
     'Insert blanks lines around blocks larger than this value' do |group|
     $group = group
   end
+  opts.on '-f', '--[no-]fragment', '-p', '--[no-]partial',  
+    'Output as a fragment / partial' do |fragment|
+    $fragment = fragment
+  end
   opts.on '-h', '--[no-]header',  'Output program header' do |header|
     $header = header
   end
@@ -160,6 +164,7 @@ def code(element, indent='', flat=false)
   line = "#{indent}_#{element_name}#{attributes.join(',')}"
 
   if element.children.empty?
+    return if element_name == 'head' and attributes.length == 0
     flow_attrs "#{indent}_#{element_name}#{attributes.pop}", attributes, indent
 
   # element has children
@@ -168,7 +173,16 @@ def code(element, indent='', flat=false)
     flatten = flat || Wunderbar::HtmlMarkup.flatten?(element.children)
     line.sub! /(\w)( |\.|$)/, '\1!\2' if flatten and not flat
 
-    q "#{line} do"
+    skip = $fragment
+    skip = false unless %w(html head body).include? element_name
+    skip = false unless element.attributes.length == 0
+
+    if skip
+      cindent = indent
+    else
+      q "#{line} do"
+      cindent = "#{indent}  "
+    end
 
     start = $q.length
     blank = false
@@ -183,13 +197,13 @@ def code(element, indent='', flat=false)
         text = child.text.gsub(/\s+/, ' ')
         text = text.strip unless flatten
         next if text.empty?
-        flow_text "#{indent}  _ #{text.enquote}", "\" +\n    #{indent}\""
+        flow_text "#{cindent}_ #{text.enquote}", "\" +\n    #{indent}\""
         first = true # stop break
       elsif child.comment?
-        flow_text "#{indent}  _.comment! #{child.text.strip.enquote}", 
+        flow_text "#{cindent}_.comment! #{child.text.strip.enquote}", 
           "\" +\n    #{indent}\""
       else
-        code(child, indent + '  ', flatten)
+        code(child, cindent, flatten)
       end
 
       # insert a blank line if either this or the previous block was large
@@ -201,10 +215,11 @@ def code(element, indent='', flat=false)
         $q.insert(start,'') if blank
         blank = false
       end
+      first = (start == $q.length)
       start = $q.length
-      first = false
     end
-    q indent + "end"
+
+    q indent + "end" unless skip
 
   elsif element.name == 'pre' and element.text.include? "\n"
     data = element.text.sub(/\A\n/,'').sub(/\s+\Z/,'')
