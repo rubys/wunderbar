@@ -5,6 +5,8 @@ require 'net/http'
 
 # Convert a webpage to a Wunderbar script
 
+$header = true
+
 OptionParser.new { |opts|
   opts.banner = "#{File.basename(__FILE__)} [-o output] [-w width] URLs..."
   opts.on '-o', '--output FILE', 'Send Output to FILE' do |file|
@@ -16,6 +18,12 @@ OptionParser.new { |opts|
   opts.on '-g', '--group lines', Integer, 
     'Insert blanks lines around blocks larger than this value' do |group|
     $group = group
+  end
+  opts.on '-h', '--[no-]header',  'Output program header' do |header|
+    $header = header
+  end
+  opts.on '-h', 'Omit program header' do |header|
+    $header = false
   end
   if ''.respond_to? 'encoding'
     opts.on '-a', '--ascii', Integer, 'Escape non-ASCII characters' do
@@ -262,24 +270,31 @@ end
 
 # fetch and convert each web page
 ARGV.each do |arg|
-  $uri = URI.parse arg
-  code Nokogiri::HTML5.get($uri).root
+  if arg =~ %r{^https?://}
+    $uri = URI.parse arg
+    code Nokogiri::HTML5.get($uri).root
+  else
+    $uri = "file://#{arg}"
+    code Nokogiri::HTML5(File.read(arg)).root
+  end
 end
 
-# she-bang
-puts "#!" + File.join(
-  RbConfig::CONFIG["bindir"],
-  RbConfig::CONFIG["ruby_install_name"] + RbConfig::CONFIG["EXEEXT"]
-)
+if $headers
+  # she-bang
+  puts "#!" + File.join(
+    RbConfig::CONFIG["bindir"],
+    RbConfig::CONFIG["ruby_install_name"] + RbConfig::CONFIG["EXEEXT"]
+  )
 
-# headers
-if ''.respond_to? 'encoding'
-  puts '# encoding: utf-8' if $q.any? {|line| line.match /[^\x20-\x7f]/}
-else
-  puts "require 'rubygems'"
+  # headers
+  if RUBY_VERSION =~ /^1\.8/
+    puts "require 'rubygems'"
+  elsif RUBY_VERSION =~ /^1/
+    puts '# encoding: utf-8' if $q.any? {|line| line.match /[^\x20-\x7f]/}
+  end
+
+  puts "require 'wunderbar'\n\n"
 end
-
-puts "require 'wunderbar'\n\n"
 
 # main output
 puts $q.join("\n")
