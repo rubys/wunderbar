@@ -65,7 +65,9 @@ end
 # Method to "enquote" a string
 class String
   def enquote
-    if $ascii
+    if match(/\A[\x20-\x26\x28-\x5b\x5d-\x7f]*\Z/) # 0x27=', 0x5c=\
+      "'#{to_s}'"
+    elsif $ascii
       inspect.gsub(/[^\x20-\x7f]/) { |c| '\u' + c.ord.to_s(16).rjust(4,'0') }
     else
       inspect
