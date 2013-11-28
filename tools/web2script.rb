@@ -46,6 +46,10 @@ begin
 rescue LoadError 
   require 'nokogiri'
   module Nokogiri
+    def self.HTML5(string)
+      HTML(string)
+    end
+
     module HTML5
       def self.get(uri)
         doc = Net::HTTP.get(uri)
