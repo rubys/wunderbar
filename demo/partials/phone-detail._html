@@ -1,1 +1,128 @@
-_ "TBD: detail view for {{phoneId}}"
+_img.phone ng_src: '{{phone.images[0]}}'
+_h1 '{{phone.name}}'
+_p '{{phone.description}}'
+
+_ul.phone_thumbs do
+  _li ng_repeat: 'img in phone.images' do
+    _img ng_src: '{{img}}'
+  end
+end
+
+_ul.specs do
+  _li_ do
+    _span 'Availability and Networks'
+    _dl do
+      _dt 'Availability'
+      _dd '{{availability}}', ng_repeat: 'availability in phone.availability'
+    end
+  end
+
+  _li_ do
+    _span 'Battery'
+
+    _dl_ do
+      _dt 'Type'
+      _dd '{{phone.battery.type}}'
+      _dt 'Talk Time'
+      _dd '{{phone.battery.talkTime}}'
+      _dt 'Standby time (max)'
+      _dd '{{phone.battery.standbyTime}}'
+    end
+  end
+
+  _li_ do
+    _span 'Storage and Memory'
+
+    _dl_ do
+      _dt 'RAM'
+      _dd '{{phone.storage.ram}}'
+      _dt 'Internal Storage'
+      _dd '{{phone.storage.flash}}'
+    end
+  end
+
+  _li_ do
+    _span 'Connectivity'
+
+    _dl_ do
+      _dt 'Network Support'
+      _dd '{{phone.connectivity.cell}}'
+      _dt 'WiFi'
+      _dd '{{phone.connectivity.wifi}}'
+      _dt 'Bluetooth'
+      _dd '{{phone.connectivity.bluetooth}}'
+      _dt 'Infrared'
+      _dd '{{phone.connectivity.infrared}}'
+      _dt 'GPS'
+      _dd '{{phone.connectivity.gps}}'
+    end
+  end
+
+  _li_ do
+    _span 'Android'
+
+    _dl_ do
+      _dt 'OS Version'
+      _dd '{{phone.android.os}}'
+      _dt 'UI'
+      _dd '{{phone.android.ui}}'
+    end
+  end
+
+  _li_ do
+    _span 'Size and Weight'
+
+    _dl_ do
+      _dt 'Dimensions'
+      _dd '{{dim}}', ng_repeat: 'dim in phone.sizeAndWeight.dimensions'
+      _dt 'Weight'
+      _dd '{{phone.sizeAndWeight.weight}}'
+    end
+  end
+
+  _li_ do
+    _span 'Display'
+
+    _dl_ do
+      _dt 'Screen size'
+      _dd '{{phone.display.screenSize}}'
+      _dt 'Screen resolution'
+      _dd '{{phone.display.screenResolution}}'
+      _dt 'Touch screen'
+      _dd '{{phone.display.touchScreen}}'
+    end
+  end
+
+  _li_ do
+    _span 'Hardware'
+
+    _dl_ do
+      _dt 'CPU'
+      _dd '{{phone.hardware.cpu}}'
+      _dt 'USB'
+      _dd '{{phone.hardware.usb}}'
+      _dt 'Audio / headphone jack'
+      _dd '{{phone.hardware.audioJack}}'
+      _dt 'FM Radio'
+      _dd '{{phone.hardware.fmRadio}}'
+      _dt 'Accelerometer'
+      _dd '{{phone.hardware.accelerometer}}'
+    end
+  end
+
+  _li_ do
+    _span 'Camera'
+
+    _dl_ do
+      _dt 'Primary'
+      _dd '{{phone.camera.primary}}'
+      _dt 'Features'
+      _dd "{{phone.camera.features.join(', ')}}"
+    end
+  end
+
+  _li do
+    _span 'Additional Features'
+    _dd '{{phone.additionalFeatures}}'
+  end
+end

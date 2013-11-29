@@ -8,8 +8,9 @@ module Angular::PhonecatControllers
   end
 
   class PhoneDetailCtrl < Angular::Controller
-    use :$scope, :$routeParams
+    use :$scope, :$routeParams, :$http
 
-    $scope.phoneId = $routeParams.phoneId
+    $http.get("phones/#{$routeParams.phoneId}.json").
+      success { |data| $scope.phone = data }
   end
 end
