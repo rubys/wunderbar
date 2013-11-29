@@ -5,6 +5,7 @@ _html ng_app: 'PhonecatApp' do
     _link rel: 'stylesheet', href: 'css/bootstrap.css'
     _script src: 'js/app.js'
     _script src: 'js/controllers.js'
+    _script src: 'js/filters.js'
   end
 
   _body ng_controller: 'PhoneListCtrl' do
