@@ -1,10 +1,10 @@
-_img.phone ng_src: '{{phone.images[0]}}'
+_img.phone ng_src: '{{mainImageUrl}}'
 _h1 '{{phone.name}}'
 _p '{{phone.description}}'
 
 _ul.phone_thumbs do
   _li ng_repeat: 'img in phone.images' do
-    _img ng_src: '{{img}}'
+    _img ng_click: 'setImage(img)', ng_src: '{{img}}'
   end
 end
 

@@ -2,6 +2,7 @@
 
 require 'wunderbar/sinatra'
 require 'wunderbar/angular-route'
+require 'wunderbar/angular-resource'
 
 get '/' do
   _html :index

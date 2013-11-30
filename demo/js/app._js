@@ -1,5 +1,5 @@
 module Angular::PhonecatApp
-  use :PhonecatControllers, :PhonecatFilters
+  use :PhonecatControllers, :PhonecatFilters, :PhonecatServices
 
   case $routeProvider
   when '/phones'

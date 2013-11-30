@@ -1,5 +1,6 @@
 pkg
 doc
 Manifest
+demo/assets
 *.gemspec
 Gemfile.lock

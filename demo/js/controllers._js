@@ -1,12 +1,16 @@
 module Angular::PhonecatControllers
-  class PhoneListCtrl < Angular::Controller
-    $http.get('phones/phones.json').success { |data| $scope.phones = data }
-
+  controller :PhoneListCtrl do
+    $scope.phones = Phone.query()
     $scope.orderProp = 'age'
   end
 
-  class PhoneDetailCtrl < Angular::Controller
-    $http.get("phones/#{$routeParams.phoneId}.json").
-      success { |data| $scope.phone = data }
+  controller :PhoneDetailCtrl do
+    $scope.phone = Phone.get(phoneId: $routeParams.phoneId) do |phone|
+      $scope.mainImageUrl = phone.images[0]
+    end
+
+    def $scope.setImage(imageUrl)
+      $scope.mainImageUrl = imageUrl
+    end
   end
 end

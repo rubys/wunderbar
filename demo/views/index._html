@@ -1,11 +1,12 @@
 _html ng_app: 'PhonecatApp' do
   _head_ do
     _title 'Google Phone Gallery'
-    _link rel: 'stylesheet', href: 'css/app.css'
-    _link rel: 'stylesheet', href: 'css/bootstrap.css'
     _script src: 'js/app.js'
     _script src: 'js/controllers.js'
     _script src: 'js/filters.js'
+    _script src: 'js/services.js'
+    _link rel: 'stylesheet', href: 'css/app.css'
+    _link rel: 'stylesheet', href: 'css/bootstrap.css'
   end
 
   _body ng_controller: 'PhoneListCtrl' do
