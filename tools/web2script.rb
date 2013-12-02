@@ -54,7 +54,7 @@ rescue LoadError
       def self.get(uri)
         doc = Net::HTTP.get(uri)
         $namespaced = Hash[doc.scan(/<\/(\w+):(\w+)>/).uniq.
-          map {|p,n| [n, "#{p} :#{n}"]}]
+          map {|p,n| [n, ".tag! #{"#{p}:#{n}".enquote}"]}]
         $namespaced.delete_if {|name, value| doc =~ /<#{name}[ >]/}
         Nokogiri::HTML(doc)
       end
@@ -109,12 +109,11 @@ ITEMS = %w{
 }
 
 def code(element, indent='', flat=false)
-  element_name = element.name
+  element_name = element.name.gsub('-', '_')
 
   # fixup namespaces
-  if element_name =~ /^(\w+)(:\w+)$/
-    # split qname and element name in Nokogumbo parsed output
-    element_name = "#{$1} #{$2}" 
+  if element_name !~ /^[a-zA-Z]\w*$/
+    element_name = ".tag! #{element_name.enquote}" 
     element_name += ',' unless element.attributes.empty?
   elsif $namespaced[element.name]
     # restore namespaces that Nokogiri::HTML dropped
