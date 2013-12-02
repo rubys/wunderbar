@@ -301,7 +301,7 @@ ARGV.each do |arg|
   end
 end
 
-if $headers
+if $header
   # she-bang
   puts "#!" + File.join(
     RbConfig::CONFIG["bindir"],
