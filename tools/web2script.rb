@@ -75,6 +75,12 @@ class String
   end
 end
 
+# from https://github.com/kangax/html-minifier/blob/gh-pages/src/htmlminifier.js
+BOOLATTRS = %w(allowfullscreen async autofocus checked compact declare default
+  defer disabled formnovalidate hidden inert ismap itemscope multiple muted
+  nohref noresize noshade novalidate nowrap open readonly required reversed
+  seamless selected sortable truespeed typemustmatch)
+
 # queue of lines to be output
 $q = []
 def q line
@@ -157,6 +163,8 @@ def code(element, indent='', flat=false)
         # drop type attributes from script elements
       elsif key == 'type' and element.name == 'script' and value == 'text/javascript'
         # drop type attributes from script elements
+      elsif (key == value or value == '') and (BOOLATTRS.include? key or key.include? '_')
+        attributes.unshift " :#{key}"
       elsif RUBY_VERSION =~ /^1\.8/
         attributes << " :#{key} => #{value.enquote}"
       else
