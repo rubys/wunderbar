@@ -1,70 +1,73 @@
-# Instructions: set this up to run as CGI.  In a separate window, run this
-# same script from the command line.  Point multiple browsers at the CGI
-# window, and change the textarea from in each.
+# Instructions: install em-websocket parser gems.  Then set this script up to
+# run as CGI.  In a separate window, run this same script from the command
+# line.  Point multiple browsers at the CGI window, and change the textarea
+# from in each.
 
 require 'wunderbar/jquery'
 require 'wunderbar/websocket'
 
-port = 8080
+PORT = 8080
 
 if ENV['SERVER_PORT']
 
   _html do
-    _head do
-      _title 'Chat server'
-      _style %{
-        textarea {width: 100%; height: 10em}
-        #error {color: red; margin-top: 1em}
-        #error pre {margin: 0}
-      }
-    end
+    _style_ %{
+      textarea {width: 100%; height: 10em}
+      #error {color: red; margin-top: 1em}
+      #error pre {margin: 0}
+    }
 
-    _body do
-      _h1 "Chat on port # #{port}"
-      _textarea
-      _div.status!
-      _div.error!
+    _h1_ "Chat on port # #{PORT}"
+    _textarea
+    _div.status!
+    _div.error!
 
-      _script %{
-        ws = new WebSocket("ws://#{env['HTTP_HOST']}:#{port}/");
-        $('textarea').bind('input', function() { ws.send($(this).val()); });
+    @socket = "ws://#{env['HTTP_HOST']}:#{PORT}/"
 
-        ws.onmessage = function(evt) { 
-          data = JSON.parse(evt.data);
-          if (data.type == 'status') {
-            $('#status').text(data.line);
-          } else if (data.type == 'stderr') {
-            $("#error").append($('<pre></pre>').text(data.line));
-          } else {
-            $('textarea').val(data.line);
-          }
-        };
+    _script_ do
+      ws = WebSocket.new(@socket)
+      ~'textarea'.on(:input) { ws.send(~this.val) }
 
-        ws.onclose = function(evt) {
-          $('textarea').attr('readonly', true);
-          $('#status').text('chat terminated')
-        };
-      }
+      ws.onmessage = proc do |evt|
+        data = JSON.parse(evt.data)
+
+        case data.type
+        when 'status'
+          ~'#status'.text = data.line
+        when 'stderr'
+          ~"#error".append(~'<pre>').text = data.line
+        else
+          ~'textarea'.val = data.line
+        end
+      end
+
+      ws.onclose = proc do
+        ~'textarea'.readonly = true
+        ~'#status'.text = 'chat terminated'
+      end
     end
   end
 
 else
 
   # echo server
-  puts "Waiting on port #{port}"
-  _websocket(port: port) do
+  puts "Waiting on port #{PORT}"
+  _websocket(port: PORT) do
     count = 0
     timer = 10
+    content = ''
 
     _.onopen do
       count += 1
       _ type: 'status', line: "waiting for others to join" if count == 1
       _ type: 'status', line: "#{count} members in chat" if count > 1
+      _ type: 'msg', line: content
     end
 
     _.subscribe do |msg| 
       puts msg
       _ type: 'msg', line: msg
+      content = msg
     end
 
     _.onclose do
