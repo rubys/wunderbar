@@ -39,8 +39,8 @@ class HtmlMarkupTest < Test::Unit::TestCase
     assert_match %r{<textarea rows="6"></textarea>}, target
   end
 
-  def test_namespaced_element
-    @x.html {_g :plusone}
+  def test_namespaced_element_via_tag
+    @x.html {_.tag! "g:plusone"}
     assert_match %r{<g:plusone></g:plusone>}, target
   end
 
@@ -315,6 +315,11 @@ class HtmlMarkupTest < Test::Unit::TestCase
 
   def test_boolean_attribute_true
     @x.html {_option :selected => true}
+    assert_match %r[^ +<option selected="selected"></option>], target
+  end
+
+  def test_boolean_attribute_symbol
+    @x.html {_option :selected}
     assert_match %r[^ +<option selected="selected"></option>], target
   end
 

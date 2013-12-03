@@ -20,9 +20,10 @@ module Wunderbar
       @text = nil
       @attrs = {}
       @children = []
-      @name += args.shift.inspect if Symbol === args.first
+      args -= symbols = args.find_all {|arg| Symbol === arg}
       @attrs = args.pop.to_hash if args.last.respond_to? :to_hash
       @text = args.shift.to_s unless args.empty?
+      symbols.each {|sym| @attrs[sym] = true}
     end
 
     def method_missing(*args)

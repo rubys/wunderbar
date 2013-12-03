@@ -118,8 +118,7 @@ module Wunderbar
         attributes.merge!(node.namespaces) if node.namespaces
         args.push attributes
         if node.namespace and node.namespace.prefix
-          args.unshift node.name.to_sym
-          sym = node.namespace.prefix
+          sym = "#{node.namespace.prefix}:#{node.name}"
         else
           sym = node.name
         end
