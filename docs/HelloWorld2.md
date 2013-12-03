@@ -41,7 +41,7 @@ page using a browser and you will see the header and a form.  This is because
 name isn't set.
 
 Enter a name and click submit, and you will see the page updated with a
-friendly greeting.  Form parameters are mapped to
+friendly greeting.  As you can see, form parameters are mapped to
 [ivars](http://en.wikibooks.org/wiki/Ruby_Programming/Syntax/Classes#Instance_Variables), and accessed by
 prepending an `@` sign.
 

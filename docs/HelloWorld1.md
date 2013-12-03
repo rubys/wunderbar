@@ -9,8 +9,7 @@ sudo gem install wunderbar
 ruby -r wunderbar -e "_html {_h1 'Hello World'}" -- --port=8000
 ```
 
-Test this program by traversing to http://localhost:8000/ using your favorite
-web browser.  
+Test this program by traversing to [http://localhost:8000/](http://localhost:8000/) using your favorite web browser.  
 
 Admittedly, you are not generally going to create entire web applications and
 run them using the command line.  Instead you will want to put the code into a

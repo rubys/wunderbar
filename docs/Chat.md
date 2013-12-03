@@ -49,7 +49,9 @@ distinguish between the code used to implement the web interface and the back
 end server based on whether the `SERVER_PORT` 
 [environment variable](http://www.cgi101.com/book/ch3/text.html) is set.
 
-```html
+Next onto the HTML:
+
+```ruby
 _html do
   _style_ %{
     textarea {width: 100%; height: 10em}
@@ -71,7 +73,7 @@ with but also end with underscores result in whitespace around the element in
 the resulting HTML.  Element names that end in a dot followed by a name
 followed by an exclamation point cause an `id` attribute to be added to the
 element.  This syntax was inspired by
-[http://markaby.rubyforge.org/files/README.html](markaby).  Not used by this
+[markaby](http://markaby.rubyforge.org/files/README.html).  Not used by this
 demo, but class attributes can also be defined in the same way, simply omit
 the exclamation point.
 
@@ -85,14 +87,16 @@ _script_ do
 
 end
 ```
-But the most interesting part of the HTML in this demo is the script element.
+But the most interesting part of the HTML in this demo is the `script` element.
 The first line creates a WebSocket using the value of `@socket`, an instance
 variable defined outside of the script and referenced inside.
 
-As `$` is not a valid method name in Ruby, Wunderbar maps `~` to jQuery.
+As `$` is not a valid method name in Ruby, Wunderbar maps `~` to `jQuery`.
 The next line makes two calls to jQuery via `~'textarea'` and `~this`, with
 the result being that whenever any input is made inside the text area, a call
 to the `ws.send` function is made with the value of that text area.
+
+Finally, two event handlers are defined.
 
 ```ruby
 ws.onmessage = proc do |evt|
@@ -114,11 +118,10 @@ ws.onclose = proc do
 end
 ```
 
-Finally, two event handlers are defined.  The first handles messages from the
-server, and updating one of three elements based on the content of the
-message.  The second one handles notification of the server closing down, and
-changes the textarea field to readonly and updates the status line.  JQuery is
-used throughout.
+The first event handler handles messages from the server, and updates one of
+three elements based on the content of the message.  The second event handler
+handles notification of the server closing down, and changes the textarea
+field to readonly and updates the status line.  JQuery is used throughout.
 
 The most notable feature of the script is that it is written entirely in Ruby.
 A description of the jQuery specific transformations can be found in the
@@ -164,12 +167,13 @@ Next, in a separate window, launch the web server:
 
     ruby chat.rb --port=8000
 
-Finally, in a web browser navigate to http://localhost:8000/.  Type a few
-characters in the textarea and then take a look at the window running the back
-end process -- you should see your input echoed there.  After you do this,
-launch a second and third browser window and navigate to the same page.  In
-any window, change the value of the textarea and see it instantly update in
-every browser window and echoed on the window containing the back end server.
+Finally, in a web browser navigate to
+[http://localhost:8000/](http://localhost:8000/).  Type a few characters in
+the textarea and then take a look at the window running the back end process
+-- you should see your input echoed there.  After you do this, launch a second
+and third browser window and navigate to the same page.  In any window, change
+the value of the textarea and see it instantly update in every browser window
+and echoed on the window containing the back end server.
 
 Experiment with closing windows and opening new ones, and even shutting down
 the back end server.
