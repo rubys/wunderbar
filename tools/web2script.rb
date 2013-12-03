@@ -155,8 +155,8 @@ def code(element, indent='', flat=false)
       key = key.gsub('-', '_')
       if key == 'id' and value =~ /^\w+$/
         element_name += ".#{value}!"
-      elsif key == 'class' and value =~ /^[a-zA-Z][-A-Za-z0-9]*$/
-        element_name += ".#{value.gsub('-','_')}"
+      elsif key == 'class' and value =~ /^[a-zA-Z][-A-Za-z0-9]*( [a-zA-Z][-A-Za-z0-9]*)*$/
+        element_name += ".#{value.gsub('-','_').gsub(' ', '.')}"
       elsif key == 'xmlns' and %w(html svg mathml).include? element.name
         # drop xmlns attributes from these elements
       elsif key == 'type' and element.name == 'style' and value == 'text/css'
