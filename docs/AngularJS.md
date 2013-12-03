@@ -56,9 +56,32 @@ files](https://github.com/angular/angular-phonecat/tree/step-11/app/js).
 defines a module that uses the other three and defines a route using the
 [$routeProvider](http://docs.angularjs.org/api/ngRoute.$routeProvider) API.
 
+```ruby
+module Angular::PhonecatApp
+  use :PhonecatControllers, :PhonecatFilters, :PhonecatServices
+
+  case $routeProvider
+  when '/phones'
+    templateUrl = 'partials/phone-list.html'
+    controller = 'PhoneListCtrl'
+  when '/phones/:phoneId'
+    templateUrl = 'partials/phone-detail.html'
+    controller = 'PhoneDetailCtrl'
+  else
+    redirectTo '/phones'
+  end
+end
+```
+
 [services._js](https://github.com/rubys/wunderbar/blob/master/demo/js/services._js)
 defines a `Phone` service using the [$resource](http://docs.angularjs.org/api/ngResource.$resource) API.
 
+```ruby
+module Angular::PhonecatServices
+  Phone = $resource.new 'phones/:phoneId.json', {},
+    query: {method: 'GET', params: {phoneId: 'phones'}, isArray: true}
+end
+```
 [controllers._js](https://github.com/rubys/wunderbar/blob/master/demo/js/controllers._js)
 defines two controllers.  The first sets `$scope.phones` based on a query
 using the Phone service, and sets `$scope.orderProp` to a constant.
@@ -68,8 +91,35 @@ sets `$scope.mainImageUrl` once the get completes), and defines a
 `$scope.setImage` function which is also referenced by the phone detail
 partial.
 
-[filters._js](https://github.com/rubys/wunderbar/blob/master/demo/js/filters._js)
+```ruby
+module Angular::PhonecatControllers
+  controller :PhoneListCtrl do
+    $scope.phones = Phone.query()
+    $scope.orderProp = 'age'
+  end
+
+  controller :PhoneDetailCtrl do
+    $scope.phone = Phone.get(phoneId: $routeParams.phoneId) do |phone|
+      $scope.mainImageUrl = phone.images[0]
+    end
+
+    def $scope.setImage(imageUrl)
+      $scope.mainImageUrl = imageUrl
+    end
+  end
+end
+```
+
+Finally, [filters._js](https://github.com/rubys/wunderbar/blob/master/demo/js/filters._js)
 defines a `checkmark` filter that is used within the phone detail partial.
+
+```ruby
+module Angular::PhonecatFilters
+  filter :checkmark do |input|
+    return input ? "\u2713" : "\u2718"
+  end
+end
+```
 
 Running the demo
 ---
@@ -78,13 +128,9 @@ Start Sinatra:
 
     ruby demo/angularjs.rb 
 
-Navigate to the http://localhost:4567/ web page.  If you click on an image,
-you will see the details for that phone.
+Navigate to the [http://localhost:4567/](http://localhost:4567/) web page.  If
+you click on an image, you will see the details for that phone.
 
 Once you are done exploring the application, view source on the web page and
 fetch the generated JavaScripts and compare them both to the `_js` partials as
-well as the original Angular.js tutorial partials.
-
-    
-
-
+well as the [original Angular.js tutorial](https://github.com/angular/angular-phonecat/tree/step-11/app) partials.
