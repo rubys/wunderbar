@@ -1,10 +1,13 @@
 require 'wunderbar/websocket'
+require 'wunderbar/jquery'
+
+# optionally download and include Stupid jQuery Table Sort:
+# http://joequery.github.io/Stupid-Table-Plugin/
 
 _html do
   _head_ do
     _title "Disk Usage"
-    _script src: '/jquery.min.js'
-    _script src: '/jquery.tablesorter.min.js'
+    _script src: '/stupidtable.min.js'
     _style %{
       p {margin: 0; height: 1.2em}
       table {border-spacing: 1em 0}
@@ -15,6 +18,8 @@ _html do
       #msg {display: none; height: 9em; overflow: auto; border: 1px solid}
       .stdin {color: purple}
       .stderr {color: red}
+      .sorting-desc:after {content: "\u2193"}
+      .sorting-asc:after {content: "\u2191"}
     }
   end
 
@@ -32,14 +37,16 @@ _html do
     end
 
     _h1 dir
+
+    _div.message
     
     # initial table (names and dates without sizes)
     _table_ do
       _thead do
         _tr do
-          _th 'Name'
-          _th 'Size'
-          _th 'Date'
+          _th 'Name', data_sort: 'string'
+          _th 'Size', data_sort: 'int'
+          _th 'Date', data_sort: 'date'
         end
       end
       _tbody do
@@ -50,7 +57,11 @@ _html do
               href = "#{prefix}#{name}/" if File.directory? name.untaint
               _td {_a name, href: href}
               _td
-              _td File.stat(File.join(dir, name.untaint)).mtime
+              begin
+                _td File.stat(File.join(dir, name.untaint)).mtime
+              rescue Errno::ENOENT
+                _td '*** missing ***'
+              end
             end
           end
         end
@@ -59,38 +70,38 @@ _html do
 
     # extract sizes in a background process
     port = _.websocket {Dir.chdir(dir) {system 'du -sb *'}}
+    @websocket = "ws://#{env['HTTP_HOST']}:#{port}/"
 
-    _script %{
-      ws = new WebSocket("ws://#{env['HTTP_HOST']}:#{port}/");
-      ws.onclose = function() {$("#status").hide()};
-      ws.onopen  = function() {$("#status").text("collecting data...")};
+    _script do
+      ws = WebSocket.new(@websocket)
+      ws.onclose = proc {~"#status".hide}
+      ws.onopen  = proc {~"#status".text = "collecting data..."}
 
-      ws.onmessage = function(evt) {
-        var data = JSON.parse(evt.data);
-        var match = data.line.match(/^(\\d+)\\s+(.*)/);
+      ws.onmessage = proc do |evt|
+        data = JSON.parse(evt.data)
+        match = data.line.match(/^(\d+)\s+(.*)/)
 
-        // update table using output from 'du' command
-        if (data.type == 'stdout' && match) {
-          $('tbody tr').each(function() {
-            if (match && $("td:first a", this).text() == match[2]) {
-              $("td", this).eq(1).text(match[1]);
-              match = null;
-            }
-          })
-        }
+        # update table using output from 'du' command
+        if data.type == 'stdout' and match
+          ~'tbody tr'.each do
+            if match and ~["td:first a", self].text == match[2]
+              ~["td", self].eq(1).text = match[1]
+              match = nil
+            end
+          end
+        end
 
-        // display all other messages received
-        if (data.type != 'stdout' || match) {
-          var msg = $("#msg");
-          msg.append($("<p></p>").text(data.line).addClass(data.type)); 
-          msg.prop('scrollTop', msg.prop("scrollHeight") - msg.height());
-          if (data.type != 'stdin') msg.show();
-        }
-      }
+        # display all other messages received
+        if data.type != 'stdout' or match
+          ~"#msg".append(~"<p>".text(data.line).addClass(data.type))
+          ~"#msg".scrollTop = ~"#msg".prop("scrollHeight") - ~"#msg".height
+          ~"#msg".show if data.type != 'stdin'
+        end
+      end
 
-      // make table sortable
-      $('table').tablesorter();
-    }
+      # make table sortable
+      ~'table'.stupidtable if (~'table').stupidtable
+    end
   end
 end
 
