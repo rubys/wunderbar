@@ -2,6 +2,7 @@ require 'wunderbar'
 
 begin
   require 'ruby2js/filter/jquery'
+  require 'wunderbar/script'
 rescue LoadError
 end
 
