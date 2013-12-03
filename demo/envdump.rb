@@ -13,7 +13,7 @@ _html do
     }
   end
 
-  _body? do
+  _body do
     _h1 'Environment Variables'
     _table do
       _thead_ do
