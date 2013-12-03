@@ -1,5 +1,5 @@
 #!/usr/bin/ruby
-require 'rubygems'
+require 'wunderbar'
 require 'open3'
 require 'socket'
 
