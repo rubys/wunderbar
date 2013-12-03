@@ -26,10 +26,12 @@ is a minimal.  Of note, underscored embedded in attribute names are converted to
 dashes, and Ruby symbols may be used to define HTML boolean attributes.  Each
 of the following are equivalent:
 
-    _div :ng_view
-    _div ng_view: true
-    _div ng_view: "ng-view"
-    _div "ng-view" => "ng-view"
+```ruby
+_div :ng_view
+_div ng_view: true
+_div ng_view: "ng-view"
+_div "ng-view" => "ng-view"
+```
 
 [phone-list._html](https://github.com/rubys/wunderbar/blob/master/demo/partials/phone-list._html)
 is a partial.  Class names also get embedded underscores to dashes.  An
@@ -134,3 +136,17 @@ you click on an image, you will see the details for that phone.
 Once you are done exploring the application, view source on the web page and
 fetch the generated JavaScripts and compare them both to the `_js` partials as
 well as the [original Angular.js tutorial](https://github.com/angular/angular-phonecat/tree/step-11/app) partials.
+
+```javascript
+angular.module("PhonecatServices", ["ngResource"]).factory("Phone", [
+  "$resource",
+
+  function($resource) {
+    return $resource(
+      "phones/:phoneId.json",
+      {},
+      {query: {method: "GET", params: {phoneId: "phones"}, isArray: true}}
+    )
+  }
+])
+```

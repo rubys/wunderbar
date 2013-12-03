@@ -19,10 +19,10 @@ JavaScript, so lets install both at the same time:
 
     sudo gem install em-websocket ruby2js
 
-With that in place, lets look at the [chat
-demo](https://github.com/rubys/wunderbar/blob/master/demo/chat.rb).
+With that in place, lets look at the
+[chat demo](https://github.com/rubys/wunderbar/blob/master/demo/chat.rb).
 
-```
+```ruby
 require 'wunderbar/jquery'
 require 'wunderbar/websocket'
 
@@ -77,6 +77,9 @@ element.  This syntax was inspired by
 demo, but class attributes can also be defined in the same way, simply omit
 the exclamation point.
 
+The most interesting part of the HTML in this demo is the `script` element.
+The first line creates a WebSocket using the value of `@socket`, an instance
+variable defined outside of the script and referenced inside.
 
 ```ruby
 @socket = "ws://#{env['HTTP_HOST']}:#{PORT}/"
@@ -87,9 +90,6 @@ _script_ do
 
 end
 ```
-But the most interesting part of the HTML in this demo is the `script` element.
-The first line creates a WebSocket using the value of `@socket`, an instance
-variable defined outside of the script and referenced inside.
 
 As `$` is not a valid method name in Ruby, Wunderbar maps `~` to `jQuery`.
 The next line makes two calls to jQuery via `~'textarea'` and `~this`, with
@@ -181,5 +181,24 @@ the back end server.
 Before moving on, view source on the web pages in your browser.  What you will
 see is well formed and consistently indented content.  Your script has been
 converted from idiomatic Ruby into clean, idiomatic JavaScript.
+
+```javascript
+ws.onmessage = function(evt) {
+  var data = JSON.parse(evt.data);
+
+  switch (data.type) {
+  case "status":
+    $("#status").text(data.line);
+    break;
+
+  case "stderr":
+    $("#error").append($("<pre>")).text(data.line);
+    break;
+
+  default:
+    $("textarea").val(data.line)
+  }
+}
+```
 
 Next up, an [Angular.js demo](AngularJS.md).
