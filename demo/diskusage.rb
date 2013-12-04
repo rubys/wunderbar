@@ -26,6 +26,7 @@ _html do
     _fieldset.msg! {_legend 'error log'}
 
     # directory is DOCUMENT_ROOT + PATH_INFO
+    $ROOT ||= ARGV.map {|arg| arg[/^--root=(.*)/i, 1]}.compact.first.untaint
     dir = ($ROOT || env['DOCUMENT_ROOT'] || Dir.pwd).dup.untaint
     prefix = "#{env['REQUEST_URI']}/" if not env['PATH_INFO'].to_s.end_with? '/'
     if env['PATH_INFO'].to_s =~ %r{(/\w[-.\w]*)+/?}
