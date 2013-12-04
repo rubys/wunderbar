@@ -1,8 +1,8 @@
 # based on http://docs.angularjs.org/tutorial
 
 require 'wunderbar/sinatra'
-require 'wunderbar/angular-route'
-require 'wunderbar/angular-resource'
+require 'wunderbar/angular/route'
+require 'wunderbar/angular/resource'
 
 get '/' do
   _html :index

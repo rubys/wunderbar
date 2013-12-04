@@ -1,6 +1,6 @@
 require 'wunderbar'
 
-source = Dir[File.expand_path('../polymer-*.min.js', __FILE__)].
+source = Dir[File.expand_path('../vendor/polymer-*.min.js', __FILE__)].
   sort_by {|name| name[/-v?([.\d]*)\.min.js$/,1].split('.').map(&:to_i)}.last
 
 Wunderbar::Asset.script :name => 'polymer-min.js', :file => source
