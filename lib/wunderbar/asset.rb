@@ -21,10 +21,21 @@ module Wunderbar
       @@stylesheets = []
     end
 
+    def self.content_type_for(path)
+      if @@scripts.any? {|script| script.path == path}
+        'application/javascript'
+      elsif @@stylesheets.any? {|script| script.path == path}
+        'text/css'
+      else
+        'application/octet-stream'
+      end
+    end
+
     clear
 
-    @path = '../' * ENV['PATH_INFO'].to_s.count('/')
+    @path = '../' * ENV['PATH_INFO'].to_s.count('/') + 'assets'
     @root = File.dirname(ENV['SCRIPT_FILENAME']) if ENV['SCRIPT_FILENAME']
+    @root = File.expand_path((@root || Dir.pwd) + "/assets")
 
     # Options: typically :name plus either :file or :contents
     #   :name => name to be used for the asset
@@ -37,8 +48,8 @@ module Wunderbar
       options[:name] ||= File.basename(options[:file]) if source
 
       if options[:name]
-        @path = "assets/#{options[:name]}"
-        dest = File.expand_path(@path, Asset.root || Dir.pwd)
+        @path = options[:name]
+        dest = File.expand_path(@path, Asset.root)
 
         if not File.exist?(dest) or File.mtime(dest) < File.mtime(source)
           begin
@@ -69,7 +80,7 @@ module Wunderbar
       Proc.new do 
         @@scripts.each do |script|
           if script.path
-            _script :src => Asset.path+script.path
+            _script src: "#{Asset.path}/#{script.path}"
           elsif script.contents
             _script script.contents
           end
@@ -77,8 +88,8 @@ module Wunderbar
 
         @@stylesheets.each do |stylesheet|
           if stylesheet.path
-            _link :rel => "stylesheet", :href => Asset.path+stylesheet.path,
-              :type => "text/css"
+            _link rel: "stylesheet", href: "#{Asset.path}/#{stylesheet.path}",
+              type: "text/css"
           elsif stylesheet.contents
             _style stylesheet.contents
           end

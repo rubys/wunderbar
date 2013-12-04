@@ -181,6 +181,11 @@ Tilt.register '_xhtml', Wunderbar::Template::Xhtml
 
 helpers Wunderbar::SinatraHelpers
 
-get '/assets/:name' do
-  File.read("assets/#{params[:name]}")
+get "/#{Wunderbar::Asset.path}/:name" do
+  begin
+    content_type Wunderbar::Asset.content_type_for(params[:name])
+    File.read("#{Wunderbar::Asset.root}/#{params[:name]}")
+  rescue Errno::ENOENT
+    raise Sinatra::NotFound
+  end
 end
