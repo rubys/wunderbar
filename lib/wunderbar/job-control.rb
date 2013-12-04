@@ -1,3 +1,5 @@
+require 'wunderbar'
+
 # run command/block as a background daemon
 module Wunderbar
   def self.submit(cmd=nil)

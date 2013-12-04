@@ -1,5 +1,5 @@
 #!/usr/bin/ruby
-require 'wunderbar'
+require 'wunderbar/job-control'
 require 'open3'
 require 'socket'
 
