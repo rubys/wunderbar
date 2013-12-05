@@ -196,8 +196,8 @@ class HtmlMarkupTest < Test::Unit::TestCase
   end
 
   def test_import_tainted
-    @x.html {_div {_ {"<br>".taint}}}
-    assert_match %r[&lt;br&gt;], target
+    @x.html {_div {_ {"<unknown><br></unknown>".taint}}}
+    assert_match %r[<br/>], target
   end
 
   begin

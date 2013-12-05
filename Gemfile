@@ -13,4 +13,5 @@ group :test do
   gem 'coffee-script'
   gem 'kramdown'
   gem 'coderay'
+  gem 'sanitize'
 end
