@@ -49,7 +49,7 @@ module Wunderbar
       args << {} if args.empty?
       if Hash === args.first
         args.first[:xmlns] ||= 'http://www.w3.org/1999/xhtml'
-        @_width = args.first.delete(:_width).to_i if args.first[:_width]
+        @x.width = args.first.delete(:_width).to_i if args.first[:_width]
       end
 
       if ''.respond_to? :encoding
@@ -150,7 +150,7 @@ module Wunderbar
       end
 
       if flag == '!'
-        @x.compact!(@_width) { tag! name, *args, &block }
+        @x.compact! { tag! name, *args, &block }
       elsif flag == '?'
         # capture exceptions, produce filtered tracebacks
         tag!(name, *args) do
@@ -266,7 +266,7 @@ module Wunderbar
     
     def _pre(*args, &block)
       args.first.chomp! if String === args.first and args.first.end_with? "\n"
-      @x.compact!(nil) { tag! :pre, *args, &block }
+      @x.compact! { tag! :pre, *args, &block }
     end
 
     def _ul(*args, &block)

@@ -84,10 +84,10 @@ module Wunderbar
       elsif CompactNode === self
         work = []
         walk(work, nil, options)
-        if @width
+        if options[:width]
           line += ">"
           (work+["</#{name}>"]).each do |node|
-            if line.length + node.length > @width
+            if line.length + node.length > options[:width]
               result << line.rstrip
               line = indent.to_s
             end
@@ -197,14 +197,7 @@ module Wunderbar
     def post; "/*]]>*/"; end
   end
 
-  module CompactNode
-    def width=(value)
-      @width = value
-    end
-    def width
-      @width
-    end
-  end
+  module CompactNode; end
 
   module SpacedNode; end
 

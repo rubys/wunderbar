@@ -37,6 +37,8 @@ module Wunderbar
       @spaced = false
     end
 
+    attr_accessor :width
+
     # forward to Wunderbar or @_scope
     def method_missing(method, *args, &block)
       if Wunderbar.respond_to? method
@@ -81,7 +83,7 @@ module Wunderbar
     end
 
     def target!
-      "#{@doc.serialize(indent: ' ' * @_indent).join("\n")}\n"
+      "#{@doc.serialize(indent: ' ' * @_indent, width: @width).join("\n")}\n"
     end
 
     def clear!
@@ -89,9 +91,8 @@ module Wunderbar
       @node = @doc
     end
 
-    def compact!(width, &block)
+    def compact!(&block)
       begin
-        @width = width
         @indentation_enabled = false
         block.call
       ensure
@@ -130,10 +131,7 @@ module Wunderbar
         node = Node.new sym, *args
       end
 
-      unless @indentation_enabled
-        node.extend CompactNode 
-        node.width = @width
-      end
+      node.extend CompactNode unless @indentation_enabled
 
       if @spaced
         node.extend SpacedNode
@@ -319,7 +317,7 @@ module Wunderbar
             end
           else
             # disable indentation on the entire element
-            compact!(nil) do
+            compact! do
               tag!(child) {self[*child.children]}
             end
           end
@@ -330,7 +328,7 @@ module Wunderbar
         elsif child.children.any?(&:cdata?) and child.text =~ /[<&]/
           self << child
         elsif child.name == 'pre'
-          compact!(nil) { tag!(child) {self[*child.children]} }
+          compact! { tag!(child) {self[*child.children]} }
         elsif child.name == 'head'
           head = tag!(child) {self[*child.children]}
           html = @doc.children.last
