@@ -76,6 +76,10 @@ Element with boolean attributes:
 
     _input 'Cheese', type: 'checkbox', name: 'cheese', checked: true
 
+Element with boolean attributes (alternate form):
+
+    _input 'Cheese', :checked, type: 'checkbox', name: 'cheese'
+
 Element with optional (omitted) attributes:
 
     _tr class: nil
