@@ -401,7 +401,41 @@ class HtmlMarkupTest < Test::Unit::TestCase
     end
   end
 
-  def test_width
+  def test_width_element_text
+    @x.html :_width => 80 do
+      _p ('a'..'z').map {|l| l*5}.join(' ')
+    end
+    assert_match /lllll\n {4}mmmmm/, target
+  end
+
+  def test_width_indented_text
+    @x.html :_width => 80 do
+      _ ('a'..'z').map {|l| l*5}.join(' ')
+    end
+    assert_match /lllll\n {4}mmmmm/, target
+  end
+
+  def test_width_cdata
+    data = ('a'..'z').map {|l| l*5}.join(' ')
+    @x.html :_width => 80 do
+      _script %{
+        #{data}
+      }
+    end
+    assert_match /#{data}/, target
+  end
+
+  def test_width_pre
+    data = ('a'..'z').map {|l| l*5}.join(' ')
+    @x.html :_width => 80 do
+      _pre %{
+        #{data}
+      }
+    end
+    assert_match /#{data}/, target
+  end
+
+  def test_width_compact
     @x.html :_width => 80 do
       _div! do
         5.times {|i| _a i, :href=>i; _ ', '}

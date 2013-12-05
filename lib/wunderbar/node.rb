@@ -74,7 +74,13 @@ module Wunderbar
           if options[:pre]
             line += ">#{options[:pre]}#{text}#{options[:post]}</#{name}>"
           else
+            width = options[:width] if name != :pre
             line += ">#{text.to_s.gsub(/[&<>]/,ESCAPE)}</#{name}>"
+            if width and line.length > width
+              reflowed = IndentedTextNode.reflow(indent, line, width)
+              line = reflowed.pop
+              result.push *reflowed
+            end
           end
         elsif VOID.include? name.to_s
           line += "/>"
@@ -84,12 +90,19 @@ module Wunderbar
       elsif CompactNode === self
         work = []
         walk(work, nil, options)
-        if options[:width]
+        width = options[:width]
+        if width
           line += ">"
           (work+["</#{name}>"]).each do |node|
-            if line.length + node.length > options[:width]
+            if line.length + node.length > width
               result << line.rstrip
               line = indent.to_s
+              if line.length + node.length > width and !node.include? '<'
+                reflowed = IndentedTextNode.reflow(indent.to_s, 
+                  "#{indent}#{node}", width)
+                node = reflowed.pop.sub(/^#{indent}/, '')
+                result.push *reflowed
+              end
             end
             line += node
           end
@@ -176,6 +189,20 @@ module Wunderbar
   end
 
   class IndentedTextNode < TextNode
+    def self.reflow(indent, line, width)
+      return [line] if line.include? "\n" or not width
+
+      result = []
+      while line.length > width
+        split = line.rindex(' ', width)
+        break if not split or split <= indent.to_s.length
+        result << line[0...split]
+        line = "#{indent}#{line[split+1..-1]}"
+      end
+
+      result << line
+    end
+
     def serialize(options, result, indent)
       if indent
         text = CDATANode.normalize(@text, indent)
@@ -183,7 +210,8 @@ module Wunderbar
         text = @text
       end
 
-      result << text.to_s.gsub(/[&<>]/,ESCAPE)
+      result.push *IndentedTextNode.reflow(indent, 
+        text.to_s.gsub(/[&<>]/,ESCAPE), options[:width])
     end
   end
 
