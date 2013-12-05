@@ -131,10 +131,9 @@ module Wunderbar
       path_info = env['PATH_INFO'].to_s
 
       # implied request types
-      xhr_json = Wunderbar::Options::XHR_JSON || (accept =~ /json/) ||
-        env['HTTP_X_REQUESTED_WITH'].to_s == 'XMLHttpRequest'
-      text = Wunderbar::Options::TEXT || 
-        (accept =~ /plain/ and accept !~ /html/)
+      text = Wunderbar::Options::TEXT || (accept =~ /plain/ && accept !~ /html/)
+      xhr_json = Wunderbar::Options::XHR_JSON || (accept =~ /json/)
+      xhr_json ||= !text && env['HTTP_X_REQUESTED_WITH'].to_s=='XMLHttpRequest'
       @xhtml = (accept =~ /xhtml/ or accept == '')
       @pdf   = (accept =~ /pdf/)
 
@@ -151,7 +150,7 @@ module Wunderbar
       @pdf           ||= ARGV.include?('--pdf')
 
       # overrides via the uri query parameter
-      xhr_json       ||= (path_info.end_with? '.json')
+      # xhr_json       ||= (path_info.end_with? '.json')
       text           ||= (path_info.end_with? '.text')
       @pdf           ||= (path_info.end_with? '.pdf')
       xhtml_override ||= (path_info.end_with? '.xhtml')

@@ -1,6 +1,7 @@
 require 'wunderbar'
 require 'kramdown'
 require 'nokogiri'
+require 'sanitize'
 
 module Wunderbar
   class HtmlMarkup

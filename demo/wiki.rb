@@ -1,8 +1,9 @@
 require 'wunderbar/script'
 require 'wunderbar/jquery'
-require 'redcarpet'
+require 'wunderbar/markdown'
+require 'wunderbar/pagedown'
+require 'ruby2js/filter/functions'
 require 'digest/md5'
-require 'nokogiri'
 
 Dir.chdir WIKIDATA
 
@@ -12,8 +13,6 @@ flag ||= '?' if env['REQUEST_URI'].to_s.include? '?'
 file ||= 'index'
 file.untaint
 rev.untaint
-
-markdown = Redcarpet::Markdown.new(Redcarpet::Render::XHTML)
 
 _html _width: $WIDTH do
   _head_ do
@@ -39,7 +38,6 @@ _html _width: $WIDTH do
       form {clear: both}
       .buttons form {display: inline}
     }
-    _script src: '/showdown.js'
   end
 
   _body? do
@@ -94,7 +92,7 @@ _html _width: $WIDTH do
           index.sort.each do |name, status|
             _tr do
               _td status
-              _td {_a name, href: name}
+              _td! {_a name, href: name}
             end
           end
         end
@@ -114,7 +112,7 @@ _html _width: $WIDTH do
         _input type: 'hidden', name: 'hash', 
           value: Digest::MD5.hexdigest(@markup)
         _div.output do
-          _{markdown.render(@markup)}
+          _markdown @markup.untaint
         end
 
         _div.buttons do
@@ -139,7 +137,7 @@ _html _width: $WIDTH do
 
       #display
       _div_.content do
-        _{markdown.render(@markup)}
+        _markdown @markup
       end
 
       _div_.buttons do
@@ -155,11 +153,12 @@ _html _width: $WIDTH do
       end
     end
 
-    @uri = env['REQUEST_URI'].to_json
+    @uri = env['REQUEST_URI']
+
     _script do
       # autosave every 5 seconds
       dirty = false
-      setInterval proc {
+      setInterval 5000 do
         return unless dirty
         dirty = false
 
@@ -168,7 +167,7 @@ _html _width: $WIDTH do
           hash:   ~'input[name=hash]'.val
         }
 
-        $$.post(`@uri`, params, proc { |response|
+        $$.post(@uri, params) do |response|
           ~'input[name=hash]'.val = response.hash
           if response.time
             time = Date.new(response.time).toLocaleTimeString()
@@ -179,19 +178,19 @@ _html _width: $WIDTH do
           end
 
           ~'#save'.disabled = false if ~'#comment'.val != ''
-        }, 'json')
-      }, 5000
+        end
+      end
 
       # regenerate output every second
       updated = false
-      setInterval proc {
+      setInterval 1000 do
         return unless updated
         updated = false
         ~'.output'.html = converter.makeHtml(~'.input'.val)
-      }, 1000
+      end
 
       # update output pane and mark dirty whenever input changes
-      converter = Showdown.new.converter()
+      converter = Markdown::Converter.new()
       ~'.input'.on(:input) do
         updated = dirty = true
         ~'#save'.disabled = true
@@ -201,7 +200,7 @@ _html _width: $WIDTH do
       watch = ~'<input type="submit" value="watch"/>'
       watch.click do
         watcher = proc do
-          $$.ajax(url: `@uri`, ifModified: true,
+          $$.ajax(url: @uri, ifModified: true,
             dataType: 'text', accepts: {text: 'text/plain'},
             success: proc do |markup|
               ~'.content'.html = converter.makeHtml(markup)
@@ -224,7 +223,7 @@ _html _width: $WIDTH do
       end
 
       # resize based on window size
-      reserve = ~'header'.height * 3 + ~'.buttons'.height
+      reserve = ~'header'.height * 2.5 + ~'.buttons'.height
       ~window.resize {
         ~'.input,.output'.height(~window.height - reserve)
       }.trigger(:resize)

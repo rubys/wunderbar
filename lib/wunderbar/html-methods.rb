@@ -321,9 +321,13 @@ module Wunderbar
         safe = !children.tainted?
         safe ||= children.html_safe? if children.respond_to? :html_safe?
         safe &&= defined? Nokogiri
+        ok = safe || defined? Sanitize
+        safe = true
 
-        if safe and (children.include? '<' or children.include? '&')
-          children = Nokogiri::HTML::fragment(children.to_s).children.to_a
+        if ok and (children.include? '<' or children.include? '&')
+          doc = Nokogiri::HTML::fragment(children.to_s)
+          Sanitize.new.clean_node! doc.dup.untaint if not safe
+          children = doc.children.to_a
 
           # ignore leading whitespace
           while not children.empty? and children.first.text?
