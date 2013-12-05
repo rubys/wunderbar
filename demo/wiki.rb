@@ -4,6 +4,7 @@ require 'wunderbar/markdown'
 require 'wunderbar/pagedown'
 require 'ruby2js/filter/functions'
 require 'digest/md5'
+require 'escape'
 
 Dir.chdir WIKIDATA
 
@@ -112,7 +113,7 @@ _html _width: $WIDTH do
         _input type: 'hidden', name: 'hash', 
           value: Digest::MD5.hexdigest(@markup)
         _div.output do
-          _markdown @markup.untaint
+          _markdown @markup
         end
 
         _div.buttons do
@@ -173,7 +174,7 @@ _html _width: $WIDTH do
             time = Date.new(response.time).toLocaleTimeString()
             ~'#message'.text("Autosaved at #{time}").show.fadeOut(5000)
           else
-            ~'.input'.val(_.markup).readonly = true
+            ~'.input'.val(response.markup).readonly = true
             ~'#message'.css(fontWeight: 'bold').text(response.error).show
           end
 

@@ -115,4 +115,4 @@ values during the installation of the wrapper itself, for example:
 ruby demo/diskusage.rb --install=/var/www --root=/home/rubys
 ```
 
-Next up, an [Angular.js demo](AngularJS.md).
+Next up, an [Ajax demo](Wiki.md).
