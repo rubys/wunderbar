@@ -11,6 +11,9 @@ begin
   require 'wunderbar/rails'
   require 'wunderbar'
 
+  # Workaround for http://stackoverflow.com/questions/20361428/rails-i18n-validation-deprecation-warning
+  I18n.enforce_available_locales = true
+  
   class RailsTestController < ActionController::Base
     append_view_path File.expand_path(File.join File.dirname(__FILE__), 'views')
 
