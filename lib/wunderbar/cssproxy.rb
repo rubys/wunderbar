@@ -9,6 +9,10 @@ module Wunderbar
       @node = node
     end
 
+    def node?
+      @node
+    end
+
   private
 
     # Adds attributes to an element.  Bang methods set the :id attribute.

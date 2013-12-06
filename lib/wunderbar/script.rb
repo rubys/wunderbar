@@ -6,16 +6,29 @@ require 'ruby2js'
 # by execute strings (`` or %x()).
 
 module Wunderbar
+  class ScriptNode
+    attr_accessor :block, :binding
+    def serialize(options, result, indent)
+      if @block
+        width = options[:width]
+        width -= indent.to_s.length if width
+        @text = Ruby2JS.convert(@block, binding: @binding, width: width)
+      end
+      super
+    end
+  end
+
   class HtmlMarkup
     def _script(*args, &block)
       if block
+        node = super(*args, &nil).node?
+        node.block = block
         if binding.respond_to? :of_caller
           # provided by require 'binding_of_caller'
-          args.unshift Ruby2JS.convert(block, binding: binding.of_caller(1))
+          node.binding = binding.of_caller(1)
         else
-          args.unshift Ruby2JS.convert(block, binding: binding)
+          node.binding = binding
         end
-        super *args, &nil
       else
         super
       end
