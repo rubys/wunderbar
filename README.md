@@ -16,6 +16,8 @@ the element id and class id syntax and based on the implementation from
 Wunderbar's JSON support is inspired by David Heinemeier Hansson's
 [jbuilder](https://github.com/rails/jbuilder).
 
+A [tutorial](https://github.com/rubys/wunderbar/blob/master/docs/Introduction1.md) is under development.
+
 Overview
 ---
 

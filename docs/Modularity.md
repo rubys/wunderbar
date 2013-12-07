@@ -46,7 +46,8 @@ Then run the program using `ruby hellosinatra.rb`
 
 This file could be split into multiple files where the base file requires the
 other ones.  More commonly, one can place the `_html` parts into a `view`
-directory and pulled in when needed.
+directory and pulled in when needed.  Simply name the files with `._html`,
+`._json` or `._text` extensions as appropriate.
 
 Polymer
 ---

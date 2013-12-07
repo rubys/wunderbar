@@ -182,6 +182,16 @@ request, the `params` are computed on the client, sent back to the server,
 which returns back `response.time`, which is placed back on the page with
 the help of jQuery.
 
+In addition to json, Wunderbar support plain text.  The wiki demo uses this to
+return the original markdown source.
+
+```
+# allow the raw markdown to be fetched
+_text do
+  _ File.read(file) if File.exist?(file)
+end
+```
+
 The script itself concludes with:
 
 ```ruby
@@ -223,4 +233,4 @@ Producing meticulous and lovingly crafted output is a design goal for
 Wunderbar.
 
 Next up, a discussion of various techniques to introduce
-[modularity](Modularity) into your Wunderbar application.
+[modularity](Modularity.md) into your Wunderbar application.
