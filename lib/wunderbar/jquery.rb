@@ -1,9 +1,11 @@
 require 'wunderbar'
 
-begin
-  require 'ruby2js/filter/jquery'
-  require 'wunderbar/script'
-rescue LoadError
+unless defined? Opal
+  begin
+    require 'ruby2js/filter/jquery'
+    require 'wunderbar/script'
+  rescue LoadError
+  end
 end
 
 source = Dir[File.expand_path('../vendor/jquery-*.min.js', __FILE__)].
