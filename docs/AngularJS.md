@@ -4,12 +4,6 @@ AngularJS
 This demo is an implementation of the 
 [AngularJS Tutorial](http://docs.angularjs.org/tutorial) through step 11.  
 
-Up to now, each demo has been a self contained file.  This one will branch out
-into separate files, and in the process make use of Sinatra.  Start by
-installing it:
-
-    sudo gem install sinatra
-
 It is customary to place all views in a `views` directory in Sinatra; it is
 customary to split views out by type in AngularJS.  Doing this requires one
 to override the `find_template` helper.  This demo does that, and the

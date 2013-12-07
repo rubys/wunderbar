@@ -222,4 +222,5 @@ displayed.
 Producing meticulous and lovingly crafted output is a design goal for
 Wunderbar.
 
-Next up, an [Angular.js demo](AngularJS.md).
+Next up, a discussion of various techniques to introduce
+[modularity](Modularity) into your Wunderbar application.
