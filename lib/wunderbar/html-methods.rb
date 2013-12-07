@@ -41,7 +41,7 @@ module Wunderbar
 
     def initialize(scope)
       @_scope = scope
-      @x = XmlMarkup.new :scope => scope, :indent => 2
+      @_x = XmlMarkup.new :scope => scope, :indent => 2
     end
 
     def html(*args, &block)
@@ -49,7 +49,7 @@ module Wunderbar
       args << {} if args.empty?
       if Hash === args.first
         args.first[:xmlns] ||= 'http://www.w3.org/1999/xhtml'
-        @x.width = args.first.delete(:_width).to_i if args.first[:_width]
+        @_x.width = args.first.delete(:_width).to_i if args.first[:_width]
       end
 
       if ''.respond_to? :encoding
@@ -58,7 +58,7 @@ module Wunderbar
         bom = "\xEF\xBB\xBF"
       end
 
-      @x.declare! :DOCTYPE, :html
+      @_x.declare! :DOCTYPE, :html
       html = tag! :html, *args do 
         set_variables_from_params
         instance_eval(&block)
@@ -89,7 +89,7 @@ module Wunderbar
         end
       end
 
-      @x.instance_eval {@node = html}
+      @_x.instance_eval {@node = html}
       head = _head_ if not head
       body = _body nil if not body
       html.children.unshift(head.parent.children.delete(head))
@@ -115,7 +115,7 @@ module Wunderbar
         head.children.insert 1, head.children.delete_at(title)
       end
 
-      bom + @x.target!
+      bom + @_x.target!
     end
 
     def _html(*args, &block)
@@ -134,7 +134,7 @@ module Wunderbar
       end
 
       if name.sub!(/_$/,'')
-        @x.spaced!
+        @_x.spaced!
         return __send__ "_#{name}", *args, &block if respond_to? "_#{name}"
       end
 
@@ -150,7 +150,7 @@ module Wunderbar
       end
 
       if flag == '!'
-        @x.compact! { tag! name, *args, &block }
+        @_x.compact! { tag! name, *args, &block }
       elsif flag == '?'
         # capture exceptions, produce filtered tracebacks
         tag!(name, *args) do
@@ -186,7 +186,7 @@ module Wunderbar
     end
 
     def tag!(name, *args, &block)
-      node = @x.tag! name, *args, &block
+      node = @_x.tag! name, *args, &block
       if !block and args.empty?
         CssProxy.new(self, node)
       else
@@ -195,7 +195,7 @@ module Wunderbar
     end
 
     def proxiable_tag!(name, *args, &block)
-      node = @x.tag! name, *args, &block
+      node = @_x.tag! name, *args, &block
       if !block
         CssProxy.new(self, node)
       else
@@ -243,7 +243,7 @@ module Wunderbar
       if args.length >= 1 and String === args.first and args.first.include? "\n"
         text = args.shift
         tag! :p, *args do
-          @x.indented_text! text
+          @_x.indented_text! text
         end
       else
         super
@@ -266,7 +266,7 @@ module Wunderbar
     
     def _pre(*args, &block)
       args.first.chomp! if String === args.first and args.first.end_with? "\n"
-      @x.compact! { tag! :pre, *args, &block }
+      @_x.compact! { tag! :pre, *args, &block }
     end
 
     def _ul(*args, &block)
@@ -300,7 +300,7 @@ module Wunderbar
     end
 
     def _!(text)
-      @x.text! text.to_s.chomp
+      @_x.text! text.to_s.chomp
     end
 
     def _(text=nil, &block)
@@ -309,10 +309,10 @@ module Wunderbar
           if text.respond_to? :html_safe? and text.html_safe?
             _ {text}
           else
-            @x.indented_text! text.to_s
+            @_x.indented_text! text.to_s
           end
         end
-        return @x
+        return @_x
       end
 
       children = block.call
@@ -349,24 +349,24 @@ module Wunderbar
             children.unshift head
           end
         else
-          return @x.indented_text! children
+          return @_x.indented_text! children
         end
       end
 
-      @x[*children]
+      @_x[*children]
     end
 
     def __(text=nil)
       if text
-        @x.spaced!
-        @x.indented_text! text
+        @_x.spaced!
+        @_x.indented_text! text
       else
-        @x.text! ""
+        @_x.text! ""
       end
     end
 
     def clear!
-      @x.clear!
+      @_x.clear!
     end
 
     def self.flatten?(children)
