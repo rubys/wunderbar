@@ -392,13 +392,6 @@ Also, the following environment variables are set if they aren't already:
 Finally, the (Ruby 1.9.x) default external and internal encodings are set to
 UTF-8.  For Ruby 1.8, `$KCODE` is set to `U`
 
-Builder extensions
----
-* `indented_text!`: matches text indentation to markup
-* `indented_data!`: useful for script and styles in HTML syntax
-* `disable_indentation!`: temporarily disable insertion of whitespace
-* `margin!`: insert blank lines between tags
-
 Logging:
 ---
 * `_.debug`: debug messages
