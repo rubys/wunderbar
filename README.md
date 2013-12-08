@@ -18,6 +18,9 @@ Wunderbar's JSON support is inspired by David Heinemeier Hansson's
 
 A [tutorial](https://github.com/rubys/wunderbar/blob/master/docs/Introduction1.md) is under development.
 
+Additional functionality is provided by
+[extensions](https://github.com/rubys/wunderbar/blob/master/docs/Extensions.md).
+
 Overview
 ---
 
