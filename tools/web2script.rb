@@ -235,7 +235,7 @@ def code(element, indent='', flat=false)
 
     q indent + "end" unless skip
 
-  elsif element.name == 'pre' and element.text.include? "\n"
+  elsif %w(pre code).include? element.name and element.text.include? "\n"
     data = element.text.sub(/\A\n/,'').sub(/\s+\Z/,'')
 
     unindent = data.sub(/s+\Z/,'').scan(/^ *\S/).map(&:length).min || 1
@@ -243,7 +243,7 @@ def code(element, indent='', flat=false)
     after   =  "#{indent}  "
     data.gsub! before, after
 
-    flow_attrs "#{indent}_pre <<-EOD.gsub(/^\\s{#{after.length}}/,'')", 
+    flow_attrs "#{indent}_#{element.name} <<-EOD.gsub(/^\\s{#{after.length}}/,'')", 
       attributes, indent
     data.split("\n").each { |line| q line }
     q "#{indent}EOD"
@@ -251,7 +251,8 @@ def code(element, indent='', flat=false)
   # element has text but no attributes or children
   elsif attributes.empty?
     if %w(script style).include? element.name and element.text.include? "\n"
-      script = element.text.sub(/\A\n/,'').sub(/\s+\Z/,'')
+      script = element.text.sub(/\A\s*\n/,'').sub(/\s+\Z/,'')
+      script.gsub!(/^\t+/) {|tabs| ' ' * 8 * tabs.length}
 
       unindent = script.sub(/s+\Z/,'').scan(/^ *\S/).map(&:length).min || 1
       before  = Regexp.new('^'.ljust(unindent))
@@ -287,7 +288,8 @@ def code(element, indent='', flat=false)
         end
       end
     else
-      flow_text "#{line} #{element.text.enquote}", "\" +\n  #{indent}\""
+      text = element.text.strip.gsub(/\s+/, ' ')
+      flow_text "#{line} #{text}", "\" +\n  #{indent}\""
     end
 
   # element has text and attributes but no children
