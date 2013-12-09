@@ -1,6 +1,7 @@
 begin
   gem 'minitest', '~> 4.2'
   require 'minitest/autorun' 
+  Minitest = MiniTest unless defined? Minitest
 rescue LoadError
   require 'test/unit'
   Minitest = Test
