@@ -198,7 +198,7 @@ def web2script(element, indent='', flat=false)
       cindent = "#{indent}  "
     end
 
-    start = $q.length
+    baseline = start = $q.length
     blank = false
     first = true
     breakable = $group && !flat && !element.children.any? do |child| 
@@ -231,6 +231,17 @@ def web2script(element, indent='', flat=false)
       end
       first = (start == $q.length)
       start = $q.length
+    end
+
+    if ITEMS.include? element.name and element.attributes.empty?
+      if $q.length == baseline + 1
+        if not $width or ($q[-2] + $q[-1].strip).length < $width-2
+          line = $q[-2].sub(/do$/, '{ ') + $q[-1].strip + ' }'
+          $q.pop(2)
+          $q.push(line)
+          skip = true
+        end
+      end
     end
 
     q indent + "end" unless skip
