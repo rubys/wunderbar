@@ -384,23 +384,6 @@ class HtmlMarkupTest < Test::Unit::TestCase
       target
   end
 
-  begin
-    require 'coffee-script'
-
-    def test_coffeescript
-      verbose, $VERBOSE = $VERBOSE, nil
-      @x.html {_coffeescript 'alert "foo"'}
-      assert_match %r[<script\slang="text/javascript">\s+\(function\(\)\s
-        \{\s+alert\("foo"\);\s+\}\).call\(this\);\s+</script>]x, target
-    ensure
-      $VERBOSE = verbose
-    end
-  rescue LoadError => exception
-    unless instance_methods.grep(/^skip$/).empty?
-      define_method(:test_coffeescript) {skip exception.inspect}
-    end
-  end
-
   def test_width_element_text
     @x.html :_width => 80 do
       _p ('a'..'z').map {|l| l*5}.join(' ')
