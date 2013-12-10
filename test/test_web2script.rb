@@ -74,4 +74,20 @@ class Web2ScriptTest < Test::Unit::TestCase
       "alert('two')\nEOD",
       convert("<pre>\nalert('one');\nalert('two')\n</pre>")
   end
+
+  def test_text_width
+    width, $width = $width, 80
+    assert_match %r{lllll " \+\n  "mmmmm},
+      convert("<p>#{('a'..'z').map {|l| l*5}.join(' ').inspect}</p>")
+  ensure
+    $width = width
+  end
+
+  def test_attr_width
+    width, $width = $width, 80
+    assert_match %r{data_f: 'f',\n  data_g: 'g'},
+      convert("<p #{('a'..'z').map {|l| "data-#{l}='#{l}'"}.join(' ').inspect}></p>")
+  ensure
+    $width = width
+  end
 end
