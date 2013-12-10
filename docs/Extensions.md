@@ -1,3 +1,22 @@
+Extensions
+===
+
+Wunderbar is extensible in a number of directions.  Extensions may be as
+simple as adding a few `<script>` and/or `<link>` statements to the `<head>`
+section of the resulting page using
+[assets](https://github.com/rubys/wunderbar/blob/master/lib/wunderbar/asset.rb).
+Or declaratively using
+[templates](https://github.com/rubys/wunderbar/blob/master/docs/Modularity.md#templates).
+Or programmatically by extending
+[Wunderbar::HtmlMarkup](http://rubydoc.info/gems/wunderbar/0.19.0/Wunderbar/HtmlMarkup).
+
+While extensions may be defined outside of Wunderbar; Wunderbar includes a
+number of extensions.  Including an extension is generally as simple as
+<code>require 'wunderbar/<em>extension-name</em>'</code>.
+
+Following is a brief description of each of the extensions included with
+Wunderbar.
+
 angularjs
 ---
 

@@ -1,3 +1,14 @@
+#
+# Web frameworks often require a set of JavaScript and/or CSS stylesheet files
+# to be pulled in.  Asset support makes it easy to deploy such files to be
+# deployed statically; and furthermore to automatically insert the relevant
+# <script src> or <link rel="stylesheet"> lines to the <head> section of your
+# HTML.
+#
+# For examples, see angularjs.rb, jquery.rb, opal.rb, pagedown.rb, or
+# polymer.rb.
+#
+
 require 'fileutils'
 
 module Wunderbar
