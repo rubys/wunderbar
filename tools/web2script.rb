@@ -7,7 +7,7 @@ require 'net/http'
 
 $header = true
 
-OptionParser.new { |opts|
+$option_parser = OptionParser.new do |opts|
   opts.banner = "#{File.basename(__FILE__)} [-o output] [-w width] URLs..."
   opts.on '-o', '--output FILE', 'Send Output to FILE' do |file|
     $stdout = File.open(file, 'w')
@@ -37,12 +37,12 @@ OptionParser.new { |opts|
   opts.on '-x', '--xhtml', 'Output as XHTML' do
     $xhtml = true
   end
-}.parse!
+end
 
 # prefer nokogumbo / gumbo-parser, fallback to nokogiri / lixml2
 begin
-  require 'nokogumbo'
   $namespaced = {}
+  require 'nokogumbo'
 rescue LoadError 
   require 'nokogiri'
   module Nokogiri
@@ -114,7 +114,7 @@ ITEMS = %w{
   legend li meter option output progress td th title
 }
 
-def code(element, indent='', flat=false)
+def web2script(element, indent='', flat=false)
   element_name = element.name.gsub('-', '_')
 
   # fixup namespaces
@@ -217,7 +217,7 @@ def code(element, indent='', flat=false)
         flow_text "#{cindent}_.comment! #{child.text.strip.enquote}", 
           "\" +\n    #{indent}\""
       else
-        code(child, cindent, flatten)
+        web2script(child, cindent, flatten)
       end
 
       # insert a blank line if either this or the previous block was large
@@ -235,7 +235,7 @@ def code(element, indent='', flat=false)
 
     q indent + "end" unless skip
 
-  elsif element.name == 'pre' and element.text.include? "\n"
+  elsif %w(pre code).include? element.name and element.text.include? "\n"
     data = element.text.sub(/\A\n/,'').sub(/\s+\Z/,'')
 
     unindent = data.sub(/s+\Z/,'').scan(/^ *\S/).map(&:length).min || 1
@@ -243,7 +243,7 @@ def code(element, indent='', flat=false)
     after   =  "#{indent}  "
     data.gsub! before, after
 
-    flow_attrs "#{indent}_pre <<-EOD.gsub(/^\\s{#{after.length}}/,'')", 
+    flow_attrs "#{indent}_#{element.name} <<-EOD.gsub(/^\\s{#{after.length}}/,'')", 
       attributes, indent
     data.split("\n").each { |line| q line }
     q "#{indent}EOD"
@@ -251,7 +251,8 @@ def code(element, indent='', flat=false)
   # element has text but no attributes or children
   elsif attributes.empty?
     if %w(script style).include? element.name and element.text.include? "\n"
-      script = element.text.sub(/\A\n/,'').sub(/\s+\Z/,'')
+      script = element.text.sub(/\A\s*\n/,'').sub(/\s+\Z/,'')
+      script.gsub!(/^\t+/) {|tabs| ' ' * 8 * tabs.length}
 
       unindent = script.sub(/s+\Z/,'').scan(/^ *\S/).map(&:length).min || 1
       before  = Regexp.new('^'.ljust(unindent))
@@ -287,7 +288,8 @@ def code(element, indent='', flat=false)
         end
       end
     else
-      flow_text "#{line} #{element.text.enquote}", "\" +\n  #{indent}\""
+      text = element.text.strip.gsub(/\s+/, ' ')
+      flow_text "#{line} #{text.enquote}", "\" +\n  #{indent}\""
     end
 
   # element has text and attributes but no children
@@ -297,36 +299,40 @@ def code(element, indent='', flat=false)
   end
 end
 
-# fetch and convert each web page
-ARGV.each do |arg|
-  if arg =~ %r{^https?://}
-    $uri = URI.parse arg
-    code Nokogiri::HTML5.get($uri).root
-  else
-    $uri = "file://#{arg}"
-    code Nokogiri::HTML5(File.read(arg)).root
-  end
-end
+if __FILE__ == $0
+  $option_parser.parse!
 
-if $header
-  # she-bang
-  puts "#!" + File.join(
-    RbConfig::CONFIG["bindir"],
-    RbConfig::CONFIG["ruby_install_name"] + RbConfig::CONFIG["EXEEXT"]
-  )
-
-  # headers
-  if RUBY_VERSION =~ /^1\.8/
-    puts "require 'rubygems'"
-  elsif RUBY_VERSION =~ /^1/
-    puts '# encoding: utf-8' if $q.any? {|line| line.match /[^\x20-\x7f]/}
+  # fetch and convert each web page
+  ARGV.each do |arg|
+    if arg =~ %r{^https?://}
+      $uri = URI.parse arg
+      web2script Nokogiri::HTML5.get($uri).root
+    else
+      $uri = "file://#{arg}"
+      web2script Nokogiri::HTML5(File.read(arg)).root
+    end
   end
 
-  puts "require 'wunderbar'\n\n"
+  if $header
+    # she-bang
+    puts "#!" + File.join(
+      RbConfig::CONFIG["bindir"],
+      RbConfig::CONFIG["ruby_install_name"] + RbConfig::CONFIG["EXEEXT"]
+    )
+
+    # headers
+    if RUBY_VERSION =~ /^1\.8/
+      puts "require 'rubygems'"
+    elsif RUBY_VERSION =~ /^1/
+      puts '# encoding: utf-8' if $q.any? {|line| line.match /[^\x20-\x7f]/}
+    end
+
+    puts "require 'wunderbar'\n\n"
+  end
+
+  # main output
+  puts $q.join("\n")
+
+  # make executable
+  $stdout.chmod($stdout.stat.mode&0755|0111) if $stdout.respond_to? :chmod
 end
-
-# main output
-puts $q.join("\n")
-
-# make executable
-$stdout.chmod($stdout.stat.mode&0755|0111) if $stdout.respond_to? :chmod
