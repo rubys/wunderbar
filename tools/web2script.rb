@@ -87,14 +87,17 @@ def q line
   $q << line
 end
 
-def flow_text(line, join)
+def flow_text(line, text, indent)
+  text = text.strip.gsub(/\s+/, ' ').enquote
+  line = "#{line} #{text}"
   while $width and line.length>$width
+    join = "#{text[0]} +\n  #{indent}#{text[-1]}"
     line.sub! /(.{#{join.length},#{$width-4}})(\s+|\Z)/, "\\1 #{join}"
     break unless line.include? "\n"
     q line.split("\n").first
     line = line[/\n(.*)/,1]
   end
-  q line
+  line
 end
 
 def flow_attrs(line, attributes, indent)
@@ -106,7 +109,7 @@ def flow_attrs(line, attributes, indent)
     end
     line += attribute
   end
-  q line
+  line
 end
 
 ITEMS = %w{
@@ -175,14 +178,16 @@ def web2script(element, indent='', flat=false)
     end
   end
 
-  line = "#{indent}_#{element_name}#{attributes.join(',')}"
-
   if element.children.empty?
     return if element_name == 'head' and attributes.length == 0
-    flow_attrs "#{indent}_#{element_name}#{attributes.pop}", attributes, indent
+    q flow_attrs "#{indent}_#{element_name}#{attributes.pop}", 
+      attributes, indent
 
   # element has children
   elsif element.children.any? {|child| child.element?}
+    line = flow_attrs "#{indent}_#{element_name}#{attributes.pop}", 
+      attributes, indent
+
     # do any of the text nodes need special processing to preserve spacing?
     flatten = flat || Wunderbar::HtmlMarkup.flatten?(element.children)
     line.sub! /(\w)( |\.|$)/, '\1!\2' if flatten and not flat
@@ -211,11 +216,10 @@ def web2script(element, indent='', flat=false)
         text = child.text.gsub(/\s+/, ' ')
         text = text.strip unless flatten
         next if text.empty?
-        flow_text "#{cindent}_ #{text.enquote}", "\" +\n    #{indent}\""
+        q flow_text "#{cindent}_", text, cindent
         first = true # stop break
       elsif child.comment?
-        flow_text "#{cindent}_.comment! #{child.text.strip.enquote}", 
-          "\" +\n    #{indent}\""
+        q flow_text "#{cindent}_.comment!",  child.text.strip, cindent
       else
         web2script(child, cindent, flatten)
       end
@@ -254,13 +258,15 @@ def web2script(element, indent='', flat=false)
     after   =  "#{indent}  "
     data.gsub! before, after
 
-    flow_attrs "#{indent}_#{element.name} <<-EOD.gsub(/^\\s{#{after.length}}/,'')", 
-      attributes, indent
+    q "#{indent}_#{element.name} <<-EOD.gsub(/^\\s{#{after.length}}/,'')" +
+      attributes.map {|attr| ", #{attr}"}.join
     data.split("\n").each { |line| q line }
     q "#{indent}EOD"
 
   # element has text but no attributes or children
   elsif attributes.empty?
+    line = "#{indent}_#{element_name}"
+
     if %w(script style).include? element.name and element.text.include? "\n"
       script = element.text.sub(/\A\s*\n/,'').sub(/\s+\Z/,'')
       script.gsub!(/^\t+/) {|tabs| ' ' * 8 * tabs.length}
@@ -299,14 +305,25 @@ def web2script(element, indent='', flat=false)
         end
       end
     else
-      text = element.text.strip.gsub(/\s+/, ' ')
-      flow_text "#{line} #{text.enquote}", "\" +\n  #{indent}\""
+      q flow_text line, element.text, indent
     end
+
+  # pre, script with attributes
+  elsif %w(pre script).include? element_name
+    line = flow_attrs "#{indent}_#{element_name}#{attributes.pop}", 
+      attributes, indent
+    data = element.text.sub(/\A\n/,'').sub(/\s+\Z/,'')
+
+    q "#{line} do"
+    q "#{indent}  _! <<-EOD"
+    data.split("\n").each {|line| q line}
+    q "#{indent}  EOD"
+    q "#{indent}end"
 
   # element has text and attributes but no children
   else
-    flow_attrs "#{indent}_#{element_name} #{element.text.enquote}",
-      attributes, indent
+    line = flow_text "#{indent}_#{element_name}", element.text, indent
+    q flow_attrs line, attributes, indent
   end
 end
 

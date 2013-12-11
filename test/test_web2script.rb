@@ -77,8 +77,8 @@ class Web2ScriptTest < Test::Unit::TestCase
 
   def test_text_width
     width, $width = $width, 80
-    assert_match %r{lllll " \+\n  "mmmmm},
-      convert("<p>#{('a'..'z').map {|l| l*5}.join(' ').inspect}</p>")
+    assert_match %r{lllll ' \+\n  'mmmmm},
+      convert("<p>#{('a'..'z').map {|l| l*5}.join(' ')}</p>")
   ensure
     $width = width
   end
