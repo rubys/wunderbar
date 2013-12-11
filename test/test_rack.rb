@@ -115,7 +115,7 @@ class RackTest < Test::Unit::TestCase
 
     get '/', {}, {'HTTP_ACCEPT' => 'application/json'}
 
-    assert_equal 'application/json', last_response.content_type
+    assert_equal 'application/json; charset=UTF-8', last_response.content_type
     assert_match %r{^\s+"response": "It Worked!"}, last_response.body
   end
 
@@ -126,7 +126,7 @@ class RackTest < Test::Unit::TestCase
     get '/', {}, {'HTTP_ACCEPT' => 'application/json'}
 
     assert_equal 404, last_response.status
-    assert_equal 'application/json', last_response.content_type
+    assert_equal 'application/json; charset=UTF-8', last_response.content_type
     assert_match /^\{\s*\}\s*$/, last_response.body
   end
 
@@ -138,7 +138,7 @@ class RackTest < Test::Unit::TestCase
     get '/', {}, {'HTTP_ACCEPT' => 'application/json'}
 
     assert_equal 500, last_response.status
-    assert_equal 'application/json', last_response.content_type
+    assert_equal 'application/json; charset=UTF-8', last_response.content_type
     assert_match %r{^\s+"exception": ".*NameError.*error_undefined},
       last_response.body
     assert_match %r{^_ERROR.*NameError.*error_undefined}, $stderr.string
