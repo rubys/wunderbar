@@ -5,7 +5,8 @@ module Wunderbar
 
     # produce json
     def json(scope, &block)
-      headers = { 'type' => 'application/json', 'Cache-Control' => 'no-cache' }
+      headers = { 'type' => 'application/json', 'charset' => 'UTF-8',
+        'Cache-Control' => 'no-cache' }
       builder = JsonBuilder.new(scope)
       output = builder.encode(&block)
       headers['status'] =  "404 Not Found" if output == {}
