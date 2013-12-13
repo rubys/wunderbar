@@ -4,10 +4,8 @@ AngularJS
 This demo is an implementation of the 
 [AngularJS Tutorial](http://docs.angularjs.org/tutorial) through step 11.  
 
-It is customary to place all views in a `views` directory in Sinatra; it is
-customary to split views out by type in AngularJS.  Doing this requires one
-to override the `find_template` helper.  This demo does that, and the
-result is
+This demo starts by defining one index, and where to find the partials and
+js templates:
 [angularjs.rb](https://github.com/rubys/wunderbar/blob/master/demo/angularjs.rb).
 
 views
