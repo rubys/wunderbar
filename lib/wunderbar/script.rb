@@ -56,6 +56,11 @@ module Wunderbar
 
       begin
         output = Ruby2JS.convert(block) + "\n"
+      rescue Parser::SyntaxError => exception
+        headers['status'] =  "500 Internal Server Error"
+        location = exception.diagnostic.location
+        output = "// Syntax Error: line #{location.line}, " +
+          "column: #{location.column}\n#{exception}\n"
       rescue ::Exception => exception
         headers['status'] =  "500 Internal Server Error"
         output = "// Internal Server Error\n#{exception}\n"
@@ -74,6 +79,11 @@ module Wunderbar
         scope.content_type self.class.default_mime_type, charset: 'utf-8'
         begin
           Ruby2JS.convert(data)
+        rescue Parser::SyntaxError => exception
+          scope.response.status = 500
+          location = exception.diagnostic.location
+          "// Syntax Error: line #{location.line}, column: #{location.column}" +
+            "\n#{exception}\n"
         rescue Exception => exception
           scope.response.status = 500
           "// Internal Server Error\n#{exception}\n"
