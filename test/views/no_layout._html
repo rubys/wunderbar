@@ -5,5 +5,6 @@ _html do
 
   _body? do
     _p 'From the view'
+    _p @message
   end
 end

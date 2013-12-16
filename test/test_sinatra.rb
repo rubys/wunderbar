@@ -27,12 +27,14 @@ class SintraTest < Test::Unit::TestCase
 
   def test_html_view_no_layout
     get '/html/view/no_layout' do
+      @message = 'From the "controller"'
       _html :no_layout, :layout => false
     end
 
     assert_equal 'text/html;charset=utf-8', last_response.content_type
     assert_match %r{^\s+<title>No Layout</title>$}, last_response.body
     assert_match %r{^\s+<p>From the view</p>$}, last_response.body
+    assert_match %r{^\s+<p>From the "controller"</p>$}, last_response.body
   end
 
   def test_html_view_with_layout

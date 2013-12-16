@@ -11,6 +11,8 @@ end
 module Wunderbar
   module SinatraHelpers
     def _html(*args, &block)
+      Wunderbar::Template.locals(self, args)
+
       if block
         Wunderbar::Template::Html.evaluate('_html', self) do
           _html(*args) { instance_eval &block }
@@ -156,6 +158,25 @@ module Wunderbar
       end
     end
 
+    PASSABLE = [Numeric, String, Hash, Array]
+
+    def self.locals(scope, args)
+      args.push({}) if args.length == 1
+
+      return unless Hash === args.last and not args.last[:locals]
+
+      locals = {}
+
+      scope.instance_variables.each do |ivar|
+        next if [:@env, :@params].include? ivar
+        value = scope.instance_variable_get(ivar)
+        next unless PASSABLE.find {|klass| klass === value}
+        locals[ivar] = value
+      end
+
+      args.last[:locals] = locals
+    end
+
     def self.register(language, base=Base)
       template = Class.new(Template::Base) do 
         self.default_mime_type = language.mime
@@ -163,6 +184,13 @@ module Wunderbar
       end
 
       SinatraHelpers.send :define_method, language.ext do |*args, &block|
+        Wunderbar::Template.locals(self, args)
+        if Hash === args.last and args.last[:locals]
+          @params.each do |name, value| 
+            args.last[:locals]["@#{name}".to_sym] = value
+          end
+        end
+
         template.evaluate(language.ext, self, *args, &block)
       end
 

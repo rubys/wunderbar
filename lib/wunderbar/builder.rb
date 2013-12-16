@@ -1,11 +1,15 @@
 module Wunderbar
   class BuilderBase
     def set_variables_from_params(locals={})
-      @_scope.params.merge(locals).each do |key,value|
+      params = @_scope.params.map do |key, value|
         value = value.first if Array === value
         value.gsub! "\r\n", "\n" if String === value
-        if key =~ /^[a-z]\w+$/
-          instance_variable_set "@#{key.dup.untaint}", value 
+        ["@#{key}", value]
+      end
+
+      Hash[params].merge(locals).each do |key,value|
+        if key =~ /^@[a-z]\w+$/
+          instance_variable_set key, value 
         end
       end
     end
