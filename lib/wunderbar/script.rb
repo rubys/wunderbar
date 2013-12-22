@@ -64,6 +64,10 @@ module Wunderbar
       rescue ::Exception => exception
         headers['status'] =  "500 Internal Server Error"
         output = "// Internal Server Error\n#{exception}\n"
+        exception.backtrace.each do |frame| 
+          next if CALLERS_TO_IGNORE.any? {|re| frame =~ re}
+          output += "  #{frame}\n"
+        end
       end
 
       out?(scope, headers) { output }
@@ -86,7 +90,11 @@ module Wunderbar
             "\n#{exception}\n"
         rescue Exception => exception
           scope.response.status = 500
-          "// Internal Server Error\n#{exception}\n"
+          output = "// Internal Server Error\n#{exception}\n"
+          exception.backtrace.each do |frame| 
+            next if CALLERS_TO_IGNORE.any? {|re| frame =~ re}
+            output += "  #{frame}\n"
+          end
         end
       end
     end
