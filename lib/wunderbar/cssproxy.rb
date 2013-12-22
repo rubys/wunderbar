@@ -30,7 +30,13 @@ module Wunderbar
         attrs[:class] = id_or_class
       end
 
-      attrs.merge! args.pop.to_hash if args.last.respond_to? :to_hash
+      if args.last.respond_to? :to_hash
+        hash = args.pop.to_hash 
+        if attrs[:class] and hash[:class]
+          hash[:class] = "#{attrs[:class]} #{hash[:class]}"
+       end
+        attrs.merge! hash
+      end
       args.push(attrs)
 
       @node.parent.children.delete(@node)
