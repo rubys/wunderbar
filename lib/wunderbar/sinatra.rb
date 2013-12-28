@@ -184,6 +184,12 @@ module Wunderbar
       end
 
       SinatraHelpers.send :define_method, language.ext do |*args, &block|
+        # parse json
+        if env['CONTENT_TYPE'] =~ /^\w+\/json/
+          json = JSON.parse(env['rack.input'].read)
+          @params.merge! json if Hash === json
+        end
+
         Wunderbar::Template.locals(self, args)
         if Hash === args.last and args.last[:locals]
           @params.each do |name, value| 
