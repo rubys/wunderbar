@@ -42,7 +42,13 @@ module Wunderbar
       @node.parent.children.delete(@node)
 
       if empty and not block
-        @builder.proxiable_tag! @node.name, *args
+        proxy = @builder.proxiable_tag! @node.name, *args
+        if SpacedNode === @node
+          class << proxy.node?; include SpacedNode; end
+        elsif CompactNode === @node
+          class << proxy.node?; include CompactNode; end
+        end
+        proxy
       elsif SpacedNode === @node
         @builder.__send__ "_#{@node.name}_", *args, &block
       elsif CompactNode === @node and @node.name != :pre

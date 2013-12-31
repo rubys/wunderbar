@@ -307,6 +307,11 @@ class HtmlMarkupTest < Test::Unit::TestCase
     assert_no_match %r[><\/h1>], target
   end
 
+  def test_multiple_proxy_spaced
+    @x.html {_h1; _h1_.a.b.content! 'Content'}
+    assert_match %r[</h1>\n\n +<h1 class="a b" id="content">], target
+  end
+
   def test_svg_class_attribute
     @x.html {_svg.pie {_circle :r => 10}}
     assert_match %r[<svg.*? class="pie".*>]m, target
