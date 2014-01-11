@@ -449,12 +449,20 @@ class HtmlMarkupTest < Test::Unit::TestCase
     assert_match /^    <h1>title<\/h1>/, target
   end
 
-  def test_head_reordering
+  def test_head_reordering_title
     @x.html do
       _script 'alert("Yo!")'
       _h1 'title'
     end
     assert_match /<meta.*>\s*<title>title<\/title>\s*<script/, target
+  end
+
+  def test_head_reordering_base
+    @x.html do
+      _script 'alert("Yo!")'
+      _base href: '/'
+    end
+    assert_match %r{<meta.*>\s*<base href="/"/>\s*<script}, target
   end
 
   def test_underscore_to_dash

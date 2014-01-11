@@ -110,6 +110,11 @@ module Wunderbar
         head.add_child Node.new('title', h1.text) if h1 and h1.text
       end
 
+      base = head.children.index {|child| child.name == 'base'}
+      if base and base > 1
+        head.children.insert 1, head.children.delete_at(base)
+      end
+
       title = head.children.index {|child| child.name == 'title'}
       if title and title > 1
         head.children.insert 1, head.children.delete_at(title)
