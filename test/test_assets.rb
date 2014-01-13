@@ -22,4 +22,10 @@ class AssetTest < Test::Unit::TestCase
     @x.html {_head}
     assert_match %r{<script src="assets/jquery-min.js"}, target
   end
+
+  def test_base
+    load 'wunderbar/jquery.rb'
+    @x.html {_head {_base href: '/foo/bar/'}}
+    assert_match %r{<script src="../../assets/jquery-min.js"}, target
+  end
 end

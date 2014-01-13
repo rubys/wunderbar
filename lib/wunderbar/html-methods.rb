@@ -111,8 +111,12 @@ module Wunderbar
       end
 
       base = head.children.index {|child| child.name == 'base'}
-      if base and base > 1
-        head.children.insert 1, head.children.delete_at(base)
+      if base
+        head.children.insert 1, head.children.delete_at(base) if base > 1
+        base_href = head.children[1].attrs[:href]
+        head.children.insert 2, *Asset.declarations(head, base_href)
+      else
+        head.children.insert 1, *Asset.declarations(head, nil)
       end
 
       title = head.children.index {|child| child.name == 'title'}
@@ -239,7 +243,6 @@ module Wunderbar
     def _head(*args, &block)
       tag!('head', *args) do
         tag! :meta, :charset => 'utf-8'
-        instance_eval &Wunderbar::Asset.declarations
         block.call if block
       end
     end

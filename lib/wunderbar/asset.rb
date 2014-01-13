@@ -87,25 +87,26 @@ module Wunderbar
       @@stylesheets << self.new(options)
     end
 
-    def self.declarations
-      Proc.new do 
-        @@scripts.each do |script|
-          if script.path
-            _script src: "#{Asset.path}/#{script.path}"
-          elsif script.contents
-            _script script.contents
-          end
-        end
-
-        @@stylesheets.each do |stylesheet|
-          if stylesheet.path
-            _link rel: "stylesheet", href: "#{Asset.path}/#{stylesheet.path}",
-              type: "text/css"
-          elsif stylesheet.contents
-            _style stylesheet.contents
-          end
+    def self.declarations(parent, base)
+      path = base.to_s.sub(/^\//,'').split('/').map {'../'}.join + Asset.path
+      nodes = []
+      @@scripts.each do |script|
+        if script.path
+          nodes << Node.new(:script, src: "#{path}/#{script.path}")
+        elsif script.contents
+          nodes << Node.new(:script, script.contents)
         end
       end
+
+      @@stylesheets.each do |stylesheet|
+        if stylesheet.path
+          nodes << Node.new(:link, rel: "stylesheet", type: "text/css",
+            href: "#{path}/#{stylesheet.path}")
+        elsif stylesheet.contents
+          nodes << Node.new(:style, stylesheet.contents)
+        end
+      end
+      nodes.each {|node| node.parent = parent}
     end
   end
 end
