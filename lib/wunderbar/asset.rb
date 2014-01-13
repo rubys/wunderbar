@@ -94,7 +94,7 @@ module Wunderbar
         if script.path
           nodes << Node.new(:script, src: "#{path}/#{script.path}")
         elsif script.contents
-          nodes << Node.new(:script, script.contents)
+          nodes << ScriptNode.new(:script, script.contents)
         end
       end
 
@@ -103,7 +103,7 @@ module Wunderbar
           nodes << Node.new(:link, rel: "stylesheet", type: "text/css",
             href: "#{path}/#{stylesheet.path}")
         elsif stylesheet.contents
-          nodes << Node.new(:style, stylesheet.contents)
+          nodes << StyleNode.new(:style, stylesheet.contents)
         end
       end
       nodes.each {|node| node.parent = parent}
