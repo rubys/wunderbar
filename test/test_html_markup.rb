@@ -307,6 +307,12 @@ class HtmlMarkupTest < Test::Unit::TestCase
     assert_no_match %r[><\/h1>], target
   end
 
+  def test_underbar_proxy
+    @x.html {_my_node.a.b! 'Content'}
+    assert_match %r[^ +<my-node class="a" id="b">Content</my-node>], target
+    assert_no_match %r[><\/h1>], target
+  end
+
   def test_multiple_proxy_spaced
     @x.html {_h1; _h1_.a.b.content! 'Content'}
     assert_match %r[</h1>\n\n +<h1 class="a b" id="content">], target

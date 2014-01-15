@@ -50,11 +50,11 @@ module Wunderbar
         end
         proxy
       elsif SpacedNode === @node
-        @builder.__send__ "_#{@node.name}_", *args, &block
+        @builder.__send__ "_#{@node.name.to_s.gsub('-', '_')}_", *args, &block
       elsif CompactNode === @node and @node.name != :pre
-        @builder.__send__ "_#{@node.name}!", *args, &block
+        @builder.__send__ "_#{@node.name.to_s.gsub('-', '_')}!", *args, &block
       else
-        @builder.__send__ "_#{@node.name}", *args, &block
+        @builder.__send__ "_#{@node.name.to_s.gsub('-', '_')}", *args, &block
       end
     end
   end
