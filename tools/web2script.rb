@@ -130,7 +130,7 @@ def web2script(element, indent='', flat=false)
     element_name += ',' unless element.attributes.empty?
   end
 
-  element['_width'] ||= $width if $width and element_name == 'html'
+  element[:_width] ||= $width if $width and element_name == 'html'
   element_name = 'xhtml' if $xhtml and element_name == 'html'
 
   # drop meta content-type and charset elements
@@ -154,7 +154,7 @@ def web2script(element, indent='', flat=false)
       end
     end
 
-    if key =~ /^[a-zA-Z][-A-Za-z0-9]*$/
+    if key =~ /^[_a-zA-Z][-A-Za-z0-9]*$/
       key = key.gsub('-', '_')
       if key == 'id' and value =~ /^\w+$/
         element_name += ".#{value}!"
