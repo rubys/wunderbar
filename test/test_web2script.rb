@@ -85,7 +85,7 @@ class Web2ScriptTest < Test::Unit::TestCase
 
   def test_attr_width
     width, $width = $width, 80
-    assert_match %r{data_f: 'f',\n  data_g: 'g'},
+    assert_match %r{data_g: 'g',\n  data_h: 'h'},
       convert("<p #{('a'..'z').map {|l| "data-#{l}='#{l}'"}.join(' ').inspect}></p>")
   ensure
     $width = width

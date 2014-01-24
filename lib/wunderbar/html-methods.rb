@@ -105,12 +105,16 @@ module Wunderbar
         end
       end
 
-      if not head.children.any? {|child| child.name == 'title'}
-        h1 = body.children.find {|child| child.name == 'h1'}
+      def find_name(name)
+        proc {|child| child.respond_to? :name and child.name == name}
+      end
+
+      if not head.children.any? &find_name('title')
+        h1 = body.children.find &find_name('h1')
         head.add_child Node.new('title', h1.text) if h1 and h1.text
       end
 
-      base = head.children.index {|child| child.name == 'base'}
+      base = head.children.index &find_name('base')
       if base
         head.children.insert 1, head.children.delete_at(base) if base > 1
         base_href = head.children[1].attrs[:href]

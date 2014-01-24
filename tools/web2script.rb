@@ -180,12 +180,12 @@ def web2script(element, indent='', flat=false)
 
   if element.children.empty?
     return if element_name == 'head' and attributes.length == 0
-    q flow_attrs "#{indent}_#{element_name}#{attributes.pop}", 
+    q flow_attrs "#{indent}_#{element_name}#{attributes.shift}", 
       attributes, indent
 
   # element has children
   elsif element.children.any? {|child| child.element?}
-    line = flow_attrs "#{indent}_#{element_name}#{attributes.pop}", 
+    line = flow_attrs "#{indent}_#{element_name}#{attributes.shift}", 
       attributes, indent
 
     # do any of the text nodes need special processing to preserve spacing?
