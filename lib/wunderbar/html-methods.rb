@@ -148,7 +148,9 @@ module Wunderbar
 
       if name.sub!(/_$/,'')
         @_x.spaced!
-        return __send__ "_#{name}", *args, &block if respond_to? "_#{name}"
+        if flag != '!' and respond_to? "_#{name}"
+          return __send__ "_#{name}#{flag}", *args, &block 
+        end
       end
 
       name = name.to_s.gsub('_', '-')

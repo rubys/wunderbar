@@ -279,6 +279,11 @@ class HtmlMarkupTest < Test::Unit::TestCase
     assert_match %r[<div class="header"><span>.*</span></div>]m, target
   end
 
+  def test_class_compact_spaced
+    @x.html {_p_! {_ 'a'; _ 'b'}; _p}
+    assert_match %r[<p>ab</p>\n\n +<p>]m, target
+  end
+
   def test_class_with_dash
     @x.html {_div.header_4 {_span.text 'foo'}}
     assert_match %r[<div class="header-4">.*</div>]m, target

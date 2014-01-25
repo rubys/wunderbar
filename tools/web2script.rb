@@ -88,7 +88,7 @@ def q line
 end
 
 def flow_text(line, text, indent)
-  text = text.strip.gsub(/\s+/, ' ').enquote
+  text = text.gsub(/\s+/, ' ').enquote
   line = "#{line} #{text}"
   while $width and line.length>$width
     join = "#{text[0]} +\n  #{indent}#{text[-1]}"
