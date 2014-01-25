@@ -318,6 +318,12 @@ class HtmlMarkupTest < Test::Unit::TestCase
     assert_match %r[</h1>\n\n +<h1 class="a b" id="content">], target
   end
 
+  def test_proxy_spaced_compact
+    @x.html {_div_!.o { _b 'a'; _em 'b' }; _div}
+    assert_match %r[<div class="o"><b>a</b><em>b</em></div>\n\n +<div>],
+      target
+  end
+
   def test_svg_class_attribute
     @x.html {_svg.pie {_circle :r => 10}}
     assert_match %r[<svg.*? class="pie".*>]m, target

@@ -43,18 +43,22 @@ module Wunderbar
 
       if empty and not block
         proxy = @builder.proxiable_tag! @node.name, *args
-        if SpacedNode === @node
-          class << proxy.node?; include SpacedNode; end
-        elsif CompactNode === @node
-          class << proxy.node?; include CompactNode; end
-        end
+        class << proxy.node?; include SpacedNode; end  if SpacedNode  === @node
+        class << proxy.node?; include CompactNode; end if CompactNode === @node
         proxy
-      elsif SpacedNode === @node
-        @builder.__send__ "_#{@node.name.to_s.gsub('-', '_')}_", *args, &block
-      elsif CompactNode === @node and @node.name != :pre
-        @builder.__send__ "_#{@node.name.to_s.gsub('-', '_')}!", *args, &block
       else
-        @builder.__send__ "_#{@node.name.to_s.gsub('-', '_')}", *args, &block
+        name = @node.name.to_s.gsub('-', '_')
+        if CompactNode === @node and @node.name != :pre
+          if SpacedNode === @node
+            @builder.__send__ "_#{name}_!", *args, &block
+          else
+            @builder.__send__ "_#{name}!", *args, &block
+          end
+        elsif SpacedNode === @node
+          @builder.__send__ "_#{name}_", *args, &block
+        else
+          @builder.__send__ "_#{name}", *args, &block
+        end
       end
     end
   end
