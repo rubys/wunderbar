@@ -95,4 +95,19 @@ class Web2ScriptTest < Test::Unit::TestCase
     assert_equal "_ul do\n  _li 'one'\n  _li { _b 'two' }\nend",
       convert("<ul>\n<li>one\n<li><b>two</b>\n</ul>")
   end
+
+  def test_items_with_single_child
+    assert_equal "_ul do\n  _li 'one'\n  _li { _b 'two' }\nend",
+      convert("<ul>\n<li>one\n<li><b>two</b>\n</ul>")
+  end
+
+  def test_attribute_order
+    assert_equal "_div :itemscope, itemtype: 'http://schema.org/Blog'",
+      convert("<div itemscope='' itemtype='http://schema.org/Blog'></div>")
+  end
+
+  def test_space_in_compact
+    assert_equal "_div! do\n  _span 'a'\n  _ '.'\n  _span 'b '\nend",
+      convert("<div><span>a</span>.<span>b </span></div>")
+  end
 end

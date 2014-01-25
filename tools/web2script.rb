@@ -305,7 +305,8 @@ def web2script(element, indent='', flat=false)
         end
       end
     else
-      q flow_text line, element.text, indent
+      text = flat ? element.text : element.text.strip
+      q flow_text line, text, indent
     end
 
   # pre, script with attributes

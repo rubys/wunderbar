@@ -76,7 +76,7 @@ module Wunderbar
           else
             width = options[:width] if name != :pre
             line += ">#{text.to_s.gsub(/[&<>]/,ESCAPE)}</#{name}>"
-            if width and line.length > width
+            if indent and width and line.length > width
               reflowed = IndentedTextNode.reflow(indent, line, width)
               line = reflowed.pop
               result.push *reflowed
