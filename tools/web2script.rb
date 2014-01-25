@@ -206,7 +206,7 @@ def web2script(element, indent='', flat=false)
     baseline = start = $q.length
     blank = false
     first = true
-    breakable = $group && !flatten && !element.children.any? do |child|
+    breakable = $group && !flat && !element.children.any? do |child|
       child.text? and not child.text.strip.empty?
     end
 
