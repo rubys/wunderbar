@@ -461,12 +461,12 @@ class HtmlMarkupTest < Test::Unit::TestCase
 
     @x.html :_width => 80 do
       _div! do
-        _span words.join(' ')
+        _span { _span words.join(' ') }
       end
     end
-    assert_match /<div><span>one/, target
-    assert_match /twelve\n +thirteen/, target
-    assert_match %r{\n    twenty</span></div>}, target
+    assert_match /<div><span><span>one/, target
+    assert_match /eleven\n +twelve thirteen/, target
+    assert_match %r{\n    twenty</span></span></div>}, target
   end
 
   def test_implicit_elements

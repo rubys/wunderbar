@@ -87,7 +87,7 @@ module Wunderbar
         else
           line += "></#{name}>"
         end
-      elsif CompactNode === self
+      elsif CompactNode === self and not CompactNode === parent
         work = []
         walk(work, nil, options)
         width = options[:width]
