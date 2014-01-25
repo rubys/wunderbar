@@ -445,7 +445,7 @@ class HtmlMarkupTest < Test::Unit::TestCase
     assert_match /#{data}/, target
   end
 
-  def test_width_compact
+  def test_width_compact_elements
     @x.html :_width => 80 do
       _div! do
         5.times {|i| _a i, :href=>i; _ ', '}
@@ -453,6 +453,20 @@ class HtmlMarkupTest < Test::Unit::TestCase
     end
     assert_match /<a href="1">1<\/a>, <a href="2">2<\/a>,\n {4}<a href="3">/, 
       target
+  end
+
+  def test_width_compact_text
+    words = %w(one two three four five six seven eight nine ten eleven twelve
+      thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty)
+
+    @x.html :_width => 80 do
+      _div! do
+        _span words.join(' ')
+      end
+    end
+    assert_match /<div><span>one/, target
+    assert_match /twelve\n +thirteen/, target
+    assert_match %r{\n    twenty</span></div>}, target
   end
 
   def test_implicit_elements

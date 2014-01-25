@@ -93,18 +93,29 @@ module Wunderbar
         width = options[:width]
         if width
           line += ">"
-          (work+["</#{name}>"]).each do |node|
-            if line.length + node.length > width
-              result << line.rstrip
-              line = indent.to_s
-              if line.length + node.length > width and !node.include? '<'
-                reflowed = IndentedTextNode.reflow(indent.to_s, 
-                  "#{indent}#{node}", width)
-                node = reflowed.pop.sub(/^#{indent}/, '')
-                result.push *reflowed
+          work = work.join + "</#{name}>"
+          if line.length + work.length <= width
+            line += work
+          else
+            # split work into tokens with balanced <>
+            tokens = work.split(' ')
+            (tokens.length-1).downto(1)  do |i|
+              if tokens[i].count('<') != tokens[i].count('>')
+                tokens[i-1,2] = tokens[i-1] + ' ' + tokens[i]
               end
             end
-            line += node
+
+            line += tokens.shift
+
+            # add tokens to line, breaking when line length would exceed width
+            tokens.each do |token|
+              if line.length + token.length < width
+                line += ' ' + token
+              else
+                result << line
+                line = indent.to_s + token
+              end
+            end
           end
         else
           line += ">#{work.join}</#{name}>"
