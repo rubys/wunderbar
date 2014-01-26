@@ -1,6 +1,7 @@
 require 'wunderbar/jquery'
 require 'ruby2js/filter/jquery'
-#
+
+# Convert Wunderbar html syntax into JQuery calls
 
 module Wunderbar
   module Filter
