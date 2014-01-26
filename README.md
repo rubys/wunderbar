@@ -424,10 +424,10 @@ Optional dependencies:
 
 The following gems are needed based on what functions you use:
 
-* `em-websocket' is required by `wunderbar/websocket`
-* `kramdown' is required by `wunderbar/markdown`
-* `ruby2js' adds support for scripts written as blocks
-* `sourcify' is required by `wunderbar/opal`
+* `em-websocket` is required by `wunderbar/websocket`
+* `kramdown` is required by `wunderbar/markdown`
+* `ruby2js` adds support for scripts written as blocks
+* `sourcify` is required by `wunderbar/opal`
 
 The following gems are required by extensions of the same name:
 
