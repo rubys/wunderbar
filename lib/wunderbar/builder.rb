@@ -110,6 +110,8 @@ module Wunderbar
 
     # avoid method_missing overhead for the most common case
     def tag!(sym, *args, &block)
+      current_node = @node
+
       if sym.respond_to? :children
         node = sym
         attributes = node.attributes
@@ -149,9 +151,10 @@ module Wunderbar
         block.call(self)
         @node.children << nil if @node.children.empty?
       end
-      @node = @node.parent
 
       node
+    ensure
+      @node = current_node
     end
 
     def pdf=(value)

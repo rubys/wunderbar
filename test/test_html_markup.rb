@@ -259,6 +259,11 @@ class HtmlMarkupTest < Test::Unit::TestCase
     assert_match %r[<pre class="traceback"], target
   end
 
+  def test_rescue_cleanly
+    @x.html {_div {_span; boom} rescue nil; _div}
+    assert_match %r[<div>\s+<span></span>\s+</div>\s+<div></div>], target
+  end
+
   def test_meta_charset
     @x.html {_head}
     assert_match %r[<head>\s*<meta charset="utf-8"/>\s*</head>], target
