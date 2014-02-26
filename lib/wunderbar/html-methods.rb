@@ -58,9 +58,11 @@ module Wunderbar
         bom = "\xEF\xBB\xBF"
       end
 
+      title = args.shift if String === args.first
       @_x.declare! :DOCTYPE, :html
       html = tag! :html, *args do 
         set_variables_from_params
+        _title title if title
         instance_eval(&block)
       end
 

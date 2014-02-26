@@ -24,6 +24,11 @@ class HtmlMarkupTest < Test::Unit::TestCase
     assert_match %r{</html>}, target
   end
 
+  def test_html_title
+    @x.html('title') {}
+    assert_match %r{<title>title</title>}, target
+  end
+
   def test_void_element
     @x.html {_br}
     assert_match %r{<br/>}, target
