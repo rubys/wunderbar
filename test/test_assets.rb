@@ -4,7 +4,8 @@ require 'wunderbar'
 
 class AssetTest < Test::Unit::TestCase
   def setup
-    @x = Wunderbar::HtmlMarkup.new(Struct.new(:params).new({}))
+    scope = Struct.new(:params, :env).new({}, {'DOCUMENT_ROOT' => Dir.pwd})
+    @x = Wunderbar::HtmlMarkup.new(scope)
     Wunderbar::Asset.clear
   end
 

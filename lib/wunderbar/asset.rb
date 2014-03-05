@@ -87,8 +87,8 @@ module Wunderbar
       @@stylesheets << self.new(options)
     end
 
-    def self.declarations(parent, base)
-      path = base.to_s.sub(/^\//,'').split('/').map {'../'}.join + Asset.path
+    def self.declarations(parent, prefix)
+      path = prefix.to_s + Asset.path
       nodes = []
       @@scripts.each do |script|
         if script.path
