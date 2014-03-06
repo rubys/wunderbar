@@ -215,7 +215,8 @@ Tilt.register '_xhtml', Wunderbar::Template::Xhtml
 
 helpers Wunderbar::SinatraHelpers
 
-get "/#{Wunderbar::Asset.path}/:name" do | name|
+get "/#{Wunderbar::Asset.path}/:name" do |name|
+  name.untaint if name =~ /^([-\w]\.?)+$/
   file = "#{Wunderbar::Asset.root}/#{name}"
   _text do
     if File.exist? file
