@@ -215,11 +215,14 @@ Tilt.register '_xhtml', Wunderbar::Template::Xhtml
 
 helpers Wunderbar::SinatraHelpers
 
-get "/#{Wunderbar::Asset.path}/:name" do
-  begin
-    content_type Wunderbar::Asset.content_type_for(params[:name])
-    File.read("#{Wunderbar::Asset.root}/#{params[:name]}")
-  rescue Errno::ENOENT
-    raise Sinatra::NotFound
+get "/#{Wunderbar::Asset.path}/:name" do | name|
+  file = "#{Wunderbar::Asset.root}/#{name}"
+  _text do
+    if File.exist? file
+      last_modified File.mtime(file)
+      content_type Wunderbar::Asset.content_type_for(name)
+      _.headers.merge(response.headers)
+      _ File.read("#{Wunderbar::Asset.root}/#{name}")
+    end
   end
 end

@@ -46,7 +46,7 @@ module Wunderbar
 
     @path = '../' * ENV['PATH_INFO'].to_s.count('/') + 'assets'
     @root = File.dirname(ENV['SCRIPT_FILENAME']) if ENV['SCRIPT_FILENAME']
-    @root = File.expand_path((@root || Dir.pwd) + "/assets")
+    @root = File.expand_path((@root || Dir.pwd) + "/assets").untaint
 
     # Options: typically :name plus either :file or :contents
     #   :name => name to be used for the asset
