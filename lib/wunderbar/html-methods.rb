@@ -120,17 +120,15 @@ module Wunderbar
       if base
         head.children.insert 1, head.children.delete_at(base) if base > 1
 
-        if @_scope.env.respond_to? :[] and @_scope.env['DOCUMENT_ROOT']
-          # compute relative path from base to the current working directory
-          require 'pathname'
-          base = @_scope.env['DOCUMENT_ROOT'] + head.children[1].attrs[:href]
-          base += 'index.html' if base.end_with? '/'
-          base = Pathname.new(base).parent
-          prefix = Pathname.new(Dir.pwd).relative_path_from(base).to_s + '/'
-          prefix = nil if prefix == './'
-        else
-          prefix = nil
-        end
+        # compute relative path from base to the current working directory
+        require 'pathname'
+        base = @_scope.env['DOCUMENT_ROOT'] if @_scope.env.respond_to? :[]
+        base ||= Dir.pwd
+        base += head.children[1].attrs[:href]
+        base += 'index.html' if base.end_with? '/'
+        base = Pathname.new(base).parent
+        prefix = Pathname.new(Dir.pwd).relative_path_from(base).to_s + '/'
+        prefix = nil if prefix == './'
   
         head.children.insert 2, *Asset.declarations(head, prefix)
       else
