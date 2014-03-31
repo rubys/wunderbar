@@ -136,6 +136,7 @@ module Wunderbar
           scope.response.status = 500
           builder._exception exception
         end
+        scope.cache_control :no_cache
         builder.target!
       end
     end
