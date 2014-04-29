@@ -1,8 +1,7 @@
-require 'test/unit'
-require 'rubygems'
+require 'minitest/autorun'
 require 'wunderbar'
 
-class HtmlMarkupTest < Test::Unit::TestCase
+class HtmlMarkupTest < MiniTest::Test
   def setup
     @original_log_level = Wunderbar.logger.level
     Wunderbar.log_level = :fatal
@@ -307,25 +306,25 @@ class HtmlMarkupTest < Test::Unit::TestCase
   def test_id_attribute
     @x.html {_h1.content! 'Content'}
     assert_match %r[^ +<h1 id="content">Content</h1>], target
-    assert_no_match %r[<h1>], target
+    refute_match %r[<h1>], target
   end
 
   def test_compact_id_attribute
     @x.html {_h3!.content! {_em 'Content'}}
     assert_match %r[^ +<h3 id="content"><em>Content</em></h3>], target
-    assert_no_match %r[<h1>], target
+    refute_match %r[<h1>], target
   end
 
   def test_multiple_proxy
     @x.html {_h1.a.b.content! 'Content'}
     assert_match %r[^ +<h1 class="a b" id="content">Content</h1>], target
-    assert_no_match %r[><\/h1>], target
+    refute_match %r[><\/h1>], target
   end
 
   def test_underbar_proxy
     @x.html {_my_node.a.b! 'Content'}
     assert_match %r[^ +<my-node class="a" id="b">Content</my-node>], target
-    assert_no_match %r[><\/h1>], target
+    refute_match %r[><\/h1>], target
   end
 
   def test_multiple_proxy_spaced

@@ -1,5 +1,4 @@
-require 'test/unit'
-require 'rubygems'
+require 'minitest/autorun'
 require 'wunderbar'
 require 'logger'
 
@@ -26,7 +25,7 @@ class TestLogger
   end
 end
 
-class LoggerTest < Test::Unit::TestCase
+class LoggerTest < MiniTest::Test
   def setup
     @logger = TestLogger.new
   end

@@ -1,9 +1,8 @@
-require 'test/unit'
-require 'rubygems'
+require 'minitest/autorun'
 require 'wunderbar'
 require 'stringio'
 
-class CGITest < Test::Unit::TestCase
+class CGITest < Minitest::Test
   def setup
     @stderr, $stderr = $stderr, StringIO.new
 
@@ -87,7 +86,7 @@ class CGITest < Test::Unit::TestCase
     assert_match %r{^\s+<h1>Internal Server Error</h1>$}, @cgi.body
     assert_match %r{^\s+<pre.*>.*NameError.*error_undefined}, @cgi.body
     assert_match %r{^_ERROR.*NameError.*error_undefined}, $stderr.string
-    assert_no_match %r{>\s*<!DOCTYPE}, @cgi.body
+    refute_match %r{>\s*<!DOCTYPE}, @cgi.body
   end
 
   def test_html_log

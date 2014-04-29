@@ -1,8 +1,8 @@
-require 'test/unit'
+require 'minitest/autorun'
 require 'wunderbar'
 require 'wunderbar/jquery/filter'
 
-class JqueryFilterTest < Test::Unit::TestCase
+class JqueryFilterTest < MiniTest::Test
   def to_js(string)
     Ruby2JS.convert(string, filters: 
       [Ruby2JS::Filter::JQuery, Wunderbar::Filter::JQuery])

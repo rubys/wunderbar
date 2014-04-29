@@ -1,7 +1,7 @@
-require 'test/unit'
+require 'minitest/autorun' 
 require 'wunderbar/script'
 
-class ScriptTest < Test::Unit::TestCase
+class ScriptTest < MiniTest::Test
   def test_script
     @x = Wunderbar::HtmlMarkup.new(Struct.new(:params).new({}))
     @x.html do 

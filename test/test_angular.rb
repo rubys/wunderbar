@@ -1,7 +1,7 @@
-require 'test/unit'
+require 'minitest/autorun'
 require 'wunderbar/angularjs'
 
-class AngularjsMarkupTest < Test::Unit::TestCase
+class AngularjsMarkupTest < Minitest::Test
   def test_template
     @x = Wunderbar::HtmlMarkup.new(Struct.new(:params).new({}))
     @x.html do

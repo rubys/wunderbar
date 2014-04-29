@@ -1,11 +1,4 @@
-begin
-  gem 'minitest', '~> 4.2'
-  require 'minitest/autorun' 
-  Minitest = MiniTest unless defined? Minitest
-rescue LoadError
-  require 'test/unit'
-  Minitest = Test
-end
+require 'minitest/autorun' 
 
 begin
   require 'action_controller'
@@ -43,7 +36,7 @@ begin
 
 rescue LoadError =>  exception
   ActionController = Module.new do
-    const_set :TestCase, Class.new(Minitest::Unit::TestCase) {
+    const_set :TestCase, Class.new(Minitest::Test) {
       define_method(:default_test) {}
       define_method(:skip_reason) do
         exception.inspect
@@ -79,7 +72,7 @@ class WunderbarOnRailsTest < ActionController::TestCase
     assert_equal 1_000, response['products'][0]['quantity']
   end
 
-  if superclass.superclass == Minitest::Unit::TestCase
+  if superclass.superclass == Minitest::Test
     remove_method :setup
     attr_accessor :default_test
     public_instance_methods.grep(/^test_/).each do |method|

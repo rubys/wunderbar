@@ -4,11 +4,11 @@ gem 'json'
 
 group :test do
   gem 'rake'
-  gem 'minitest', '~> 4.2' # pinned by Rails
   gem 'actionpack'
   gem 'sinatra'
   gem 'nokogiri'
   gem 'ruby2js'
+  gem 'rails'
   gem 'sourcify'
   gem 'coffee-script'
   gem 'kramdown'

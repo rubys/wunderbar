@@ -1,9 +1,8 @@
-require 'test/unit'
-require 'rubygems'
+require 'minitest/autorun' 
 require 'wunderbar'
 require 'stringio'
 
-class SintraTest < Test::Unit::TestCase
+class SintraTest < MiniTest::Test
   def setup
     @stderr, $stderr = $stderr, StringIO.new
     Wunderbar.logger = nil
@@ -129,7 +128,8 @@ class SintraTest < Test::Unit::TestCase
     end
 
     assert_match %r{^\s+"response": "It Worked!"}, last_response.body
-    assert_equal 'application/json;charset=utf-8', last_response.content_type
+    assert_match %r{application/json(;charset=utf-8)?},
+      last_response.content_type
   end
 
   def jest_json_missing

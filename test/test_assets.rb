@@ -1,8 +1,7 @@
-require 'test/unit'
-require 'rubygems'
+require 'minitest/autorun'
 require 'wunderbar'
 
-class AssetTest < Test::Unit::TestCase
+class AssetTest < Minitest::Test
   def setup
     scope = Struct.new(:params, :env).new({}, {'DOCUMENT_ROOT' => Dir.pwd})
     @x = Wunderbar::HtmlMarkup.new(scope)

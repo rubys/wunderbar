@@ -1,12 +1,11 @@
-require 'test/unit'
-require 'rubygems'
+require 'minitest/autorun'
 require 'wunderbar'
 
 # these tests were "borrowed"/adapted from jbuilder so as to demonstrate
 # functional parity:
 #   https://github.com/rails/jbuilder/blob/master/test/jbuilder_test.rb
 
-class JbuilderTest < Test::Unit::TestCase
+class JbuilderTest < MiniTest::Test
   def setup
     @j = Wunderbar::JsonBuilder.new(Struct.new(:params).new({}))
   end

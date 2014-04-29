@@ -1,7 +1,7 @@
-require 'test/unit'
+require 'minitest/autorun' 
 require File.expand_path('../../tools/web2script.rb', __FILE__)
 
-class Web2ScriptTest < Test::Unit::TestCase
+class Web2ScriptTest < MiniTest::Test
   def convert(string)
     nodes = Nokogiri::HTML.fragment(string).children
     $q = []

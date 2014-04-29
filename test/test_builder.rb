@@ -1,8 +1,7 @@
-require 'test/unit'
-require 'rubygems'
+require 'minitest/autorun'
 require 'wunderbar'
 
-class BuilderTest < Test::Unit::TestCase
+class BuilderTest < Minitest::Test
   def test_empty
     x = Wunderbar::XmlMarkup.new :indent => 2
     x.tag!(:script) { x.indented_text! '' }

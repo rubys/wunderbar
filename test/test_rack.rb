@@ -1,9 +1,8 @@
-require 'test/unit'
-require 'rubygems'
+require 'minitest/autorun'
 require 'wunderbar'
 require 'stringio'
 
-class RackTest < Test::Unit::TestCase
+class RackTest < MiniTest::Test
   def setup
     @stderr, $stderr = $stderr, StringIO.new
     Wunderbar.queue.clear

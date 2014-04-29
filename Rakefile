@@ -1,4 +1,3 @@
-require "rubygems"
 require "rubygems/package_task"
 
 require File.expand_path(File.dirname(__FILE__) + "/lib/wunderbar/version")

@@ -1,7 +1,8 @@
-require 'test/unit'
+gem 'minitest'
+require 'minitest/autorun'
 require 'wunderbar'
 
-class AddonTest < Test::Unit::TestCase
+class AddonTest < MiniTest::Test
   def setup
     @x = Wunderbar::HtmlMarkup.new(Struct.new(:params).new({}))
   end

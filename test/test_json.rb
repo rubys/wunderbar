@@ -1,8 +1,7 @@
-require 'test/unit'
-require 'rubygems'
+require 'minitest/autorun'
 require 'wunderbar'
 
-class JsonTest < Test::Unit::TestCase
+class JsonTest < MiniTest::Test
   def setup
     @j = Wunderbar::JsonBuilder.new(Struct.new(:params).new({}))
   end

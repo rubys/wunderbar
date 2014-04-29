@@ -1,4 +1,5 @@
 require 'active_support/core_ext'
+require 'action_view'
 
 module Wunderbar
   module Rails
