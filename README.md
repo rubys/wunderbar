@@ -334,7 +334,7 @@ are sent individually and as they are produced.
 `_.recv` or `_.pop` can be used to receive arbitrary strings.  More commonly,
 `_.subscribe` is used to register a block that is used as a callback.
 
-`_.system` will run an aritrary command.  Lines of output are sent across the
+`_.system` will run an arbitrary command.  Lines of output are sent across the
 websocket as they are received as JSON encoded hashes with two values: `type`
 is one of `stdin`, `stdout` or `stderr`; and `line` which contains the line
 itself.  If the command is an array, the elements of the array will be escaped

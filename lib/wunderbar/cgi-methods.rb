@@ -12,7 +12,7 @@ module Wunderbar
       headers['status'] =  "404 Not Found" if output == {}
     rescue Exception => exception
       headers['status'] =  "500 Internal Server Error"
-      builder._! Hash.new
+      builder._! Hash.new unless builder.target? Hash
       builder._exception exception
     ensure
       out?(scope, headers) { builder.target! }

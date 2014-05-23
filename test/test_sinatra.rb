@@ -167,6 +167,31 @@ class SintraTest < MiniTest::Test
     assert_equal "_FATAL oh, dear\n", $stderr.string
   end
 
+  def test_json_system
+    get '/json/system' do
+      _json do
+        _.system ['echo', 'hi']
+      end
+    end
+
+    assert_match %r{^\s+"transcript": \[}, last_response.body
+    assert_match %r{\[\s*"\$ echo hi\",\s*"hi\"\s*\]}, last_response.body
+  end
+
+  def test_json_system_failure
+    get '/json/system_failure' do
+      _json do
+        _.system ['echo', 'hi']
+        error_undefined
+      end
+    end
+
+    assert_match %r{^\s+"transcript": \[}, last_response.body
+    assert_match %r{\[\s*"\$ echo hi\",\s*"hi\"\s*\]}, last_response.body
+    assert_match %r{^\s+"exception": ".*NameError.*error_undefined},
+      last_response.body
+  end
+
   def test_text_success
     get '/text/success' do
       _text do
@@ -222,6 +247,17 @@ class SintraTest < MiniTest::Test
 
     assert_equal "_FATAL oh, dear\n", $stderr.string
   end
+
+  def test_text_system
+    get '/text/system' do
+      _text do
+        _.system ['echo', 'hi']
+      end
+    end
+
+    assert_equal "$ echo hi\nhi\n", last_response.body
+  end
+
 
   def test_js_data
     get '/js/data' do

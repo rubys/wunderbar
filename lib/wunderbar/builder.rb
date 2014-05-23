@@ -27,6 +27,75 @@ module Wunderbar
       end
       Wunderbar.websocket(*args, &block)
     end
+
+    # execute a system command, echoing stdin, stdout, and stderr
+    def system(command, opts={})
+      if command.respond_to? :flatten
+        flat = command.flatten
+        secret = command - flat
+        begin
+          # if available, use escape as it does prettier quoting
+          require 'escape'
+          echo = Escape.shell_command(command.compact - secret)
+        rescue LoadError
+          # std-lib function that gets the job done
+          require 'shellwords'
+          echo = Shellwords.join(command.compact - secret)
+        end
+        command = flat.compact.map(&:dup).map(&:untaint)
+      else
+        echo = command
+        command = [command]
+      end
+
+      patterns = opts[:hilite] || []
+      patterns=[patterns] if String === patterns or Regexp === patterns
+      patterns.map! do |pattern|
+        String === pattern ? Regexp.new(Regexp.escape(pattern)) : pattern
+      end
+
+      yield :stdin, echo unless opts[:echo] == false
+
+      require 'open3'
+      require 'thread'
+      semaphore = Mutex.new
+      Open3.popen3(*command) do |pin, pout, perr, wait|
+        [
+          Thread.new do
+            until pout.eof?
+              out_line = pout.readline.chomp
+              semaphore.synchronize do
+                if patterns.any? {|pattern| out_line =~ pattern}
+                  yield :hilight, out_line
+                else
+                  yield :stdout, out_line
+                end
+              end
+            end
+          end,
+
+          Thread.new do
+            until perr.eof?
+              err_line = perr.readline.chomp
+              semaphore.synchronize do
+                yield :stderr, err_line
+              end
+            end
+          end,
+
+          Thread.new do
+            if opts[:stdin].respond_to? :read
+              require 'fileutils'
+              FileUtils.copy_stream opts[:stdin], pin
+            elsif opts[:stdin]
+              pin.write opts[:stdin].to_s
+            end
+            pin.close
+          end
+        ].each {|thread| thread.join}
+        wait and wait.value.exitstatus
+      end
+    end
   end
 
   class XmlMarkup < BuilderClass
@@ -167,77 +236,15 @@ module Wunderbar
 
     # execute a system command, echoing stdin, stdout, and stderr
     def system(command, opts={})
-      if command.respond_to? :flatten
-        flat = command.flatten
-        secret = command - flat
-        begin
-          # if available, use escape as it does prettier quoting
-          require 'escape'
-          echo = Escape.shell_command(command.compact - secret)
-        rescue LoadError
-          # std-lib function that gets the job done
-          require 'shellwords'
-          echo = Shellwords.join(command.compact - secret)
-        end
-        command = flat.compact.map(&:dup).map(&:untaint)
-      else
-        echo = command
-        command = [command]
-      end
-      
-      patterns = opts[:hilite] || []
-      patterns=[patterns] if String === patterns or Regexp === patterns
-      patterns.map! do |pattern| 
-        String === pattern ? Regexp.new(Regexp.escape(pattern)) : pattern
-      end
-
-      require 'open3'
       tag  = opts[:tag]  || 'pre'
       output_class = opts[:class] || {}
-      stdin  = output_class[:stdin]  || '_stdin'
-      stdout = output_class[:stdout] || '_stdout'
-      stderr = output_class[:stderr] || '_stderr'
-      hilite = output_class[:hilite] || '_stdout _hilite'
+      output_class[:stdin]  ||= '_stdin'
+      output_class[:stdout] ||= '_stdout'
+      output_class[:stderr] ||= '_stderr'
+      output_class[:hilite] ||= '_stdout _hilite'
 
-      tag! tag, echo, :class=>stdin unless opts[:echo] == false
-
-      require 'thread'
-      semaphore = Mutex.new
-      Open3.popen3(*command) do |pin, pout, perr, wait|
-        [
-          Thread.new do
-            until pout.eof?
-              out_line = pout.readline.chomp
-              semaphore.synchronize do
-                if patterns.any? {|pattern| out_line =~ pattern}
-                  tag! tag, out_line, :class=>hilite
-                else
-                  tag! tag, out_line, :class=>stdout
-                end
-              end
-            end
-          end,
-
-          Thread.new do
-            until perr.eof?
-              err_line = perr.readline.chomp
-              semaphore.synchronize do 
-                tag! tag, err_line, :class=>stderr
-              end
-            end
-          end,
-
-          Thread.new do
-            if opts[:stdin].respond_to? :read
-              require 'fileutils'
-              FileUtils.copy_stream opts[:stdin], pin
-            elsif opts[:stdin]
-              pin.write opts[:stdin].to_s
-            end
-            pin.close
-          end
-        ].each {|thread| thread.join}
-        wait and wait.value.exitstatus
+      super do |kind, line|
+        tag! tag, line, class: output_class[kind]
       end
     end
 
@@ -399,6 +406,16 @@ module Wunderbar
       end
     end
 
+    # execute a system command, echoing stdin, stdout, and stderr
+    def system(command, opts={})
+      output_prefix = opts[:prefix] || {}
+      output_prefix[:stdin]  ||= '$ '
+
+      super do |kind, line|
+        @_target.puts "#{output_prefix[kind]}#{line}"
+      end
+    end
+
     def target!
       @_target.string
     end
@@ -503,11 +520,31 @@ module Wunderbar
       end
     end
 
+    # execute a system command, echoing stdin, stdout, and stderr
+    def system(command, opts={})
+      transcript = opts[:transcript]  || 'transcript'
+      output_prefix = opts[:prefix] || {}
+      output_prefix[:stdin]  ||= '$ '
+      @_target[transcript] ||= []
+
+      super do |kind, line|
+        @_target[transcript] << "#{output_prefix[kind]}#{line}"
+      end
+    end
+
     def target!
       begin
         JSON.pretty_generate(@_target)+ "\n"
       rescue
         @_target.to_json + "\n"
+      end
+    end
+
+    def target?(type=nil)
+      if Class === type
+        type === @_target
+      else
+        @_target
       end
     end
   end

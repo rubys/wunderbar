@@ -409,6 +409,12 @@ class HtmlMarkupTest < MiniTest::Test
     assert_equal %{<!-- foo -->\n}, target
   end
 
+  def test_system
+    @x.html {_.system ['echo', 'hi']}
+    assert_match %r[<pre class=\"_stdin\">echo hi</pre>], target
+    assert_match %r[<pre class=\"_stdout\">hi</pre>], target
+  end
+
   def test_svg
     @x.html {_svg}
     assert_match %r[^ +<svg xmlns="http://www.w3.org/2000/svg"/?>], target
