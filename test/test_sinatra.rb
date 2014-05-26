@@ -2,6 +2,9 @@ require 'minitest/autorun'
 require 'wunderbar'
 require 'stringio'
 
+# workaround #<SecurityError: Insecure PATH - echo>`
+ENV['PATH'] = ENV['PATH'].dup.untaint
+
 class SintraTest < MiniTest::Test
   def setup
     @stderr, $stderr = $stderr, StringIO.new
