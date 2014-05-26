@@ -270,7 +270,7 @@ class HtmlMarkupTest < MiniTest::Test
 
   def test_meta_charset
     @x.html {_head}
-    assert_match %r[<head>\s*<meta charset="utf-8"/>\s*</head>], target
+    assert_match %r[<head>\s*<meta charset="utf-8"/>\s*], target
   end
 
   def test_nil_attribute
