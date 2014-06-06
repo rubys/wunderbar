@@ -21,6 +21,8 @@ A [tutorial](https://github.com/rubys/wunderbar/blob/master/docs/Introduction1.m
 Additional functionality is provided by
 [extensions](https://github.com/rubys/wunderbar/blob/master/docs/Extensions.md).
 
+[![Build Status](https://travis-ci.org/rubys/wunderbar.svg)](https://travis-ci.org/rubys/wunderbar) 
+
 Overview
 ---
 
