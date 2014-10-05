@@ -503,6 +503,14 @@ class HtmlMarkupTest < MiniTest::Test
     assert_match /<meta.*>\s*<title>title<\/title>\s*<script/, target
   end
 
+  def test_null_base
+    @x.html do
+      _script 'alert("Yo!")'
+      _base
+    end
+    assert_match %r{<meta.*>\s*<base/>\s*<script}, target
+  end
+
   def test_head_reordering_base
     @x.html do
       _script 'alert("Yo!")'

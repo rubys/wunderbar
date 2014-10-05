@@ -124,7 +124,7 @@ module Wunderbar
         require 'pathname'
         base = @_scope.env['DOCUMENT_ROOT'] if @_scope.env.respond_to? :[]
         base ||= Dir.pwd
-        base += head.children[1].attrs[:href]
+        base += (head.children[1].attrs[:href] || '')
         base += 'index.html' if base.end_with? '/'
         base = Pathname.new(base).parent
         prefix = Pathname.new(Dir.pwd).relative_path_from(base).to_s + '/'
