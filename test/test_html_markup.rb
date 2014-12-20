@@ -390,6 +390,11 @@ class HtmlMarkupTest < MiniTest::Test
     assert_match %r[^ +<pre>before\n<b><i>middle</i></b>\nafter</pre>], target
   end
 
+  def test_pre_newline
+    @x.html {_div _{"<pre>before\n<b><i>middle</i></b>\nafter</pre>"}}
+    assert_match %r[^ +<pre>before\n<b><i>middle</i></b>\nafter</pre>], target
+  end
+
   def test_literal_markup
     @x.html {_{"<p>one</p>\n\n<p>two</p>\n"}}
     assert_match %r[^( +)<p>one</p>\n\n\1<p>two</p>], target

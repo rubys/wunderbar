@@ -46,11 +46,17 @@ module Wunderbar
       indent += options[:indent] if indent and parent
       first = true
       spaced = false
+
+      if preserve_spaces?
+        options = options.dup
+        options[:space] = :preserve
+      end
+
       children.each do |child| 
         next unless child
         result << '' if (spaced or SpacedNode === child) and not first
         if String === child
-          child = child.gsub(/\s+/, ' ') unless CDATANode === self
+          child = child.gsub(/\s+/, ' ') unless options[:space] == :preserve
           result << child
         else
           child.serialize(options, result, indent)
@@ -134,6 +140,10 @@ module Wunderbar
       result << line if parent
       result
     end
+
+    def preserve_spaces?
+      false
+    end
   end
 
   class CommentNode
@@ -159,7 +169,13 @@ module Wunderbar
     end
   end
 
-  class CDATANode < Node
+  class PreformattedNode < Node
+    def preserve_spaces?
+      true
+    end
+  end
+
+  class CDATANode < PreformattedNode
     def self.normalize(data, indent='')
       data = data.sub(/\n\s*\Z/, '').sub(/\A\s*\n/, '')
 
@@ -198,10 +214,10 @@ module Wunderbar
     end
 
     def serialize(options, result, indent)
-      if indent
-        result << @text.to_s.gsub(/[&<>]/,ESCAPE).gsub(/\s+/, ' ')
-      else
+      if options[:space] == :preserve
         result << @text.to_s.gsub(/[&<>]/,ESCAPE)
+      else
+        result << @text.to_s.gsub(/[&<>]/,ESCAPE).gsub(/\s+/, ' ')
       end
     end
   end
@@ -211,7 +227,6 @@ module Wunderbar
       return [line] unless width and indent
       line = indent + line.gsub!(/\s+/, ' ').strip
       indent += '  '
-
 
       result = []
       while line.length > width

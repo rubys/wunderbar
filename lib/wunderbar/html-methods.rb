@@ -5,8 +5,7 @@ module Wunderbar
     def _script(*args, &block)
       args << {} unless Hash === args.last
       args.last[:lang] ||= 'text/javascript'
-      args.unshift ScriptNode
-      proxiable_tag! 'script', *args, &block
+      proxiable_tag! 'script', ScriptNode, *args, &block
     end
 
     def _style(*args, &block)
@@ -19,8 +18,7 @@ module Wunderbar
       end
       args << {} unless Hash === args.last
       args.last[:type] ||= 'text/css'
-      args.unshift StyleNode
-      proxiable_tag! 'style', *args, &block
+      proxiable_tag! 'style', StyleNode, *args, &block
     end
   end
 
@@ -292,7 +290,9 @@ module Wunderbar
     
     def _pre(*args, &block)
       args.first.chomp! if String === args.first and args.first.end_with? "\n"
-      @_x.compact! { tag! :pre, *args, &block }
+      @_x.compact! do
+        proxiable_tag! :pre, PreformattedNode, *args, &block
+      end
     end
 
     def _ul(*args, &block)

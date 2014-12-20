@@ -191,12 +191,19 @@ module Wunderbar
             [name, attr.value]
           }]
         end
+
         attributes.merge!(node.namespaces) if node.namespaces
         args.push attributes
         if node.namespace and node.namespace.prefix
           sym = "#{node.namespace.prefix}:#{node.name}"
         else
           sym = node.name
+        end
+
+        unless Class === args.first
+          args.unshift PreformattedNode if sym == 'pre'
+          args.unshift ScriptNode if sym == 'script'
+          args.unshift StyleNode if sym == 'style'
         end
       end
 
