@@ -382,10 +382,13 @@ module Wunderbar
       @_x[*children]
     end
 
-    def __(text=nil)
+    def __(text=nil, &block)
       if text
         @_x.spaced!
         @_x.indented_text! text
+      elsif block
+        @_x.spaced!
+        _ &block
       else
         @_x.text! ""
       end

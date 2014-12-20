@@ -164,6 +164,12 @@ class HtmlMarkupTest < MiniTest::Test
       target
   end
 
+  def test_spaced_block
+    @x.html {_div {_ 'one'; __{'<br/>'}; _ 'two'}}
+    assert_match %r[<div>\n +one\n\n +<br/>\n\n +two\n +</div>], 
+      target
+  end
+
   def test_spaced_collapsed
     @x.html {_div {_p_ 'one'; _hr_; _p_ 'two'}}
     assert_match %r[<div>\n +<p>one</p>\n\n +<hr/>\n\n +<p>two</p>\n +</div>], 
