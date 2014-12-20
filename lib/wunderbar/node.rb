@@ -50,6 +50,7 @@ module Wunderbar
         next unless child
         result << '' if (spaced or SpacedNode === child) and not first
         if String === child
+          child = child.gsub(/\s+/, ' ') unless CDATANode === self
           result << child
         else
           child.serialize(options, result, indent)
@@ -70,22 +71,24 @@ module Wunderbar
       end
 
       if children.empty? 
-        if text
-          if options[:pre]
-            line += ">#{options[:pre]}#{text}#{options[:post]}</#{name}>"
-          else
-            width = options[:width] if name != :pre
-            line += ">#{text.to_s.gsub(/[&<>]/,ESCAPE)}</#{name}>"
-            if indent and width and line.length > width
-              reflowed = IndentedTextNode.reflow(indent, line, width)
-              line = reflowed.pop
-              result.push *reflowed
-            end
-          end
-        elsif VOID.include? name.to_s
-          line += "/>"
+        if options[:pre]
+          line += ">#{options[:pre]}#{text}#{options[:post]}</#{name}>"
         else
-          line += "></#{name}>"
+          width = options[:width] if name != :pre
+
+          if text
+            line += ">#{text.to_s.gsub(/[&<>]/,ESCAPE)}</#{name}>"
+          elsif VOID.include? name.to_s
+            line += "/>"
+          else
+            line += "></#{name}>"
+          end
+
+          if indent and width and line.length > width
+            reflowed = IndentedTextNode.reflow(indent, line, width)
+            line = reflowed.pop
+            result.push *reflowed
+          end
         end
       elsif CompactNode === self and not CompactNode === parent
         work = []
@@ -113,7 +116,7 @@ module Wunderbar
                 line += ' ' + token
               else
                 result << line
-                line = indent.to_s + token
+                line = indent.to_s + options[:indent] + token
               end
             end
           end
@@ -177,7 +180,7 @@ module Wunderbar
       end
 
       if @text and @text =~ /[<^>]/
-        indent += '  ' if indent
+        indent += options[:indent] if indent
         children.unshift @text.gsub(/^/, indent).gsub(/^ +$/,'').rstrip
         @text = nil
         super(options.merge(pre: pre, post: post), result, indent)
@@ -195,13 +198,20 @@ module Wunderbar
     end
 
     def serialize(options, result, indent)
-      result << @text.to_s.gsub(/[&<>]/,ESCAPE)
+      if indent
+        result << @text.to_s.gsub(/[&<>]/,ESCAPE).gsub(/\s+/, ' ')
+      else
+        result << @text.to_s.gsub(/[&<>]/,ESCAPE)
+      end
     end
   end
 
   class IndentedTextNode < TextNode
     def self.reflow(indent, line, width)
-      return [line] if line.include? "\n" or not width
+      return [line] unless width and indent
+      line = indent + line.gsub!(/\s+/, ' ').strip
+      indent += '  '
+
 
       result = []
       while line.length > width

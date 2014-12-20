@@ -430,14 +430,14 @@ class HtmlMarkupTest < MiniTest::Test
     @x.html :_width => 80 do
       _p ('a'..'z').map {|l| l*5}.join(' ')
     end
-    assert_match /lllll\n {4}mmmmm/, target
+    assert_match /lllll\n {6}mmmmm/, target
   end
 
   def test_width_indented_text
     @x.html :_width => 80 do
       _ ('a'..'z').map {|l| l*5}.join(' ')
     end
-    assert_match /lllll\n {4}mmmmm/, target
+    assert_match /lllll\n {6}mmmmm/, target
   end
 
   def test_width_cdata
@@ -466,7 +466,7 @@ class HtmlMarkupTest < MiniTest::Test
         5.times {|i| _a i, :href=>i; _ ', '}
       end
     end
-    assert_match /<a href="1">1<\/a>, <a href="2">2<\/a>,\n {4}<a href="3">/, 
+    assert_match /<a href="1">1<\/a>, <a href="2">2<\/a>,\n {6}<a href="3">/, 
       target
   end
 
@@ -481,7 +481,7 @@ class HtmlMarkupTest < MiniTest::Test
     end
     assert_match /<div><span><span>one/, target
     assert_match /eleven\n +twelve thirteen/, target
-    assert_match %r{\n    twenty</span></span></div>}, target
+    assert_match %r{\n {6}twenty</span></span></div>}, target
   end
 
   def test_implicit_elements
