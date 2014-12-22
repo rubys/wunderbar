@@ -166,10 +166,10 @@ module Wunderbar
 
     def compact!(&block)
       begin
-        @indentation_enabled = false
+        indentation_enabled, @indentation_enabled = @indentation_enabled, false
         block.call
       ensure
-        @indentation_enabled = true
+        @indentation_enabled = indentation_enabled
       end
     end
 
@@ -315,33 +315,8 @@ module Wunderbar
         elsif child.comment?
           comment! child.text.sub(/\A /,'').sub(/ \Z/, '')
         elsif HtmlMarkup.flatten? child.children
-          block_element = Proc.new do |node| 
-            node.element? and HtmlMarkup::HTML5_BLOCK.include?(node.name)
-          end
-
-          if child.children.any?(&block_element)
-            # indent children, but disable indentation on consecutive
-            # sequences of non-block-elements.  Put another way: break
-            # out block elements to a new line.
-            tag!(child) do
-              children = child.children.to_a
-              while not children.empty?
-                stop = children.index(&block_element)
-                if stop == 0
-                  self[children.shift]
-                else
-                  compact!(nil) do
-                    self[*children.shift(stop || children.length)]
-                  end
-                end
-              end
-            end
-          else
-            # disable indentation on the entire element
-            compact! do
-              tag!(child) {self[*child.children]}
-            end
-          end
+          # disable indentation on the entire element
+          compact! { tag!(child) {self[*child.children]} }
         elsif child.children.empty? and HtmlMarkup::VOID.include? child.name
           tag!(child)
         elsif child.children.all?(&:text?)

@@ -9,7 +9,7 @@ module Wunderbar
   class ScriptNode
     attr_accessor :block, :binding
     def serialize(options, result, indent)
-      if @block
+      if @block and @children.empty? and not @text
         width = options[:width]
         width -= indent.to_s.length if width
         @text = Ruby2JS.convert(@block, binding: @binding, width: width)
