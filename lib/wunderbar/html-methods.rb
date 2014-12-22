@@ -351,7 +351,12 @@ module Wunderbar
         safe = true
 
         if ok and (children.include? '<' or children.include? '&')
-          doc = Nokogiri::HTML::fragment(children.to_s)
+          if defined? Nokogiri::HTML5.fragment
+            doc = Nokogiri::HTML5.fragment(children.to_s)
+          else
+            doc = Nokogiri::HTML.fragment(children.to_s)
+          end
+
           Sanitize.new.clean_node! doc.dup.untaint if not safe
           children = doc.children.to_a
 

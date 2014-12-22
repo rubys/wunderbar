@@ -442,6 +442,8 @@ The following gems are required by extensions of the same name:
 The following gems, if installed, will produce cleaner and prettier output:
 
 * `nokogiri` cleans up HTML fragments inserted via `<<`
+* `nokogumbo` also cleans up HTML fragments inserted via `<<`.  If this is
+  available, it will be preferred over direct usage of `nokogiri`.
 * `escape` prettier quoting of `system` commands
 * `sanitize` will remove unsafe markup from tainted input
 
