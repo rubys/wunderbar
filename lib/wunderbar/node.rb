@@ -80,7 +80,7 @@ module Wunderbar
         if options[:pre]
           line += ">#{options[:pre]}#{text}#{options[:post]}</#{name}>"
         else
-          width = options[:width] if name != :pre
+          width = options[:width] unless preserve_spaces?
 
           if text
             line += ">#{text.to_s.gsub(/[&<>]/,ESCAPE)}</#{name}>"
