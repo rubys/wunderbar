@@ -45,6 +45,10 @@ rescue LoadError =>  exception
   end
 end
 
+if ActiveSupport::TestCase.respond_to? :test_order
+  ActiveSupport::TestCase.test_order = :sorted
+end
+
 class WunderbarOnRailsTest < ActionController::TestCase
 
   def setup
