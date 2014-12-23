@@ -108,10 +108,10 @@ class HtmlMarkupTest < MiniTest::Test
     else
       assert_match %r[<div class="one">\s+<p>\s+<br/>\s+\u00a9\s+</p>], target
     end
-    assert_match %r[<head>\s+<script>\s+foo\s+</script>], target
+    assert_match %r[<head>\s+<script>foo</script>], target
     assert_match %r[<head>\s+<script>//<!\[CDATA\[\s+
       1<2\s+//\]\]></script>]x, target
-    assert_match %r[<head>\s+<style>\s+foo\s+</style>], target
+    assert_match %r[<head>\s+<style>foo</style>], target
     assert_match %r[<head>\s+<style>/\*<!\[CDATA\[\*/\s+
       a:before\s\{content:\s"<"\}\s+/\*\]\]>\*/</style>]x, target
   end
@@ -190,8 +190,7 @@ class HtmlMarkupTest < MiniTest::Test
 
   def test_import_style
     @x.html {_div {_ {"<style>em {color: red}</style>"}}}
-    assert_match %r[<head>\n +<style>\n +em \{color: red\}\n +</style>\n], 
-      target
+    assert_match %r[<head>\n +<style>em \{color: red\}</style>\n], target
   end
 
   def test_import_comment

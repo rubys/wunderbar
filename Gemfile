@@ -6,7 +6,7 @@ group :test do
   gem 'rake'
   gem 'actionpack'
   gem 'sinatra'
-  gem 'nokogiri'
+  gem 'nokogumbo'
   gem 'ruby2js'
   gem 'rails'
   gem 'sourcify'
