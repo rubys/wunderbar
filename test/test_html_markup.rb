@@ -399,6 +399,17 @@ class HtmlMarkupTest < MiniTest::Test
     assert_match %r[^( +)<p>one</p>\n\n\1<p>two</p>], target
   end
 
+  def test_proc
+    content = proc do
+      _p 'one'
+      __
+      _p 'two'
+    end
+
+    @x.html {_ &content}
+    assert_match %r[^( +)<p>one</p>\n\n\1<p>two</p>], target
+  end
+
   def test_chomped_pre
     @x.html {_div {_pre "before\nmiddle\nafter\n"}}
     assert_match %r[^ +<pre>before\nmiddle\nafter</pre>], target

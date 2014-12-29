@@ -341,7 +341,7 @@ module Wunderbar
         return @_x
       end
 
-      children = block.call
+      children = instance_eval &block
 
       if String === children
         safe = !children.tainted?
@@ -382,6 +382,8 @@ module Wunderbar
         else
           return @_x.indented_text! children
         end
+      elsif children.nil? or Wunderbar::Node === children
+        return children
       end
 
       @_x[*children]
