@@ -37,4 +37,19 @@ class BuilderTest < Minitest::Test
     end
     assert x.target!.include? '<p>' and x.target!.include? '</p>'
   end
+
+  def test_dump_string
+    assert_equal "<source/>\n", Wunderbar::XmlMarkup.dump("<source>")
+  end
+
+  def test_dump_fragment
+    content = Nokogiri::HTML5.fragment('<source>')
+    assert_equal "<source/>\n", Wunderbar::XmlMarkup.dump(content)
+  end
+
+  def test_dump_document
+    content = Nokogiri::HTML5.parse('<source>')
+    assert_equal "<!DOCTYPE html>\n<html>\n  <head></head>\n  <body>\n    " +
+      "<source/>\n  </body>\n</html>\n", Wunderbar::XmlMarkup.dump(content)
+  end
 end

@@ -99,9 +99,26 @@ module Wunderbar
   end
 
   class XmlMarkup < BuilderClass
-    def initialize(args)
+    # convenience method for taking an XML node or string and formatting it
+    def self.dump(content, args={})
+      markup = self.new(args)
+
+      if Nokogiri::XML::Document === content and content.root.name == 'html'
+        markup.declare! :DOCTYPE, :html
+      end
+
+      if String === content
+        markup << content
+      else
+        markup[content]
+      end
+
+      markup.target!
+    end
+
+    def initialize(args={})
       @_scope = args.delete(:scope)
-      @_indent = args.delete(:indent) or 2
+      @_indent = args.delete(:indent) || 2
       @_pdf = false
       @doc = Node.new(nil)
       @node = @doc
@@ -259,6 +276,7 @@ module Wunderbar
     def <<(data)
       if defined? Nokogiri
         if not String === data or data.include? '<' or data.include? '&'
+          # https://github.com/google/gumbo-parser/issues/266
           data = Nokogiri::HTML::fragment(data.to_s).to_xml
 
           # fix CDATA in most cases (notably scripts)
@@ -289,8 +307,14 @@ module Wunderbar
     end
 
     def [](*children)
-      if children.length == 1 and children.first.respond_to? :root
-        children = [children.first.root]
+      if children.length == 1
+        if children.first.respond_to? :root
+          children = [children.first.root]
+        elsif defined? Nokogiri::XML::DocumentFragment and
+          Nokogiri::XML::DocumentFragment === children.first
+        then
+          children = children.first.children
+        end
       end
 
       # remove leading and trailing space
