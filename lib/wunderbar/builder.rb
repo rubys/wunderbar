@@ -107,12 +107,15 @@ module Wunderbar
         markup.declare! :DOCTYPE, :html
       end
 
-      if String === content
-        markup << content
-      else
-        markup[content]
+      unless Nokogiri::XML::Node === content
+        if defined? Nokogiri::HTML5.fragment
+          content = Nokogiri::HTML5.fragment(content.to_s)
+        else
+          content = Nokogiri::HTML.fragment(content.to_s)
+        end
       end
 
+      markup[content]
       markup.target!
     end
 
