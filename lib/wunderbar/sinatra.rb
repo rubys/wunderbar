@@ -27,6 +27,8 @@ module Wunderbar
         return _html(*args, &block)
       end
 
+      Wunderbar::Template.locals(self, args)
+
       if block
         Wunderbar::Template::Xhtml.evaluate('_xhtml', self) do
           _xhtml(*args) { instance_eval &block }

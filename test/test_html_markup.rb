@@ -102,12 +102,7 @@ class HtmlMarkupTest < MiniTest::Test
       _div.four  {_ {'<style>foo</style>'}}
       _div.five  {_ {'<style>a:before {content: "<"}</style>'}}
     end
-    if RUBY_VERSION =~ /^1\.8/
-      assert_match %r[<div class="one">\s+<p>\s+<br/>\s+\302\251\s+</p>],
-        target
-    else
-      assert_match %r[<div class="one">\s+<p>\s+<br/>\s+\u00a9\s+</p>], target
-    end
+    assert_match %r[<div class="one">\s+<p>\s+<br/>\s+\u00a9\s+</p>], target
     assert_match %r[<head>\s+<script>foo</script>], target
     assert_match %r[<head>\s+<script>//<!\[CDATA\[\s+
       1<2\s+//\]\]></script>]x, target
@@ -124,12 +119,8 @@ class HtmlMarkupTest < MiniTest::Test
       _div.four  {_ << '<style>foo</style>'}
       _div.five  {_ << '<style>a:before {content: "<"}</style>'}
     end
-    if RUBY_VERSION =~ /^1\.8/
-      assert_match %r[<div class="one">\s+<p><br/>\302\251</p>], target
-    else
-      assert_match %r[<div class="one">\s+<p><br/>(\302\251|&#169;)</p>]u,
-        target
-    end
+    assert_match %r[<div class="one">\s+<p><br/>(\302\251|&#169;)</p>]u,
+      target
     assert_match %r[<div class="two">\s+<script>foo</script>], target
     assert_match %r[<div\sclass="three">\s+<script>//<!\[CDATA\[\s+
       1<2\s+//\]\]></script>]x, target
@@ -594,5 +585,12 @@ class HtmlMarkupTest < MiniTest::Test
       end
     end
     assert_match %r{<tr>\s+<td>apple</td>}, target
+  end
+
+  def test_nbsp
+    @x.html do
+      _p "A\u00A0B"
+    end
+    assert_match %r{<p>A&#xA0;B</p>}, target
   end
 end
