@@ -49,7 +49,7 @@ spec = Gem::Specification.new do |s|
   # s.add_development_dependency("mocha") # for example
 
   # Require Ruby 1.9.3 or greater
-  spec.required_ruby_version = '>= 1.9.3'
+  s.required_ruby_version = '>= 1.9.3'
 end
 
 # This task actually builds the gem. We also regenerate a static
