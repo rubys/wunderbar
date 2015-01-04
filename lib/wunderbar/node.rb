@@ -13,6 +13,7 @@ module Wunderbar
       '"' => '&quot;',
       '<' => '&lt;',
       '>' => '&gt;',
+      "\u00A0" => '&#xA0;',
     }
 
     def initialize(name, *args)
@@ -73,7 +74,7 @@ module Wunderbar
         next unless value
         name = name.to_s.gsub('_','-') if Symbol === name
         value=name if value==true
-        line += " #{name}=\"#{value.to_s.gsub(/[&\"<>]/,ESCAPE)}\""
+        line += " #{name}=\"#{value.to_s.gsub(/[&\"<>\u00A0]/,ESCAPE)}\""
       end
 
       if children.empty? 
@@ -83,7 +84,7 @@ module Wunderbar
           width = options[:width] unless preserve_spaces?
 
           if text
-            line += ">#{text.to_s.gsub(/[&<>]/,ESCAPE)}</#{name}>"
+            line += ">#{text.to_s.gsub(/[&<>\u00A0]/,ESCAPE)}</#{name}>"
           elsif VOID.include? name.to_s
             line += "/>"
           else
@@ -215,9 +216,9 @@ module Wunderbar
 
     def serialize(options, result, indent)
       if options[:space] == :preserve
-        result << @text.to_s.gsub(/[&<>]/,ESCAPE)
+        result << @text.to_s.gsub(/[&<>\u00A0]/,ESCAPE)
       else
-        result << @text.to_s.gsub(/[&<>]/,ESCAPE).gsub(/\s+/, ' ')
+        result << @text.to_s.gsub(/[&<>\u00A0]/,ESCAPE).gsub(/\s+/, ' ')
       end
     end
   end
@@ -247,7 +248,7 @@ module Wunderbar
       end
 
       result.push *IndentedTextNode.reflow(indent, 
-        text.to_s.gsub(/[&<>]/,ESCAPE), options[:width])
+        text.to_s.gsub(/[&<>\u00A0]/,ESCAPE), options[:width])
     end
   end
 
