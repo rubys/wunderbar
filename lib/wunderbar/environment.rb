@@ -77,12 +77,8 @@ $SERVER = ENV['HTTP_HOST'] || Socket::gethostname
 
 # set encoding to UTF-8
 ENV['LANG'] ||= "en_US.UTF-8"
-if defined? Encoding
-  Encoding.default_external = Encoding::UTF_8
-  Encoding.default_internal = Encoding::UTF_8
-else
-  $KCODE = 'U'
-end
+Encoding.default_external = Encoding::UTF_8
+Encoding.default_internal = Encoding::UTF_8
 
 # Add methods to the 'main' object
 if self.to_s == 'main'

@@ -394,8 +394,7 @@ Also, the following environment variables are set if they aren't already:
 * `LANG`
 * `REMOTE_USER`
 
-Finally, the (Ruby 1.9.x) default external and internal encodings are set to
-UTF-8.  For Ruby 1.8, `$KCODE` is set to `U`
+Finally, the default external and internal encodings are set to UTF-8.
 
 Logging:
 ---

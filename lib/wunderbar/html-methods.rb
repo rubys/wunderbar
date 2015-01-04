@@ -50,11 +50,7 @@ module Wunderbar
         @_x.width = args.first.delete(:_width).to_i if args.first[:_width]
       end
 
-      if ''.respond_to? :encoding
-        bom = "\ufeff"
-      else
-        bom = "\xEF\xBB\xBF"
-      end
+      bom = "\ufeff"
 
       title = args.shift if String === args.first
       @_x.declare! :DOCTYPE, :html
