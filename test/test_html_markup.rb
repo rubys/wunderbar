@@ -411,6 +411,16 @@ class HtmlMarkupTest < MiniTest::Test
     assert_match %r[^ +<pre class="x">before\nmiddle\nafter</pre>], target
   end
 
+  def test_unchomped_textarea_class
+    @x.html {_div {_textarea.x "before\nmiddle\nafter\n"}}
+    assert_match %r[^ +<textarea class="x">before\nmiddle\nafter\n</textarea>], target
+  end
+
+  def test_imported_textarea
+    @x.html {_ {"<textarea>before\nmiddle\nafter</textarea>"}}
+    assert_match %r[^ +<textarea>before\nmiddle\nafter</textarea>], target
+  end
+
   def test_declare
     @x._.declare! :DOCTYPE, 'html'
     assert_equal %{<!DOCTYPE html>\n}, target

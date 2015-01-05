@@ -291,6 +291,12 @@ module Wunderbar
       end
     end
 
+    def _textarea(*args, &block)
+      @_x.compact! do
+        proxiable_tag! :textarea, PreformattedNode, *args, &block
+      end
+    end
+
     def _ul(*args, &block)
       iterable = args.first.respond_to? :each
       if iterable and (args.length > 1 or not args.first.respond_to? :to_hash)
