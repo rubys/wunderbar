@@ -263,6 +263,8 @@ class SintraTest < MiniTest::Test
 
 
   def test_js_data
+    Wunderbar::CALLERS_TO_IGNORE.clear
+
     get '/js/data' do
       _js :data
     end

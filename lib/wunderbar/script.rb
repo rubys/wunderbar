@@ -76,7 +76,7 @@ module Wunderbar
 
   module Template
     module Js
-      def self.ext; :_js; end
+      def self.ext; ['js.rb', :_js]; end
       def self.mime; 'application/javascript'; end
 
       def evaluate(scope, locals, &block)

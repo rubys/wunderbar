@@ -14,11 +14,11 @@ module Wunderbar
       Wunderbar::Template.locals(self, args)
 
       if block
-        Wunderbar::Template::Html.evaluate('_html', self) do
+        Wunderbar::Template::Html.evaluate('html.rb', self) do
           _html(*args) { instance_eval &block }
         end
       else
-        Wunderbar::Template::Html.evaluate('_html', self, *args)
+        Wunderbar::Template::Html.evaluate('html.rb', self, *args)
       end
     end
 
@@ -30,11 +30,11 @@ module Wunderbar
       Wunderbar::Template.locals(self, args)
 
       if block
-        Wunderbar::Template::Xhtml.evaluate('_xhtml', self) do
+        Wunderbar::Template::Xhtml.evaluate('xhtml.rb', self) do
           _xhtml(*args) { instance_eval &block }
         end
       else
-        Wunderbar::Template::Xhtml.evaluate('_xhtml', self, *args)
+        Wunderbar::Template::Xhtml.evaluate('xhtml.rb', self, *args)
       end
     end
   end
@@ -126,7 +126,7 @@ module Wunderbar
     end
 
     module Json
-      def self.ext; :_json; end
+      def self.ext; ['json.rb', :_json]; end
       def self.mime; 'application/json'; end
 
       def evaluate(scope, locals, &block)
@@ -144,7 +144,7 @@ module Wunderbar
     end
 
     module Text
-      def self.ext; :_text; end
+      def self.ext; ['text.rb', :_text]; end
       def self.mime; 'text/plain'; end
 
       def evaluate(scope, locals, &block)
@@ -186,24 +186,26 @@ module Wunderbar
         include language
       end
 
-      SinatraHelpers.send :define_method, language.ext do |*args, &block|
-        # parse json
-        if env['CONTENT_TYPE'] =~ /^\w+\/json/
-          json = JSON.parse(env['rack.input'].read)
-          @params.merge! json if Hash === json
-        end
-
-        Wunderbar::Template.locals(self, args)
-        if Hash === args.last and args.last[:locals]
-          @params.each do |name, value| 
-            args.last[:locals]["@#{name}".to_sym] = value
+      Array(language.ext).each do |ext|
+        SinatraHelpers.send :define_method, ext do |*args, &block|
+          # parse json
+          if env['CONTENT_TYPE'] =~ /^\w+\/json/
+            json = JSON.parse(env['rack.input'].read)
+            @params.merge! json if Hash === json
           end
+
+          Wunderbar::Template.locals(self, args)
+          if Hash === args.last and args.last[:locals]
+            @params.each do |name, value| 
+              args.last[:locals]["@#{name}".to_sym] = value
+            end
+          end
+
+          template.evaluate(ext, self, *args, &block)
         end
 
-        template.evaluate(language.ext, self, *args, &block)
+        Tilt.register ext.to_s, template
       end
-
-      Tilt.register language.ext.to_s, template
     end
 
     constants.each do |language|
@@ -214,7 +216,9 @@ module Wunderbar
 end
 
 Tilt.register '_html',  Wunderbar::Template::Html
+Tilt.register 'html.rb',  Wunderbar::Template::Html
 Tilt.register '_xhtml', Wunderbar::Template::Xhtml
+Tilt.register 'xhtml.rb', Wunderbar::Template::Xhtml
 
 helpers Wunderbar::SinatraHelpers
 
