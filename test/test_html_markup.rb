@@ -416,6 +416,18 @@ class HtmlMarkupTest < MiniTest::Test
     assert_match %r[^ +<textarea class="x">before\nmiddle\nafter\n</textarea>], target
   end
 
+  def test_textarea_unflowed
+    text = (%w(word)*40).join(' ')
+    @x.html(_width:40) {_div {_textarea.x text}}
+    assert_match %r[^ +<textarea class="x">.*</textarea>], target
+  end
+
+  def test_pre_unflowed
+    text = (%w(word)*40).join(' ')
+    @x.html(_width:40) {_div {_pre.x text}}
+    assert_match %r[^ +<pre class="x">.*</pre>], target
+  end
+
   def test_imported_textarea
     @x.html {_ {"<textarea>before\nmiddle\nafter</textarea>"}}
     assert_match %r[^ +<textarea>before\nmiddle\nafter</textarea>], target

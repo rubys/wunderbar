@@ -292,9 +292,7 @@ module Wunderbar
     end
 
     def _textarea(*args, &block)
-      @_x.compact! do
-        proxiable_tag! :textarea, PreformattedNode, *args, &block
-      end
+      proxiable_tag! :textarea, PreformattedNode, *args, &block
     end
 
     def _ul(*args, &block)
