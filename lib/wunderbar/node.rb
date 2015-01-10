@@ -92,7 +92,8 @@ module Wunderbar
           end
 
           if indent and width and line.length > width
-            reflowed = IndentedTextNode.reflow(indent, line, width)
+            reflowed = IndentedTextNode.reflow(indent, line, width,
+              options[:indent])
             line = reflowed.pop
             result.push *reflowed
           end
@@ -224,10 +225,10 @@ module Wunderbar
   end
 
   class IndentedTextNode < TextNode
-    def self.reflow(indent, line, width)
+    def self.reflow(indent, line, width, next_indent)
       return [line] unless width and indent
       line = indent + line.gsub!(/\s+/, ' ').strip
-      indent += '  '
+      indent += next_indent
 
       result = []
       while line.length > width
@@ -248,7 +249,7 @@ module Wunderbar
       end
 
       result.push *IndentedTextNode.reflow(indent, 
-        text.to_s.gsub(/[&<>\u00A0]/,ESCAPE), options[:width])
+        text.to_s.gsub(/[&<>\u00A0]/,ESCAPE), options[:width], '')
     end
   end
 

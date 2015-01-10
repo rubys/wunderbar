@@ -471,7 +471,7 @@ class HtmlMarkupTest < MiniTest::Test
     @x.html :_width => 80 do
       _ ('a'..'z').map {|l| l*5}.join(' ')
     end
-    assert_match /lllll\n {6}mmmmm/, target
+    assert_match /lllll\n {4}mmmmm/, target
   end
 
   def test_width_cdata
