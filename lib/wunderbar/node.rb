@@ -91,7 +91,7 @@ module Wunderbar
             line += "></#{name}>"
           end
 
-          if indent and width and line.length > width
+          if indent and width and (line.length > width or line.include? "\n")
             reflowed = IndentedTextNode.reflow(indent, line, width,
               options[:indent])
             line = reflowed.pop
@@ -227,7 +227,7 @@ module Wunderbar
   class IndentedTextNode < TextNode
     def self.reflow(indent, line, width, next_indent)
       return [line] unless width and indent
-      line = indent + line.gsub!(/\s+/, ' ').strip
+      line = indent + line.gsub(/\s+/, ' ').strip
       indent += next_indent
 
       result = []

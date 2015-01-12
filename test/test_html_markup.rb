@@ -467,6 +467,13 @@ class HtmlMarkupTest < MiniTest::Test
     assert_match /lllll\n {6}mmmmm/, target
   end
 
+  def test_width_nl
+    @x.html :_width => 80 do
+      _p {_b "a\nb"}
+    end
+    assert_match /<b>\s*a b\s*<\/b>/, target
+  end
+
   def test_width_indented_text
     @x.html :_width => 80 do
       _ ('a'..'z').map {|l| l*5}.join(' ')
