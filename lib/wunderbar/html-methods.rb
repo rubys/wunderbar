@@ -39,7 +39,7 @@ module Wunderbar
 
     def initialize(scope)
       @_scope = scope
-      @_x = XmlMarkup.new :scope => scope, :indent => 2
+      @_x = XmlMarkup.new :scope => scope
     end
 
     def html(*args, &block)
@@ -47,7 +47,7 @@ module Wunderbar
       args << {} if args.empty?
       if Hash === args.first
         args.first[:xmlns] ||= 'http://www.w3.org/1999/xhtml'
-        @_x.width = args.first.delete(:_width).to_i if args.first[:_width]
+        @_x._width = args.first.delete(:_width).to_i if args.first[:_width]
       end
 
       bom = "\ufeff"

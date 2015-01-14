@@ -1,4 +1,10 @@
 module Wunderbar
+  @@options = {indent: 2}
+  def self.option(values={})
+    @@options.merge!(values)
+    @@options
+  end
+
   class BuilderBase
     def set_variables_from_params(locals={})
       params = @_scope.params.map do |key, value|
@@ -121,16 +127,16 @@ module Wunderbar
 
     def initialize(args={})
       @_scope = args.delete(:scope)
-      @_indent = args.delete(:indent) || 2
+      @_indent = args.delete(:indent) || Wunderbar.option[:indent]
+      @_width = args.delete(:width) || Wunderbar.option[:width]
       @_pdf = false
       @doc = Node.new(nil)
       @node = @doc
       @indentation_enabled = true
-      @width = nil
       @spaced = false
     end
 
-    attr_accessor :width
+    attr_accessor :_width
 
     # forward to Wunderbar or @_scope
     def method_missing(method, *args, &block)
@@ -176,7 +182,7 @@ module Wunderbar
     end
 
     def target!
-      "#{@doc.serialize(indent: ' ' * @_indent, width: @width).join("\n")}\n"
+      "#{@doc.serialize(indent: ' ' * @_indent, width: @_width).join("\n")}\n"
     end
 
     def clear!
