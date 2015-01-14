@@ -135,6 +135,16 @@ class SintraTest < MiniTest::Test
       last_response.content_type
   end
 
+  def test_json_shortcut
+    get '/json/shortcut' do
+      _json response: 'It Worked!'
+    end
+
+    assert_match %r{^\s+"response": "It Worked!"}, last_response.body
+    assert_match %r{application/json(;charset=utf-8)?},
+      last_response.content_type
+  end
+
   def jest_json_missing
     get '/json/missing' do
       _json do
@@ -197,6 +207,17 @@ class SintraTest < MiniTest::Test
 
   def test_text_success
     get '/text/success' do
+      _text do
+        _ 'It Worked!'
+      end
+    end
+
+    assert_equal 'text/plain;charset=utf-8', last_response.content_type
+    assert_equal "It Worked!\n", last_response.body
+  end
+
+  def test_text_shortcut
+    get '/text/shortcut' do
       _text do
         _ 'It Worked!'
       end

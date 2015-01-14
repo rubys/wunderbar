@@ -201,6 +201,16 @@ module Wunderbar
             end
           end
 
+          # text, json shortcuts
+          if block == nil and args.length >= 1
+            case args.first
+            when Array, Hash
+              block = proc { _! args.first } if ext == :_json
+            when String
+              block = proc { _ args.first } if ext == :_text
+            end
+          end
+
           template.evaluate(ext, self, *args, &block)
         end
 
