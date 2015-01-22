@@ -132,7 +132,11 @@ module Wunderbar
       def evaluate(scope, locals, &block)
         builder = JsonBuilder.new(scope)
         begin
-          _evaluate_safely(builder, scope, locals, &block)
+          result = _evaluate_safely(builder, scope, locals, &block)
+
+          # if no output was produced, use the result
+          builder._! result if builder.target? == {} and result
+
         rescue Exception => exception
           scope.content_type self.class.default_mime_type, :charset => 'utf-8'
           scope.response.status = 500
@@ -150,7 +154,11 @@ module Wunderbar
       def evaluate(scope, locals, &block)
         builder = TextBuilder.new(scope)
         begin
-          _evaluate_safely(builder, scope, locals, &block)
+          result = _evaluate_safely(builder, scope, locals, &block)
+
+          # if no output was produced, use the result
+          builder._ result.to_s if builder.target!.empty? and result
+
           scope.response.status = 404 if builder.target!.empty?
         rescue Exception => exception
           scope.headers['Content-Type'] = self.class.default_mime_type
