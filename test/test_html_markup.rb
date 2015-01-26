@@ -599,12 +599,32 @@ class HtmlMarkupTest < MiniTest::Test
     assert_match %r{<ul>\s+<li>apple</li>}, target
   end
 
+  def test_ul_array_each
+    @x.html do
+      _ul %w(apple orange pear) do |fruit|
+        _li fruit.capitalize
+      end
+    end
+    assert_match %r{<ul>\s+<li>Apple</li>}, target
+  end
+
   def test_ol_class_array
     @x.html do
       _ol.fruit %w(apple orange pear)
     end
     assert_match %r{<ol class="fruit">}, target
     assert_match %r{<li>orange</li>}, target
+  end
+
+  def test_dl_each
+    @x.html do
+      _dl.colors red: '#F00', green: '#0F0', blue: '#00F' do |color, hex|
+        _dt color.to_s
+        _dd hex
+      end
+    end
+    assert_match %r{<dl class="colors">}, target
+    assert_match %r{<dt>green</dt>\s*<dd>#0F0</dd>\s*<dt>blue</dt>}, target
   end
 
   def test_tr

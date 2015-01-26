@@ -157,6 +157,13 @@ Complete lists/rows can be defined using arrays:
       _tr %w(apple orange pear)
     end
 
+Arbitrary iteration can be done over Enumerables:
+
+    _dl.colors red: '#F00', green: '#0F0', blue: '#00F' do |color, hex|
+      _dt color.to_s
+      _dd hex
+    end
+
 Basic interface
 ---
 

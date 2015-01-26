@@ -296,6 +296,7 @@ module Wunderbar
     end
 
     def _ul(*args, &block)
+      return super if block
       iterable = args.first.respond_to? :each
       if iterable and (args.length > 1 or not args.first.respond_to? :to_hash)
         list = args.shift.dup
@@ -306,6 +307,7 @@ module Wunderbar
     end
 
     def _ol(*args, &block)
+      return super if block
       iterable = args.first.respond_to? :each
       if iterable and (args.length > 1 or not args.first.respond_to? :to_hash)
         list = args.shift
@@ -316,6 +318,7 @@ module Wunderbar
     end
 
     def _tr(*args, &block)
+      return super if block
       iterable = args.first.respond_to? :each
       if iterable and (args.length > 1 or not args.first.respond_to? :to_hash)
         list = args.shift

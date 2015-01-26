@@ -246,11 +246,17 @@ module Wunderbar
         @spaced = false
       end
 
-      node.text = args.first if String === args.first
+      node.text = args.shift if String === args.first
       @node.add_child node
       @node = node
       if block
-        block.call(self)
+        if args.first and args.first.respond_to? :each and block.arity != 0
+          args.shift.each do |arg|
+            block.call(arg)
+          end
+        else
+          block.call(self)
+        end
         @node.children << nil if @node.children.empty?
       end
 

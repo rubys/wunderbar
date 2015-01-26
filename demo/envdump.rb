@@ -23,12 +23,10 @@ _html do
         end
       end
 
-      _tbody do
-        ENV.sort.each do |name, value|
-          _tr_ do
-            _td name
-            _td value
-          end
+      _tbody ENV.sort do |name, value|
+        _tr_ do
+          _td name
+          _td value
         end
       end
     end
