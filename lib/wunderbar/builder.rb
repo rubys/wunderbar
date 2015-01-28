@@ -389,7 +389,9 @@ module Wunderbar
 
     def encode(&block)
       set_variables_from_params
-      self.instance_eval(&block)
+      before = @_target.string
+      result = self.instance_eval(&block)
+      _ result if before.empty? and result and @_target.string == before
       @_target.string
     end
 
@@ -450,7 +452,9 @@ module Wunderbar
 
     def encode(&block)
       set_variables_from_params
-      self.instance_eval(&block)
+      before = @_target.dup
+      result = self.instance_eval(&block)
+      _! result if before.empty? and result and @_target == before
       @_target
     end
 
