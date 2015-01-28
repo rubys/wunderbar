@@ -29,6 +29,7 @@ module Wunderbar
         else
           node.binding = binding
         end
+        node
       else
         super
       end
