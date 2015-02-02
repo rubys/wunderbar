@@ -148,7 +148,7 @@ module Wunderbar
     end
   end
 
-  class CommentNode
+  class CommentNode < Node
     def initialize(text)
       @text = text
     end
@@ -159,7 +159,7 @@ module Wunderbar
     end
   end
 
-  class DocTypeNode
+  class DocTypeNode < Node
     def initialize(*args)
       @declare = args.shift
       @name = args.shift
