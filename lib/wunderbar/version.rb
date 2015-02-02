@@ -1,8 +1,8 @@
 module Wunderbar
   module VERSION #:nodoc:
     MAJOR = 0
-    MINOR = 22
-    TINY  = 4
+    MINOR = 23
+    TINY  = 0
 
     STRING = [MAJOR, MINOR, TINY].join('.')
   end
