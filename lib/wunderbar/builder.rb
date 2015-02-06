@@ -233,6 +233,13 @@ module Wunderbar
         end
       end
 
+      children = nil
+      if block and block.arity !=0
+        if args.first and args.first.respond_to? :each
+          children = args.shift
+        end
+      end
+
       if Class === args.first and args.first < Node
         node = args.shift.new sym, *args
       else
@@ -250,10 +257,8 @@ module Wunderbar
       @node.add_child node
       @node = node
       if block
-        if args.first and args.first.respond_to? :each and block.arity != 0
-          args.shift.each do |arg|
-            block.call(arg)
-          end
+        if children
+          children.each {|child| block.call(child)}
         else
           block.call(self)
         end

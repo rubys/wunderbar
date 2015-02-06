@@ -618,6 +618,17 @@ class HtmlMarkupTest < MiniTest::Test
 
   def test_dl_each
     @x.html do
+      _dl red: '#F00', green: '#0F0', blue: '#00F' do |color, hex|
+        _dt color.to_s
+        _dd hex
+      end
+    end
+    assert_match %r{<dl>}, target
+    assert_match %r{<dt>green</dt>\s*<dd>#0F0</dd>\s*<dt>blue</dt>}, target
+  end
+
+  def test_dl_each_class
+    @x.html do
       _dl.colors red: '#F00', green: '#0F0', blue: '#00F' do |color, hex|
         _dt color.to_s
         _dd hex
