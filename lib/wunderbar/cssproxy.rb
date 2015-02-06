@@ -30,7 +30,7 @@ module Wunderbar
         attrs[:class] = id_or_class
       end
 
-      iterable = block and block.arity != 0
+      iterable = block && block.arity != 0
       if args.last.respond_to? :to_hash and not iterable
         hash = args.pop.to_hash 
         if attrs[:class] and hash[:class]

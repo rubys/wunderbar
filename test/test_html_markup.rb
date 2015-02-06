@@ -638,6 +638,25 @@ class HtmlMarkupTest < MiniTest::Test
     assert_match %r{<dt>green</dt>\s*<dd>#0F0</dd>\s*<dt>blue</dt>}, target
   end
 
+  def test_dl_each_id
+    @x.html do
+      _dl.colors! red: '#F00', green: '#0F0', blue: '#00F' do |color, hex|
+        _dt color.to_s
+        _dd hex
+      end
+    end
+    assert_match %r{<dl id="colors">}, target
+    assert_match %r{<dt>green</dt>\s*<dd>#0F0</dd>\s*<dt>blue</dt>}, target
+  end
+
+  def test_form_id
+    @x.html do
+      _form.comment! method: 'post' do
+      end
+    end
+    assert_match %r{<form id="comment" method="post">}, target
+  end
+
   def test_tr
     @x.html do
       _table do
