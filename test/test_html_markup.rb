@@ -560,6 +560,18 @@ class HtmlMarkupTest < MiniTest::Test
     assert_match %r{<meta.*>\s*<base href="/"/>\s*<script}, target
   end
 
+  def test_frameset
+    @x.html do
+      _frameset cols: '20%, 60%' do
+        _frame name: 'viewport1'
+        _frame name: 'viewport2'
+      end
+    end
+
+    assert_match %r{</head>\s*<frameset}, target
+    assert_match %r{</frameset>\s*</html}, target
+  end
+
   def test_underscore_to_dash
     @x.html do
       _span :data_foo => 'bar'

@@ -85,6 +85,10 @@ module Wunderbar
         end
       end
 
+      if pending_body.length == 1 and pending_body[0].name.to_s == 'frameset'
+        body = pending_body.shift
+      end
+
       @_x.instance_eval {@node = html}
       head = _head_ if not head
       body = _body nil if not body
