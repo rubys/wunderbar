@@ -83,7 +83,7 @@ module Wunderbar
       def evaluate(scope, locals, &block)
         scope.content_type self.class.default_mime_type, charset: 'utf-8'
         begin
-          Ruby2JS.convert(data, ivars: locals)
+          Ruby2JS.convert(data, ivars: locals, file: file)
         rescue Parser::SyntaxError => exception
           scope.response.status = 500
           location = exception.diagnostic.location
