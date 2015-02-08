@@ -240,6 +240,12 @@ Tilt.register 'xhtml.rb', Wunderbar::Template::Xhtml
 
 helpers Wunderbar::SinatraHelpers
 
+if Dir.exist? settings.public_folder
+  Wunderbar::Asset.root = File.join(settings.public_folder, 'assets')
+end
+
+Wunderbar::Asset.virtual = true
+
 get "/#{Wunderbar::Asset.path}/:name" do |name|
   name.untaint if name =~ /^([-\w]\.?)+$/
   file = "#{Wunderbar::Asset.root}/#{name}"
@@ -248,7 +254,15 @@ get "/#{Wunderbar::Asset.path}/:name" do |name|
       last_modified File.mtime(file)
       content_type Wunderbar::Asset.content_type_for(name)
       _.headers.merge(response.headers)
-      _ File.read("#{Wunderbar::Asset.root}/#{name}")
+      File.read("#{Wunderbar::Asset.root}/#{name}")
+    else
+      asset = Wunderbar::Asset.find(name)
+      if asset
+        last_modified asset.mtime
+        content_type Wunderbar::Asset.content_type_for(name)
+        _.headers.merge(response.headers)
+        asset.contents
+      end
     end
   end
 end

@@ -19,6 +19,9 @@ module Wunderbar
 
       # location where the asset directory is to be found/placed
       attr_accessor :root
+
+      # don't fall back to content if file doesn't exist on disk
+      attr_accessor :virtual
     end
 
     # asset file location
@@ -26,6 +29,9 @@ module Wunderbar
 
     # asset contents
     attr_reader :contents
+
+    # asset modification time
+    attr_reader :mtime
 
     def self.clear
       @@scripts = []
@@ -40,6 +46,11 @@ module Wunderbar
       else
         'application/octet-stream'
       end
+    end
+
+    def self.find(path)
+      (@@scripts.find {|script| script.path == path}) ||
+        (@@stylesheets.find {|script| script.path == path})
     end
 
     clear
@@ -59,10 +70,11 @@ module Wunderbar
       options[:name] ||= File.basename(options[:file]) if source
 
       if options[:name]
+        @mtime = File.mtime(source)
         @path = options[:name]
         dest = File.expand_path(@path, Asset.root)
 
-        if not File.exist?(dest) or File.mtime(dest) < File.mtime(source)
+        if not File.exist?(dest) or File.mtime(dest) < @mtime
           begin
             FileUtils.mkdir_p File.dirname(dest)
             if options[:file]
@@ -71,7 +83,7 @@ module Wunderbar
               open(dest, 'w') {|file| file.write @contents}
             end
           rescue
-            @path = nil
+            @path = nil unless Asset.virtual
             @contents ||= File.read(source)
           end
         end
