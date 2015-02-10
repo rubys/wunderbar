@@ -266,3 +266,24 @@ get "/#{Wunderbar::Asset.path}/:name" do |name|
     end
   end
 end
+
+# Monkeypatch to address https://github.com/sinatra/sinatra/pull/907
+module Rack
+  class ShowExceptions
+    alias_method :w_pretty, :pretty
+
+    def pretty(*args)
+      result = w_pretty(*args)
+
+      unless result.respond_to? :join
+        def result.join; self; end
+      end
+
+      unless result.respond_to? :each
+        def result.each(&block); block.call(self); end
+      end
+
+      result
+    end
+  end
+end
