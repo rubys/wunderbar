@@ -147,6 +147,54 @@ module Wunderbar
       false
     end
 
+    def root
+      if parent
+        parent.root
+      else
+        self
+      end
+    end
+
+    def search(css)
+      css = Node.parse_css_selector(css) if String === css
+
+      matches = []
+      if children
+        children.each { |child| matches += child.search(css) }
+      end
+
+      pattern = css.first
+
+      if pattern[:id]
+        return matches unless attrs and attrs[:id] == pattern[:id]
+      end
+
+      if pattern[:class]
+        names = attrs ? attrs[:class].to_s.split(' ') : []
+        return matches unless pattern[:class].all? {|name| names.include? name}
+      end
+
+      if pattern[:name]
+        return matches unless name == pattern[:name]
+      end
+
+      if pattern[:attr]
+        return matches unless attrs and pattern[:attr].all? do |k1, v1| 
+          attrs.any? {|k2, v2| k1.to_s == k2.to_s and v1.to_s == v2.to_s}
+        end
+      end
+
+      if css.length == 1
+        matches << self
+      else
+        matches += search(css[1..-1])
+      end
+    end
+
+    def at(css)
+      search(css).first
+    end
+
     # parse a subset of css_selectors
     def self.parse_css_selector(css)
       if css.include? ' '
@@ -204,6 +252,8 @@ module Wunderbar
   end
 
   class DocTypeNode < Node
+    attr_accessor :declare
+
     def initialize(*args)
       @declare = args.shift
       @name = args.shift
