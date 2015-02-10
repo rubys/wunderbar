@@ -146,6 +146,50 @@ module Wunderbar
     def preserve_spaces?
       false
     end
+
+    # parse a subset of css_selectors
+    def self.parse_css_selector(css)
+      if css.include? ' '
+        css.split(/\s+/).map {|token| parse_css_selector(token).first}
+      else
+        result = {}
+        while css != ''
+          if css =~/^([-\w]+)/
+            result[:name] = $1
+            css=css[$1.length..-1]
+          elsif css =~/^#([-\w]+)/
+            raise ArgumentError("duplicate id") if result[:id]
+            result[:id] = $1
+            css=css[$1.length+1..-1]
+          elsif css =~/^\.([-\w]+)/
+            result[:class] ||= []
+            raise ArgumentError("duplicate class") if result[:class].include?  $1
+            result[:class] << $1
+            css=css[$1.length+1..-1]
+          elsif css =~/^\[([-\w]+)=([-\w]+)\]/
+            result[:attr] ||= {}
+            raise ArgumentError("duplicate attribute") if result[:attr][$1]
+            result[:attr][$1] = $2
+            css=css[$1.length+$2.length+3..-1]
+          elsif css =~/^\[([-\w]+)='([^']+)'\]/
+            result[:attr] ||= {}
+            raise ArgumentError("duplicate attribute") if result[:attr][$1]
+            result[:attr][$1] = $2
+            css=css[$1.length+$2.length+5..-1]
+          elsif css =~/^\[([-\w]+)="([^"]+)"\]/
+            result[:attr] ||= {}
+            raise ArgumentError("duplicate attribute") if result[:attr][$1]
+            result[:attr][$1] = $2
+            css=css[$1.length+$2.length+5..-1]
+          elsif css =~/^\*/
+            css=css[1..-1]
+          else
+            raise ArgumentError("syntax error: #{css.inspect}")
+          end
+        end
+        [result]
+      end
+    end
   end
 
   class CommentNode < Node
@@ -266,5 +310,4 @@ module Wunderbar
   module CompactNode; end
 
   module SpacedNode; end
-
 end
