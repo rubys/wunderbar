@@ -11,5 +11,5 @@ bundle update
 rackup
 ```
 
-Visit the URL listed (typically http://localhost:4567/) and traverse to other
+Visit the URL listed (typically http://localhost:9292/) and traverse to other
 calendar pages with left and right arrow keys.
