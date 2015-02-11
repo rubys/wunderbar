@@ -26,6 +26,11 @@ module Wunderbar
           $:[index] = File.expand_path(path.dup.untaint).untaint
         end
       end
+
+      # avoid: "Insecure PATH - (SecurityError)" when using Bundler
+      if defined? Bundler
+        ENV['PATH'] = ENV['PATH'].dup.untaint
+      end
     end
 
     not @@unsafe
