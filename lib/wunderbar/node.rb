@@ -160,7 +160,7 @@ module Wunderbar
 
       matches = []
       if children
-        children.each { |child| matches += child.search(css) }
+        children.each { |child| matches += child.search(css) if Node === child }
       end
 
       pattern = css.first
