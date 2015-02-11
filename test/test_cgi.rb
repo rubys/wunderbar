@@ -23,14 +23,14 @@ class CGITest < Minitest::Test
 
   def test_html_success
     Wunderbar.html do
-      _body
+      _p 'success'
     end
 
     Wunderbar::CGI.call(@cgi)
 
     assert_equal 'text/html', @cgi.headers['type']
     assert_equal 'UTF-8', @cgi.headers['charset']
-    assert_match %r{^\s+<body></body>$}, @cgi.body
+    assert_match %r{^\s+<p>success</p>$}, @cgi.body
   end
 
   def test_html_safe
@@ -103,28 +103,28 @@ class CGITest < Minitest::Test
     @cgi.env['HTTP_ACCEPT'] = 'application/xhtml+xml'
 
     Wunderbar.xhtml do
-      _body
+      _p 'success'
     end
 
     Wunderbar::CGI.call(@cgi)
 
     assert_equal 'application/xhtml+xml', @cgi.headers['type']
     assert_equal 'UTF-8', @cgi.headers['charset']
-    assert_match %r{^\s+<body></body>$}, @cgi.body
+    assert_match %r{^\s+<p>success</p>$}, @cgi.body
   end
 
   def test_xhtml_fallback
     @cgi.env['HTTP_ACCEPT'] = 'text/html'
 
     Wunderbar.xhtml do
-      _body
+      _p 'success'
     end
 
     Wunderbar::CGI.call(@cgi)
 
     assert_equal 'text/html', @cgi.headers['type']
     assert_equal 'UTF-8', @cgi.headers['charset']
-    assert_match %r{^\s+<body></body>$}, @cgi.body
+    assert_match %r{^\s+<p>success</p>$}, @cgi.body
   end
 
   def test_json_success

@@ -109,26 +109,53 @@ module Wunderbar
       end
     end
 
-    def self.declarations(parent, prefix)
+    def self.declarations(root, prefix)
       path = prefix.to_s + Asset.path
-      nodes = []
-      @@scripts.each do |script|
-        if script.path
-          nodes << Node.new(:script, src: "#{path}/#{script.path}")
-        elsif script.contents
-          nodes << ScriptNode.new(:script, script.contents)
+
+      unless @@scripts.empty?
+        before = root.at('script')
+        if before
+          before = before.parent while before.parent and 
+            not %w(head body).include? before.parent.name.to_s
         end
+        parent = (before ? before.parent : root.at('body')) || root
+
+        nodes = []
+        @@scripts.each do |script|
+          if script.path
+            nodes << Node.new(:script, src: "#{path}/#{script.path}")
+          elsif script.contents
+            nodes << ScriptNode.new(:script, script.contents)
+          end
+        end
+
+        nodes.each {|node| node.parent = parent}
+        index = parent.children.index(before) || -1
+        parent.children.insert(index, *nodes)
       end
 
-      @@stylesheets.each do |stylesheet|
-        if stylesheet.path
-          nodes << Node.new(:link, rel: "stylesheet", type: "text/css",
-            href: "#{path}/#{stylesheet.path}")
-        elsif stylesheet.contents
-          nodes << StyleNode.new(:style, stylesheet.contents)
+      unless @@stylesheets.empty?
+        before = root.at('link[rel=stylesheet]')
+        if before
+          before = before.parent while before.parent and 
+            not %w(head body).include? before.parent.name.to_s
         end
+        parent = (before ? before.parent : root.at('head')) || root
+
+        nodes = []
+        @@stylesheets.each do |stylesheet|
+          if stylesheet.path
+            nodes << Node.new(:link, rel: "stylesheet", type: "text/css",
+              href: "#{path}/#{stylesheet.path}")
+          elsif stylesheet.contents
+            nodes << StyleNode.new(:style, stylesheet.contents)
+          end
+        end
+
+        nodes.each {|node| node.parent = parent}
+        index = parent.children.index(before) || -1
+        parent.children.insert(index, *nodes)
       end
-      nodes.each {|node| node.parent = parent}
     end
   end
 end

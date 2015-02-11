@@ -103,11 +103,10 @@ class HtmlMarkupTest < MiniTest::Test
       _div.five  {_ {'<style>a:before {content: "<"}</style>'}}
     end
     assert_match %r[<div class="one">\s+<p>\s+<br/>\s+\u00a9\s+</p>], target
-    assert_match %r[<head>\s+<script>foo</script>], target
-    assert_match %r[<head>\s+<script>//<!\[CDATA\[\s+
-      1<2\s+//\]\]></script>]x, target
-    assert_match %r[<head>\s+<style>foo</style>], target
-    assert_match %r[<head>\s+<style>/\*<!\[CDATA\[\*/\s+
+    assert_match %r[<script>foo</script>], target
+    assert_match %r[<script>//<!\[CDATA\[\s+1<2\s+//\]\]></script>], target
+    assert_match %r[<style>foo</style>], target
+    assert_match %r[<style>/\*<!\[CDATA\[\*/\s+
       a:before\s\{content:\s"<"\}\s+/\*\]\]>\*/</style>]x, target
   end
 
@@ -569,7 +568,8 @@ class HtmlMarkupTest < MiniTest::Test
     end
 
     assert_match %r{</head>\s*<frameset}, target
-    assert_match %r{</frameset>\s*</html}, target
+    assert_match %r{</frameset>\s*</html}, target.
+      gsub(%r{<script.*?></script>\s*}, '')
   end
 
   def test_underscore_to_dash

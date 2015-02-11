@@ -14,13 +14,13 @@ class RackTest < MiniTest::Test
 
   def test_html_success
     Wunderbar.html do
-      _body
+      _p 'success'
     end
 
     get '/'
 
     assert_equal 'text/html; charset=UTF-8', last_response.content_type
-    assert_match %r{^\s+<body></body>$}, last_response.body
+    assert_match %r{^\s+<p>success</p>$}, last_response.body
   end
 
   def test_html_safe
@@ -86,25 +86,25 @@ class RackTest < MiniTest::Test
 
   def test_xhtml_success
     Wunderbar.xhtml do
-      _body
+      _p 'success'
     end
 
     get '/', {}, {'HTTP_ACCEPT' => 'application/xhtml+xml'}
 
     assert_equal 'application/xhtml+xml; charset=UTF-8', 
       last_response.content_type
-    assert_match %r{^\s+<body></body>$}, last_response.body
+    assert_match %r{^\s+<p>success</p>$}, last_response.body
   end
 
   def test_xhtml_fallback
     Wunderbar.xhtml do
-      _body
+      _p 'success'
     end
 
     get '/', {}, {'HTTP_ACCEPT' => 'text/html'}
 
     assert_equal 'text/html; charset=UTF-8', last_response.content_type
-    assert_match %r{^\s+<body></body>$}, last_response.body
+    assert_match %r{^\s+<p>success</p>$}, last_response.body
   end
 
   def test_json_success

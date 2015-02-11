@@ -110,6 +110,7 @@ module Wunderbar
         head.add_child Node.new('title', h1.text) if h1 and h1.text
       end
 
+      prefix = nil
       base = head.children.index(head.at('base'))
       if base
         head.children.insert 1, head.children.delete_at(base) if base > 1
@@ -123,11 +124,9 @@ module Wunderbar
         base = Pathname.new(base).parent
         prefix = Pathname.new(Dir.pwd).relative_path_from(base).to_s + '/'
         prefix = nil unless prefix.start_with? '..'
-  
-        head.children.insert 2, *Asset.declarations(head, prefix)
-      else
-        head.children.insert 1, *Asset.declarations(head, nil)
       end
+  
+      Asset.declarations(html, prefix)
 
       title = head.children.index {|child| child.name == 'title'}
       if title and title > 1

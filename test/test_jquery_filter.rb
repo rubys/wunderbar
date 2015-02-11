@@ -3,6 +3,10 @@ require 'wunderbar'
 require 'wunderbar/jquery/filter'
 
 class JqueryFilterTest < MiniTest::Test
+  def teardown
+    Wunderbar::Asset.clear
+  end
+
   def to_js(string)
     Ruby2JS.convert(string, filters: 
       [Ruby2JS::Filter::JQuery, Wunderbar::Filter::JQuery])

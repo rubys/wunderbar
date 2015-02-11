@@ -19,12 +19,12 @@ class SintraTest < MiniTest::Test
   def test_html_success
     get '/html/success' do
       _html do
-        _body
+        _p 'success'
       end
     end
 
     assert_equal 'text/html;charset=utf-8', last_response.content_type
-    assert_match %r{^\s+<body></body>$}, last_response.body
+    assert_match %r{^\s+<p>success</p>$}, last_response.body
   end
 
   def test_html_view_no_layout
