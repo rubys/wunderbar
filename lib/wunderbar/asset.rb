@@ -99,6 +99,16 @@ module Wunderbar
       @@stylesheets << self.new(options)
     end
 
+    def self.scripts
+      @@scripts.map do |script|
+        if script.contents
+          script.contents
+        elsif script.path
+          File.read(File.expand_path(script.path, Asset.root))
+        end
+      end
+    end
+
     def self.declarations(parent, prefix)
       path = prefix.to_s + Asset.path
       nodes = []
