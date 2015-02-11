@@ -4,3 +4,4 @@ Manifest
 demo/assets
 *.gemspec
 Gemfile.lock
+demo/calendar/public/assets
