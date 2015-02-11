@@ -50,13 +50,15 @@ class Wunderbar::XmlMarkup
 
       if script.attrs[:src]
         src = script.attrs[:src]
-        name = File.join(@_scope.settings.public_folder, src)
+        name = File.join(@_scope.settings.public_folder.untaint, src)
         if File.exist? name
           result = File.read(name)
         else
-          name = File.join(@_scope.settings.views, src+'.rb')
+          name = File.join(@_scope.settings.views.untaint, src+'.rb')
           result = Ruby2JS.convert(File.read(name)) if File.exist? name
         end
+      else
+        result = Ruby2JS.convert(script.block, binding: script.binding)
       end
 
       result
@@ -64,9 +66,6 @@ class Wunderbar::XmlMarkup
 
     # concatenate and execute scripts on server
     scripts = ['global=this'] + Wunderbar::Asset.scripts + scripts
-    File.open('/home/rubys/tmp/react2.js', 'w') do |file|
-      file.write server
-    end
     context = ExecJS.compile(scripts.compact.join(";\n"))
 
     # insert results into target
