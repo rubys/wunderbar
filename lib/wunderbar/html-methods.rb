@@ -126,7 +126,7 @@ module Wunderbar
         base += 'index.html' if base.end_with? '/'
         base = Pathname.new(base).parent
         prefix = Pathname.new(Dir.pwd).relative_path_from(base).to_s + '/'
-        prefix = nil if prefix == './'
+        prefix = nil unless prefix.start_with? '..'
   
         head.children.insert 2, *Asset.declarations(head, prefix)
       else
