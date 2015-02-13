@@ -55,7 +55,9 @@ class Wunderbar::XmlMarkup
           result = File.read(name)
         else
           name = File.join(@_scope.settings.views.untaint, src+'.rb')
-          result = Ruby2JS.convert(File.read(name)) if File.exist? name
+          if File.exist? name
+            result = Ruby2JS.convert(File.read(name), file: name)
+          end
         end
       else
         result = Ruby2JS.convert(script.block, binding: script.binding)
@@ -64,13 +66,19 @@ class Wunderbar::XmlMarkup
       result
     end
 
-    # concatenate and execute scripts on server
-    scripts = ['global=this'] + Wunderbar::Asset.scripts + scripts
-    context = ExecJS.compile(scripts.compact.join(";\n"))
-
-    # insert results into target
     builder = Wunderbar::HtmlMarkup.new({})
-    target.children += builder._ { context.eval(server) }
+    begin
+      # concatenate and execute scripts on server
+      scripts = ['global=this'] + Wunderbar::Asset.scripts + scripts
+      context = ExecJS.compile(scripts.compact.join(";\n"))
+
+      # insert results into target
+      nodes = builder._ { context.eval(server) }
+      nodes.each {|node| node.parent = target}
+      target.children += nodes
+    rescue ExecJS::ProgramError => e
+      target.children << builder._pre(e.message).node?
+    end
 
     # add client side script
     tag! 'script', Wunderbar::ScriptNode, client
