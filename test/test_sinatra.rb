@@ -2,9 +2,6 @@ require 'minitest/autorun'
 require 'wunderbar'
 require 'stringio'
 
-# workaround #<SecurityError: Insecure PATH - echo>`
-ENV['PATH'] = ENV['PATH'].dup.untaint
-
 class SintraTest < MiniTest::Test
   def setup
     @stderr, $stderr = $stderr, StringIO.new
@@ -304,11 +301,26 @@ class SintraTest < MiniTest::Test
   end
 
 
-  def test_js_data
+  def test_js_data_file
     Wunderbar::CALLERS_TO_IGNORE.clear
 
-    get '/js/data' do
+    get '/js/data/file' do
       _js :data
+    end
+
+    assert_equal "var data", last_response.body
+    assert_equal 200, last_response.status
+    assert_equal 'application/javascript;charset=utf-8',
+      last_response.content_type
+  end
+
+  def test_js_data_block
+    Wunderbar::CALLERS_TO_IGNORE.clear
+
+    get '/js/data/block' do
+      _js do
+        data
+      end
     end
 
     assert_equal "var data", last_response.body
