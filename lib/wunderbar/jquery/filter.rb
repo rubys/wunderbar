@@ -9,6 +9,8 @@ module Wunderbar
       include Ruby2JS::Filter::SEXP
 
       def on_send(node)
+        return super if @react
+
         if node.children[0] == nil and node.children[1] =~ /^_\w/
           # map method calls starting with an underscore to jquery calls
           # to create an element.  
