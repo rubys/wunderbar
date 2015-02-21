@@ -119,6 +119,7 @@ module Wunderbar
 
       def on_block(node)
         return super unless node.children[1].children.empty?
+        return super if @react
 
         # traverse through potential "css proxy" style method calls
         child = node.children.first

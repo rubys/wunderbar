@@ -35,12 +35,12 @@ class Wunderbar::XmlMarkup
         value = value.join(' ')
         element = "document.getElementsByClassName(#{value.inspect})[0]"
       when :name
-        element = "document.getElementsByName(#{value.inspect})[0]"
+        element = "document.getElementsByTagName(#{value.inspect})[0]"
       end
     end
 
     # build client and server scripts
-    common = Ruby2JS.convert(block, scope: @_scope)
+    common = Ruby2JS.convert(block, scope: @_scope, react: true)
     server = "React.renderToString(#{common})"
     client = "React.render(#{common}, #{element})"
 
