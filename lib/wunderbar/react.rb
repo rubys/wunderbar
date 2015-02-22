@@ -13,7 +13,11 @@ require 'nokogumbo'
 source = Dir[File.expand_path('../vendor/react-*.min.js', __FILE__)].
   sort_by {|name| name[/-v?([.\d]*)\.min.js$/,1].split('.').map(&:to_i)}.last
 
-Wunderbar::Asset.script :name => 'react-min.js', :file => source
+Wunderbar::Asset.script name: 'react-min.js', file: source,
+  react: ['global=this']
+
+class Wunderbar::ClientScriptNode < Wunderbar::ScriptNode
+end
 
 class Wunderbar::XmlMarkup
   def render(container, &block)
@@ -23,6 +27,11 @@ class Wunderbar::XmlMarkup
     # find the scripts and target on the page
     scripts = root.search('script')
     target = root.at(container)
+
+    # compute base
+    base = root.at('base')
+    base = (base ? base.attrs[:href] : nil) || '/'
+    base = base[1..-1] if base.start_with? '/'
 
     # compute client side container
     element = "document.querySelector(#{container.inspect})"
@@ -47,14 +56,15 @@ class Wunderbar::XmlMarkup
     # extract content of scripts
     scripts.map! do |script|
       result = nil
+      next if Wunderbar::ClientScriptNode === script
 
       if script.attrs[:src]
-        src = script.attrs[:src]
-        name = File.join(@_scope.settings.public_folder.untaint, src)
+        src = File.join(base, script.attrs[:src])
+        name = File.expand_path(src, @_scope.settings.public_folder.untaint)
         if File.exist? name
           result = File.read(name)
         else
-          name = File.join(@_scope.settings.views.untaint, src+'.rb')
+          name = File.expand_path(src+'.rb', @_scope.settings.views.untaint)
           if File.exist? name
             result = Ruby2JS.convert(File.read(name), file: name)
           end
@@ -68,8 +78,21 @@ class Wunderbar::XmlMarkup
 
     builder = Wunderbar::HtmlMarkup.new({})
     begin
+      setup = []
+      Wunderbar::Asset.scripts.each do |script|
+        next unless script.options[:react]
+        setup += script.options[:react] if Array === script.options[:react]
+
+        if script.contents
+          scripts.unshift script.contents
+        elsif script.path
+          scripts.unshift File.read(
+            File.expand_path(script.path, Wunderbar::Asset.root))
+        end
+      end
+
       # concatenate and execute scripts on server
-      scripts = ['global=this'] + Wunderbar::Asset.scripts + scripts
+      scripts.unshift *setup.uniq
       context = ExecJS.compile(scripts.compact.join(";\n"))
 
       # insert results into target
@@ -81,7 +104,7 @@ class Wunderbar::XmlMarkup
     end
 
     # add client side script
-    tag! 'script', Wunderbar::ScriptNode, client
+    tag! 'script', Wunderbar::ClientScriptNode, client
   end
 end
 

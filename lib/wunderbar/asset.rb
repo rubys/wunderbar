@@ -33,6 +33,9 @@ module Wunderbar
     # asset modification time
     attr_reader :mtime
 
+    # general options
+    attr_reader :options
+
     def self.clear
       @@scripts = []
       @@stylesheets = []
@@ -64,6 +67,7 @@ module Wunderbar
     #   :file => source for the asset
     #   :contents => contents of the asset
     def initialize(options)
+      @options = options
       source = options[:file] || __FILE__
       @contents = options[:contents]
 
@@ -87,7 +91,6 @@ module Wunderbar
             @contents ||= File.read(source)
           end
         end
-      else
       end
     end
 
@@ -100,13 +103,7 @@ module Wunderbar
     end
 
     def self.scripts
-      @@scripts.map do |script|
-        if script.contents
-          script.contents
-        elsif script.path
-          File.read(File.expand_path(script.path, Asset.root))
-        end
-      end
+      @@scripts
     end
 
     def self.declarations(root, prefix)
