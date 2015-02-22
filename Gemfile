@@ -8,7 +8,7 @@ group :test do
   gem 'sinatra'
   gem 'nokogumbo'
   gem 'ruby2js'
-  gem 'rails'
+  gem 'rails', '4.2.0'
   gem 'sourcify'
   gem 'coffee-script'
   gem 'kramdown'
