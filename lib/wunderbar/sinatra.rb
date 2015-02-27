@@ -127,7 +127,7 @@ module Wunderbar
 
     module Json
       def self.ext; ['json.rb', :_json]; end
-      def self.mime; 'application/json'; end
+      def self.mime; 'application/json;charset=utf-8'; end
 
       def evaluate(scope, locals, &block)
         builder = JsonBuilder.new(scope)
