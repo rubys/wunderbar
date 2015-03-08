@@ -364,7 +364,7 @@ module Wunderbar
         elsif child.children.empty? and HtmlMarkup::VOID.include? child.name
           tag!(child)
         elsif child.children.all?(&:text?)
-          tag!(child, child.text.strip)
+          tag!(child, @indentation_enabled ? child.text.strip : child.text)
         elsif child.children.any?(&:cdata?) and child.text =~ /[<&]/
           self << child
         elsif child.name == 'pre'
