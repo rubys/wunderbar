@@ -9,7 +9,7 @@ class JqueryFilterTest < MiniTest::Test
 
   def to_js(string)
     Ruby2JS.convert(string, filters: 
-      [Ruby2JS::Filter::JQuery, Wunderbar::Filter::JQuery])
+      [Ruby2JS::Filter::JQuery, Wunderbar::Filter::JQuery]).to_s
   end
 
   def test_name_text_attr
