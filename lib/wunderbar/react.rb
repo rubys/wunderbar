@@ -112,6 +112,23 @@ get %r{^/([-\w]+)\.js$} do |script|
   _js :"#{script}"
 end
 
+SCRIPTS = {}
+get %r{^/([-\w]+)\.js.map$} do |script|
+  if not SCRIPTS[script]
+    file = File.join(Sinatra::Application.views, "#{script}.js.rb")
+    pass unless File.exist? file
+    SCRIPTS[script] = Ruby2JS.convert(File.read(file), file: file)
+  end
+
+  sourcemap = SCRIPTS[script].sourcemap
+
+  content_type 'application/json;charset:utf8'
+  sourcemap[:file] = sourcemap[:file].sub Sinatra::Application.views, ''
+  sourcemap[:sources] = 
+    sourcemap[:sources].map {|source| source.sub Sinatra::Application.views, ''}
+  JSON.pretty_generate sourcemap
+end
+
 # Monkeypatch to address https://github.com/sstephenson/execjs/pull/180
 require 'execjs'
 class ExecJS::ExternalRuntime::Context

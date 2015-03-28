@@ -12,7 +12,7 @@ module Wunderbar
       if @block and @children.empty? and not @text
         width = options[:width]
         width -= indent.to_s.length if width
-        @text = Ruby2JS.convert(@block, binding: @binding, width: width)
+        @text = Ruby2JS.convert(@block, binding: @binding, width: width).to_s
       end
       super
     end
@@ -83,7 +83,7 @@ module Wunderbar
       def evaluate(scope, locals, &block)
         scope.content_type self.class.default_mime_type, charset: 'utf-8'
         begin
-          Ruby2JS.convert(block ? block : data, ivars: locals, file: file)
+          Ruby2JS.convert(block ? block : data, ivars: locals, file: file).to_s
         rescue Parser::SyntaxError => exception
           scope.response.status = 500
           location = exception.diagnostic.location
