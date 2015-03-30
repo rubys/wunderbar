@@ -108,24 +108,56 @@ class Wunderbar::XmlMarkup
   end
 end
 
-get %r{^/([-\w]+)\.js$} do |script|
-  _js :"#{script}"
+class Ruby2JS::Serializer
+  def etag
+    @etag ||= Digest::MD5.hexdigest(to_str)
+  end
+
+  def sourcemap_etag
+    @sourcemap_etag ||= Digest::MD5.hexdigest(sourcemap.inspect)
+  end
 end
 
 SCRIPTS = {}
-get %r{^/([-\w]+)\.js.map$} do |script|
-  if not SCRIPTS[script]
-    file = File.join(Sinatra::Application.views, "#{script}.js.rb")
+get %r{^/([-\w]+)\.js$} do |script|
+  unless SCRIPTS[script] and SCRIPTS[script].uptodate?
+    file = File.join(settings.views, "#{script}.js.rb")
     pass unless File.exist? file
-    SCRIPTS[script] = Ruby2JS.convert(File.read(file), file: file)
+    begin
+      SCRIPTS[script] = Ruby2JS.convert(File.read(file), file: file)
+    rescue
+      # if conversion fails, use Wunderbar's error recovery
+      _js :"#{script}"
+      return
+    end
   end
+
+  etag SCRIPTS[script].etag
+
+  content_type 'application/javascript;charset:utf8'
+
+  response.headers['SourceMap'] = "#{script}.js.map"
+
+  SCRIPTS[script].to_s
+end
+
+get %r{^/((?:\w+\/)*[-\w]+)\.js.rb$} do |script|
+  file = File.join(settings.views, "#{script}.js.rb")
+  pass unless File.exist? file
+  send_file file
+end
+
+get %r{^/([-\w]+)\.js.map$} do |script|
+  pass unless SCRIPTS[script]
+
+  etag SCRIPTS[script].sourcemap_etag
 
   sourcemap = SCRIPTS[script].sourcemap
 
   content_type 'application/json;charset:utf8'
-  sourcemap[:file] = sourcemap[:file].sub Sinatra::Application.views, ''
+  sourcemap[:file] = sourcemap[:file].sub settings.views, ''
   sourcemap[:sources] = 
-    sourcemap[:sources].map {|source| source.sub Sinatra::Application.views, ''}
+    sourcemap[:sources].map {|source| source.sub settings.views, ''}
   JSON.pretty_generate sourcemap
 end
 
