@@ -132,11 +132,11 @@ get %r{^/([-\w]+)\.js$} do |script|
     end
   end
 
+  response.headers['SourceMap'] = "#{script}.js.map"
+
   etag SCRIPTS[script].etag
 
   content_type 'application/javascript;charset:utf8'
-
-  response.headers['SourceMap'] = "#{script}.js.map"
 
   SCRIPTS[script].to_s
 end
