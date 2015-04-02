@@ -2,11 +2,7 @@ Wunderbar: Easy HTML5 applications
 ===
 
 Wunderbar makes it easy to produce valid HTML5, wellformed XHTML, Unicode
-(utf-8), consistently indented, readable applications.  This includes output
-that conforms to the
-[Polyglot](http://dev.w3.org/html5/html-xhtml-author-guide/) specification and
-the emerging results from the [XML Error Recovery Community
-Group](http://www.w3.org/community/xml-er/wiki/Main_Page).
+(utf-8), consistently indented, readable applications.
 
 Wunderbar was inspired by Jim Weirich's 
 [Builder](https://github.com/jimweirich/builder#readme), and provides 

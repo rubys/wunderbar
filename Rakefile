@@ -32,9 +32,7 @@ spec = Gem::Specification.new do |s|
   s.homepage       = "http://github.com/rubys/wunderbar"
   s.description    = <<-EOD
     Wunderbar makes it easy to produce valid HTML5, wellformed XHTML, Unicode
-    (utf-8), consistently indented, readable applications.  This includes
-    output that conforms to the Polyglot specification and the emerging
-    results from the XML Error Recovery Community Group.
+    (utf-8), consistently indented, readable applications.'
   EOD
 
   # Add any extra files to include in the gem
