@@ -157,9 +157,9 @@ get %r{^/([-\w]+)\.js.map$} do |script|
   sourcemap = SCRIPTS[script].sourcemap
 
   content_type 'application/json;charset:utf8'
-  sourcemap[:file] = sourcemap[:file].sub settings.views, ''
-  sourcemap[:sources] = 
-    sourcemap[:sources].map {|source| source.sub settings.views, ''}
+  base = settings.views + '/'
+  sourcemap[:file] = sourcemap[:file].sub base, ''
+  sourcemap[:sources].map! {|source| source.sub base, ''}
   JSON.pretty_generate sourcemap
 end
 
