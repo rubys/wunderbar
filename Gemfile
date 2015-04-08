@@ -15,4 +15,6 @@ group :test do
   gem 'coderay'
   gem 'sanitize'
   gem 'minitest'
+
+  gem 'execjs', '<2.5.1' if RUBY_VERSION =~ /^1/
 end
