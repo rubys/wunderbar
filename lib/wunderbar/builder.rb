@@ -41,6 +41,7 @@ module Wunderbar
         secret = command - flat
         begin
           # if available, use escape as it does prettier quoting
+          raise LoadError if $SAFE > 0 and not defined? Escape
           require 'escape'
           echo = Escape.shell_command(command.compact - secret)
         rescue LoadError
