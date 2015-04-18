@@ -117,6 +117,8 @@ ITEMS = %w{
   legend li meter option output progress td th title
 }
 
+IDENTIFIER = /^[a-zA-Z][-A-Za-z0-9]*( [a-zA-Z][-A-Za-z0-9]*)*$/
+
 def web2script(element, indent='', flat=false)
   element_name = element.name.gsub('-', '_')
 
@@ -156,9 +158,9 @@ def web2script(element, indent='', flat=false)
 
     if key =~ /^[_a-zA-Z][-A-Za-z0-9]*$/
       key = key.gsub('-', '_')
-      if key == 'id' and value =~ /^\w+$/
-        element_name += ".#{value}!"
-      elsif key == 'class' and value =~ /^[a-zA-Z][-A-Za-z0-9]*( [a-zA-Z][-A-Za-z0-9]*)*$/
+      if key == 'id' and value =~ IDENTIFIER
+        element_name += ".#{value.gsub('-','_').gsub(' ', '.')}!"
+      elsif key == 'class' and value =~ IDENTIFIER
         element_name += ".#{value.gsub('-','_').gsub(' ', '.')}"
       elsif key == 'xmlns' and %w(html svg mathml).include? element.name
         # drop xmlns attributes from these elements

@@ -47,6 +47,9 @@ class Web2ScriptTest < MiniTest::Test
   def test_id_attribute
     assert_equal "_div.search!",
       convert('<div id="search">')
+
+    assert_equal "_div id: '9'",
+      convert('<div id="9">')
   end
 
   def test_text_content
