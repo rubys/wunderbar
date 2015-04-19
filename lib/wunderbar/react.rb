@@ -61,7 +61,8 @@ class Wunderbar::XmlMarkup
       next if Wunderbar::ClientScriptNode === script
 
       if script.attrs[:src]
-        src = File.join(base, script.attrs[:src])
+        src = script.attrs[:src]
+        src = File.join(base, src) unless base.empty?
         name = File.expand_path(src, @_scope.settings.public_folder.untaint)
         if File.exist? name
           result = File.read(name)
