@@ -116,10 +116,29 @@ module Wunderbar
         head.children.insert 1, head.children.delete_at(base) if base > 1
 
         # compute relative path from base to the current working directory
+        #
+        # current working directory can be something like /a/b/c/d/e;
+        # document root may be /a/b, document base may be c/ and the href
+        # may be d/.  In such a case, a prefix of '..' would be in order.
+        #
+        # Note: there are three basic use cases that need to be handled:
+        #
+        # * Native Rack server (typically puma).  Document base is defined
+        #   by the application.
+        #
+        # * Passenger server (typically Apache httpd).  Document base may
+        #   be relative to the PassengerBaseURI.
+        #
+        # * Proxied Rack server.  Document base may be relate to the
+        #   HTTP_X_WUNDERBAR_BASE 
+        #
         require 'pathname'
         base = @_scope.env['DOCUMENT_ROOT'] if @_scope.env.respond_to? :[]
         base ||= Dir.pwd
-        base += (head.children[1].attrs[:href] || '')
+        href = (head.children[1].attrs[:href] || '')
+        _base = @_scope.env['HTTP_X_WUNDERBAR_BASE']
+        href = href[_base.length-1..-1] if href.start_with? _base
+        base += href
         base += 'index.html' if base.end_with? '/'
         base = Pathname.new(base).parent
         prefix = Pathname.new(Dir.pwd).relative_path_from(base).to_s + '/'

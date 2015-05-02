@@ -30,9 +30,14 @@ class Wunderbar::XmlMarkup
 
     # compute base
     base = root.at('base')
-    base = (base ? base.attrs[:href] : nil) || '/'
+    base = (base ? base.attrs[:href] : '') || '/'
+
+    _base = @_scope.env['HTTP_X_WUNDERBAR_BASE']
+    base = base[_base.length..-1] if _base and base.start_with? _base
+
     script = @_scope.env['SCRIPT_NAME']
     base = base[script.length..-1] if script and base.start_with? script
+
     base = base[1..-1] if base.start_with? '/'
 
     # compute client side container
