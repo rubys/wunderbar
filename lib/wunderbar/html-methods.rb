@@ -137,7 +137,7 @@ module Wunderbar
         base ||= Dir.pwd
         href = (head.children[1].attrs[:href] || '')
         _base = @_scope.env['HTTP_X_WUNDERBAR_BASE']
-        href = href[_base.length-1..-1] if href.start_with? _base
+        href = href[_base.length-1..-1] if _base and href.start_with? _base
         base += href
         base += 'index.html' if base.end_with? '/'
         base = Pathname.new(base).parent
