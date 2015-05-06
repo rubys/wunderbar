@@ -16,6 +16,16 @@ source = Dir[File.expand_path('../vendor/react-*.min.js', __FILE__)].
 Wunderbar::Asset.script name: 'react-min.js', file: source,
   react: ['global=this']
 
+class Wunderbar::Asset
+  @@cached_scripts = {}
+  def self.convert(file)
+    cached = @@cached_scripts[file]
+    return cached if cached and cached.uptodate?
+    return nil unless File.exist? file
+    @@cached_scripts[file] = Ruby2JS.convert(File.read(file), file: file)
+  end
+end
+
 class Wunderbar::ClientScriptNode < Wunderbar::ScriptNode
 end
 
@@ -72,10 +82,8 @@ class Wunderbar::XmlMarkup
         if File.exist? name
           result = File.read(name)
         else
-          name = File.expand_path(src+'.rb', @_scope.settings.views.untaint)
-          if File.exist? name
-            result = Ruby2JS.convert(File.read(name), file: name)
-          end
+          file = File.expand_path(src+'.rb', @_scope.settings.views.untaint)
+          result = Wunderbar::Asset.convert(file)
         end
       else
         result = Ruby2JS.convert(script.block, binding: script.binding)
@@ -126,27 +134,24 @@ class Ruby2JS::Serializer
   end
 end
 
-SCRIPTS = {}
 get %r{^/([-\w]+)\.js$} do |script|
-  unless SCRIPTS[script] and SCRIPTS[script].uptodate?
-    file = File.join(settings.views, "#{script}.js.rb")
-    pass unless File.exist? file
-    begin
-      SCRIPTS[script] = Ruby2JS.convert(File.read(file), file: file)
-    rescue
-      # if conversion fails, use Wunderbar's error recovery
-      _js :"#{script}"
-      return
-    end
+  file = File.join(settings.views, "#{script}.js.rb")
+  begin
+    js = Wunderbar::Asset.convert(file)
+    pass unless js
+  rescue
+    # if conversion fails, use Wunderbar's error recovery
+    _js :"#{script}"
+    return
   end
 
   response.headers['SourceMap'] = "#{script}.js.map"
 
-  etag SCRIPTS[script].etag
+  etag js.etag
 
   content_type 'application/javascript;charset:utf8'
 
-  SCRIPTS[script].to_s
+  js.to_s
 end
 
 get %r{^/((?:\w+\/)*[-\w]+)\.js.rb$} do |script|
@@ -156,11 +161,13 @@ get %r{^/((?:\w+\/)*[-\w]+)\.js.rb$} do |script|
 end
 
 get %r{^/([-\w]+)\.js.map$} do |script|
-  pass unless SCRIPTS[script]
+  file = File.join(settings.views, "#{script}.js.rb")
+  js = Wunderbar::Asset.convert(file)
+  pass unless js
 
-  etag SCRIPTS[script].sourcemap_etag
+  etag js.sourcemap_etag
 
-  sourcemap = SCRIPTS[script].sourcemap
+  sourcemap = js.sourcemap
 
   content_type 'application/json;charset:utf8'
   base = settings.views + '/'
