@@ -149,7 +149,7 @@ get %r{^/([-\w]+)\.js$} do |script|
 
   etag js.etag
 
-  content_type 'application/javascript;charset:utf8'
+  content_type 'application/javascript; charset=utf-8'
 
   js.to_s
 end
