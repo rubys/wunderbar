@@ -132,7 +132,6 @@ module Wunderbar
         # * Proxied Rack server.  Document base may be relate to the
         #   HTTP_X_WUNDERBAR_BASE 
         #
-        require 'pathname'
         base = @_scope.env['DOCUMENT_ROOT'] if @_scope.env.respond_to? :[]
         base ||= Dir.pwd
         href = (head.children[1].attrs[:href] || '')

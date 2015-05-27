@@ -1,5 +1,6 @@
 require 'cgi'
 require 'json'
+require 'pathname'
 
 require 'wunderbar/environment'
 require 'wunderbar/asset'
