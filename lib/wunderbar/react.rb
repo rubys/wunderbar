@@ -79,6 +79,7 @@ class Wunderbar::XmlMarkup
         src = script.attrs[:src]
         src = File.join(base, src) unless base.empty?
         name = File.expand_path(src, @_scope.settings.public_folder.untaint)
+        name.untaint unless src.tainted?
         if File.exist? name
           result = File.read(name)
         else
