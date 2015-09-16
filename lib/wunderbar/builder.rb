@@ -1,3 +1,5 @@
+require 'shellwords'
+
 module Wunderbar
   @@options = {indent: 2}
   def self.option(values={})
@@ -46,7 +48,6 @@ module Wunderbar
           echo = Escape.shell_command(command.compact - secret)
         rescue LoadError
           # std-lib function that gets the job done
-          require 'shellwords'
           echo = Shellwords.join(command.compact - secret)
         end
         command = flat.compact.map(&:dup).map(&:untaint)
