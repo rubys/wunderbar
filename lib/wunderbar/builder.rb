@@ -1,4 +1,6 @@
 require 'shellwords'
+require 'open3'
+require 'thread'
 
 module Wunderbar
   @@options = {indent: 2}
@@ -64,8 +66,6 @@ module Wunderbar
 
       yield :stdin, echo unless opts[:echo] == false
 
-      require 'open3'
-      require 'thread'
       semaphore = Mutex.new
       Open3.popen3(*command) do |pin, pout, perr, wait|
         [
