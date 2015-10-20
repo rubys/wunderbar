@@ -48,6 +48,10 @@ class Wunderbar::XmlMarkup
     script = @_scope.env['SCRIPT_NAME']
     base = base[script.length..-1] if script and base.start_with? script
 
+    if base == '..' or base.end_with? '/..'
+      base = (Pathname.new(@_scope.env['REQUEST_URI']) + base).to_s
+    end
+
     base = base[1..-1] if base.start_with? '/'
 
     # compute client side container
