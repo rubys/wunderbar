@@ -146,7 +146,10 @@ module Wunderbar
   
       Asset.declarations(html, prefix)
 
-      title = head.children.index {|child| child.name == 'title'}
+      title = head.children.index do |child| 
+        child.respond_to? :name and child.name == 'title'
+      end
+
       if title and title > 1
         head.children.insert 1, head.children.delete_at(title)
       end
