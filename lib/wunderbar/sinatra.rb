@@ -181,7 +181,6 @@ module Wunderbar
       scope.instance_variables.each do |ivar|
         next if [:@env, :@params].include? ivar
         value = scope.instance_variable_get(ivar)
-        next unless PASSABLE.find {|klass| klass === value}
         locals[ivar] = value
       end
 
