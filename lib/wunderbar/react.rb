@@ -10,11 +10,11 @@ require 'ruby2js/filter/react'
 require 'execjs'
 require 'nokogumbo'
 
-source = Dir[File.expand_path('../vendor/react-*.min.js', __FILE__)].
-  sort_by {|name| name[/-v?([.\d]*)\.min.js$/,1].split('.').map(&:to_i)}.last
+react = Dir[File.expand_path('../vendor/react-with-*.min.js', __FILE__)].
+  sort_by {|name| name[/-([.\d]*)(-rc\d+)?\.min.js$/,1].split('.').map(&:to_i)}.
+  last
 
-Wunderbar::Asset.script name: 'react-min.js', file: source,
-  react: ['global=this']
+Wunderbar::Asset.script name: 'react-min.js', file: react, react: true
 
 class Wunderbar::Asset
   @@cached_scripts = {}
@@ -121,6 +121,7 @@ class Wunderbar::XmlMarkup
       nodes.each {|node| node.parent = target}
       target.children += nodes
     rescue ExecJS::ProgramError => e
+      STDERR.puts e
       target.children << builder._pre(e.message).node?
     end
 
