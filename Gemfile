@@ -17,4 +17,5 @@ group :test do
   gem 'minitest'
 
   gem 'execjs', '<2.5.1' if RUBY_VERSION =~ /^1/
+  gem 'tins', '~> 1.6.0' if RUBY_VERSION =~ /^1/
 end
