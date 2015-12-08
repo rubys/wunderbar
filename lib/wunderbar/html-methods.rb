@@ -112,6 +112,7 @@ module Wunderbar
 
       prefix = nil
       base = head.children.index(head.at('base'))
+
       if base
         head.children.insert 1, head.children.delete_at(base) if base > 1
 
@@ -142,6 +143,8 @@ module Wunderbar
         base = Pathname.new(base).parent
         prefix = Pathname.new(Dir.pwd).relative_path_from(base).to_s + '/'
         prefix = nil unless prefix.start_with? '..'
+      elsif @_scope.respond_to? :env and @_scope.env['PATH_INFO'].to_s.length>1
+        prefix = '../' * (@_scope.env['PATH_INFO'].split('/').length - 2)
       end
   
       Asset.declarations(html, prefix)

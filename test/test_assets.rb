@@ -23,6 +23,13 @@ class AssetTest < Minitest::Test
     assert_match %r{<script src="assets/jquery-min.js"}, target
   end
 
+  def test_path_info
+    load 'wunderbar/jquery.rb'
+    @x.env['PATH_INFO']='/foo/bar/baz'
+    @x.html {_head}
+    assert_match %r{<script src="../../assets/jquery-min.js"}, target
+  end
+
   def test_base_in
     load 'wunderbar/jquery.rb'
     @x.html {_head {_base href: '/foo/bar/'}}
