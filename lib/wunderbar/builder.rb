@@ -365,7 +365,7 @@ module Wunderbar
           compact! { tag!(child) {self[*child.children]} }
         elsif child.children.empty? and HtmlMarkup::VOID.include? child.name
           tag!(child)
-        elsif child.children.all?(&:text?)
+        elsif child.children.all?(&:text?) and child.text
           tag!(child, @indentation_enabled ? child.text.strip : child.text)
         elsif child.children.any?(&:cdata?) and child.text =~ /[<&]/
           self << child
@@ -380,7 +380,7 @@ module Wunderbar
             head.parent = html
           end
           head
-        else
+        elsif not Nokogiri::XML::DTD === child
           tag!(child) {self[*child.children]}
         end
       end
