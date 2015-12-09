@@ -37,13 +37,13 @@ listener = Listen.to(*dirs) do |modified, added, removed|
   elapsed, start = Time.now - start, Time.now
   if `fuser -n tcp 9292 2>/dev/null`.empty?
     Process.kill("SIGINT", $pid)
-    $pid = spawn('puma')
+    $pid = spawn('puma', '--quiet')
   else
     Process.kill("SIGUSR2", $pid) if elapsed > 0.5
   end
 end
 
-$pid = spawn('puma')
+$pid = spawn('puma', '--quiet')
 
 listener.start
 listener.ignore /\~$/
