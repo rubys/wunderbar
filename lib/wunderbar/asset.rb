@@ -128,7 +128,7 @@ module Wunderbar
 
         nodes.each {|node| node.parent = parent}
         index = parent.children.index(before) || -1
-        parent.children.insert(index, *nodes)
+        parent.children.insert(index, *nodes) if before
       end
 
       unless @@stylesheets.empty?
