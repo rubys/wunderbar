@@ -121,7 +121,7 @@ class Wunderbar::XmlMarkup
       nodes.each {|node| node.parent = target}
       target.children += nodes
     rescue ExecJS::ProgramError => e
-      STDERR.puts e
+      Wunderbar.error e
       target.children << builder._pre(e.message).node?
     end
 
@@ -145,10 +145,9 @@ get %r{^/([-\w]+)\.js$} do |script|
   begin
     js = Wunderbar::Asset.convert(file)
     pass unless js
-  rescue
-    # if conversion fails, use Wunderbar's error recovery
-    _js :"#{script}"
-    return
+  rescue Exception => e
+    Wunderbar.error e.to_s
+    return [500, {'Content-type' => 'text/plain'}, "*** ERROR ***\n\n#{e}"]
   end
 
   response.headers['SourceMap'] = "#{script}.js.map"
