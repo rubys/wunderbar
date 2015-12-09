@@ -19,26 +19,39 @@ class AssetTest < Minitest::Test
 
   def test_jquery
     load 'wunderbar/jquery.rb'
-    @x.html {_head}
+    @x.html {_head {_script}}
     assert_match %r{<script src="assets/jquery-min.js"}, target
   end
 
-  def test_path_info
+  def test_noscript
     load 'wunderbar/jquery.rb'
-    @x.env['PATH_INFO']='/foo/bar/baz'
     @x.html {_head}
+    refute_match %r{<script src="assets/jquery-min.js"}, target
+  end
+
+  def test_path_info_file
+    load 'wunderbar/jquery.rb'
+    @x.env['PATH_INFO']='/foo/bar/baz.html'
+    @x.html {_head {_script}}
+    assert_match %r{<script src="../../assets/jquery-min.js"}, target
+  end
+
+  def test_path_info_directory
+    load 'wunderbar/jquery.rb'
+    @x.env['PATH_INFO']='/foo/bar/'
+    @x.html {_head {_script}}
     assert_match %r{<script src="../../assets/jquery-min.js"}, target
   end
 
   def test_base_in
     load 'wunderbar/jquery.rb'
-    @x.html {_head {_base href: '/foo/bar/'}}
+    @x.html {_head {_base href: '/foo/bar/'; _script}}
     assert_match %r{<script src="../../assets/jquery-min.js"}, target
   end
 
   def test_base_out
     load 'wunderbar/jquery.rb'
-    @x.html {_head {_base href: '..'}}
+    @x.html {_head {_base href: '..'; _script}}
     assert_match %r{<script src="assets/jquery-min.js"}, target
   end
 end

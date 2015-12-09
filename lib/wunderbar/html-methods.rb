@@ -144,7 +144,7 @@ module Wunderbar
         prefix = Pathname.new(Dir.pwd).relative_path_from(base).to_s + '/'
         prefix = nil unless prefix.start_with? '..'
       elsif @_scope.respond_to? :env and @_scope.env['PATH_INFO'].to_s.length>1
-        prefix = '../' * (@_scope.env['PATH_INFO'].split('/').length - 2)
+        prefix = '../' * (@_scope.env['PATH_INFO'].count('/') - 1)
       end
   
       Asset.declarations(html, prefix)
