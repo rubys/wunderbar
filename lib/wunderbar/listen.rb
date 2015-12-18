@@ -7,6 +7,43 @@
 
 require 'listen'
 
+#
+# support for excluding files/directories from triggering restart.
+#
+# Usage:
+#
+#   module Wunderbar::Listen
+#     EXCLUDE = ['file', 'dir']
+#   end
+#
+module Wunderbar
+  module Listen
+    EXCLUDE = [] unless defined? EXCLUDE
+
+    EXCLUDE.each_with_index do |filename, index|
+      EXCLUDE[index] = File.realpath(filename)
+    end
+
+    # add a path to the exclude list
+    def self.exclude(*files)
+      files.each do |file|
+        file = File.realpath(file)
+        EXCLUDE << file unless EXCLUDE.include? file
+      end
+    end
+
+    # check to see if all of the files are excluded
+    def self.exclude?(files)
+      files.all? do |file|
+        file = File.realpath(file) if File.exist? file
+        EXCLUDE.any? do |exclude|
+          file == exclude or file.start_with? exclude + '/'
+        end
+      end
+    end
+  end
+end
+
 $HOME = ENV['HOME']
 
 pids = `lsof -t -i tcp:9292`.split
@@ -29,6 +66,8 @@ dirs.each {|dir| puts "Watching #{dir}"}
 puts unless dirs.empty?
 
 listener = Listen.to(*dirs) do |modified, added, removed|
+  next if Wunderbar::Listen.exclude? modified+added+removed
+
   puts
   modified.each {|file| puts "#{file} modified"}
   added.each {|file| puts "#{file} added"}
