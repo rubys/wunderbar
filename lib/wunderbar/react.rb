@@ -81,7 +81,21 @@ class Wunderbar::XmlMarkup
 
       if script.attrs[:src]
         src = script.attrs[:src]
-        src = File.join(base, src) unless base.empty?
+
+        if not base.empty?
+          src = File.join(base, src)
+        elsif @_scope.env['PATH_INFO']
+          # evaluate src relative to PATH_INFO
+          path = @_scope.env['PATH_INFO'].split('/')
+          path.shift
+          path.pop
+          while src.start_with? '../' and not path.empty?
+            src = src.sub('../', '')
+            path.pop
+          end 
+          src = File.join(path.join('/'), src) unless path.empty?
+        end
+
         name = File.expand_path(src, @_scope.settings.public_folder.untaint)
         name.untaint unless src.tainted?
         if File.exist? name
