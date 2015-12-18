@@ -240,7 +240,7 @@ Tilt.register 'xhtml.rb', Wunderbar::Template::Xhtml
 helpers Wunderbar::SinatraHelpers
 
 if Dir.exist? settings.public_folder
-  Wunderbar::Asset.root = File.join(settings.public_folder, 'assets')
+  Wunderbar::Asset.root = File.join(settings.public_folder, 'assets').untaint
 end
 
 Wunderbar::Asset.virtual = true
