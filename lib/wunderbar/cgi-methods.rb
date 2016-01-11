@@ -11,7 +11,7 @@ module Wunderbar
       output = builder.encode(&block)
       headers['status'] =  "404 Not Found" if output == {}
     rescue Exception => exception
-      headers['status'] =  "500 Internal Server Error"
+      headers['status'] =  "531 Internal Server Error"
       builder._! Hash.new unless builder.target? Hash
       builder._exception exception
     ensure
@@ -25,7 +25,7 @@ module Wunderbar
       output = builder.encode(&block)
       headers['status'] =  "404 Not Found" if output == ''
     rescue Exception => exception
-      headers['status'] =  "500 Internal Server Error"
+      headers['status'] =  "531 Internal Server Error"
       builder._exception exception
     ensure
       out?(scope, headers) { builder.target! }
@@ -101,7 +101,7 @@ module Wunderbar
           output = x.html *args, &block
         end
       rescue ::Exception => exception
-        headers['status'] =  "500 Internal Server Error"
+        headers['status'] =  "531 Internal Server Error"
         x.clear!
         output = x.html(*args) do
           _h1 'Internal Server Error'

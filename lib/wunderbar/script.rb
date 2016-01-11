@@ -58,12 +58,12 @@ module Wunderbar
       begin
         output = Ruby2JS.convert(block) + "\n"
       rescue Parser::SyntaxError => exception
-        headers['status'] =  "500 Internal Server Error"
+        headers['status'] =  "531 Internal Server Error"
         location = exception.diagnostic.location
         output = "// Syntax Error: line #{location.line}, " +
           "column: #{location.column}\n#{exception}\n"
       rescue ::Exception => exception
-        headers['status'] =  "500 Internal Server Error"
+        headers['status'] =  "531 Internal Server Error"
         output = "// Internal Server Error: #{exception}\n"
         exception.backtrace.each do |frame| 
           next if CALLERS_TO_IGNORE.any? {|re| frame =~ re}
@@ -85,12 +85,12 @@ module Wunderbar
         begin
           Ruby2JS.convert(block ? block : data, ivars: locals, file: file).to_s
         rescue Parser::SyntaxError => exception
-          scope.response.status = 500
+          scope.response.status = 531
           location = exception.diagnostic.location
           "Syntax Error: line #{location.line}, column: #{location.column}" +
             "\n#{exception}\n"
         rescue Exception => exception
-          scope.response.status = 500
+          scope.response.status = 531
           output = "Internal Server Error: #{exception}\n"
           exception.backtrace.each do |frame| 
             next if CALLERS_TO_IGNORE.any? {|re| frame =~ re}

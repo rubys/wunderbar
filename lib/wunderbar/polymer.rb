@@ -31,7 +31,7 @@ if self.to_s == 'main'
           end
           output = element.serialize.join("\n") + "\n"
         rescue ::Exception => exception
-          headers['status'] =  "500 Internal Server Error"
+          headers['status'] =  "531 Internal Server Error"
           x.clear!
           output = x.html(*args) do
             _h1 'Internal Server Error'
