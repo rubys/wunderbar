@@ -91,7 +91,7 @@ class SintraTest < MiniTest::Test
       end
     end
 
-    assert_equal 500, last_response.status
+    assert_equal 531, last_response.status
     assert_equal 'text/html;charset=utf-8', last_response.content_type
     assert_match %r{^\s+<h1>Internal Server Error</h1>$}, last_response.body
     assert_match %r{^\s+<pre.*>.*NameError.*error_undefined}, last_response.body
@@ -172,7 +172,7 @@ class SintraTest < MiniTest::Test
       end
     end
 
-    assert_equal 500, last_response.status
+    assert_equal 531, last_response.status
     assert_match %r{^application/json}, last_response.content_type
     assert_match %r{^\s+"exception": ".*NameError.*error_undefined},
       last_response.body
@@ -274,7 +274,7 @@ class SintraTest < MiniTest::Test
       end
     end
 
-    assert_equal 500, last_response.status
+    assert_equal 531, last_response.status
     assert_match %r{^text/plain}, last_response.content_type
     assert_match %r{NameError.*error_undefined}, last_response.body
     assert_match %r{^_ERROR.*NameError.*error_undefined}, $stderr.string

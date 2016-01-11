@@ -80,7 +80,7 @@ class CGITest < Minitest::Test
 
     Wunderbar::CGI.call(@cgi)
 
-    assert_equal '500 Internal Server Error', @cgi.headers['status']
+    assert_equal '531 Internal Server Error', @cgi.headers['status']
     assert_equal 'text/html', @cgi.headers['type']
     assert_equal 'UTF-8', @cgi.headers['charset']
     assert_match %r{^\s+<h1>Internal Server Error</h1>$}, @cgi.body
@@ -162,7 +162,7 @@ class CGITest < Minitest::Test
 
     Wunderbar::CGI.call(@cgi)
 
-    assert_equal '500 Internal Server Error', @cgi.headers['status']
+    assert_equal '531 Internal Server Error', @cgi.headers['status']
     assert_equal 'application/json', @cgi.headers['type']
     assert_match %r{^\s+"exception": ".*NameError.*error_undefined}, @cgi.body
     assert_match %r{^_ERROR.*NameError.*error_undefined}, $stderr.string
@@ -229,7 +229,7 @@ class CGITest < Minitest::Test
 
     Wunderbar::CGI.call(@cgi)
 
-    assert_equal '500 Internal Server Error', @cgi.headers['status']
+    assert_equal '531 Internal Server Error', @cgi.headers['status']
     assert_equal 'text/plain', @cgi.headers['type']
     assert_match %r{NameError.*error_undefined}, @cgi.body
     assert_match %r{^_ERROR.*NameError.*error_undefined}, $stderr.string

@@ -67,7 +67,7 @@ class RackTest < MiniTest::Test
 
     get '/'
 
-    assert_equal 500, last_response.status
+    assert_equal 531, last_response.status
     assert_equal 'text/html; charset=UTF-8', last_response.content_type
     assert_match %r{^\s+<h1>Internal Server Error</h1>$}, last_response.body
     assert_match %r{^\s+<pre.*>.*NameError.*error_undefined}, last_response.body
@@ -136,7 +136,7 @@ class RackTest < MiniTest::Test
 
     get '/', {}, {'HTTP_ACCEPT' => 'application/json'}
 
-    assert_equal 500, last_response.status
+    assert_equal 531, last_response.status
     assert_equal 'application/json; charset=UTF-8', last_response.content_type
     assert_match %r{^\s+"exception": ".*NameError.*error_undefined},
       last_response.body
@@ -193,7 +193,7 @@ class RackTest < MiniTest::Test
 
     get '/', {}, {'HTTP_ACCEPT' => 'text/plain'}
 
-    assert_equal 500, last_response.status
+    assert_equal 531, last_response.status
     assert_equal 'text/plain; charset=UTF-8', last_response.content_type
     assert_match %r{NameError.*error_undefined}, last_response.body
     assert_match %r{^_ERROR.*NameError.*error_undefined}, $stderr.string
