@@ -75,6 +75,33 @@ module Wunderbar
       Wunderbar.templates[name.to_s.gsub('_','-')] = block
     end
   end
+
+  #
+  # Some proxies will replace server errors with their own output, and
+  # some applications will want to indicate that there is useful, parseable,
+  # content in controlled failures.  For this reason, allow the server
+  # error responses to be customized by the application.
+  #
+  module ServerError
+    @@status = 500
+    @@text = 'Internal Server Error'
+
+    def self.status=(status)
+      @@status = status
+    end
+
+    def self.text=(text)
+      @@text = text
+    end
+
+    def self.status
+      @@status
+    end
+
+    def self.text
+      "#{@@status} #{@@text}"
+    end
+  end
 end
 
 require 'socket'

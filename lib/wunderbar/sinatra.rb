@@ -110,7 +110,7 @@ module Wunderbar
         begin
           _evaluate_safely(builder, scope, locals, &block)
         rescue Exception => exception
-          scope.response.status = 531
+          scope.response.status = Wunderbar::ServerError.status
           builder.clear!
           builder.html do
             _h1 'Internal Server Error'
@@ -139,7 +139,7 @@ module Wunderbar
 
         rescue Exception => exception
           scope.content_type self.class.default_mime_type, :charset => 'utf-8'
-          scope.response.status = 531
+          scope.response.status = Wunderbar::ServerError.status
           builder._exception exception
         end
         scope.cache_control :no_cache
@@ -162,7 +162,7 @@ module Wunderbar
           scope.response.status = 404 if builder.target!.empty?
         rescue Exception => exception
           scope.headers['Content-Type'] = self.class.default_mime_type
-          scope.response.status = 531
+          scope.response.status = Wunderbar::ServerError.status
           builder._exception exception
         end
         builder.target!

@@ -9,9 +9,9 @@ module Wunderbar
         'Cache-Control' => 'no-cache' }
       builder = JsonBuilder.new(scope)
       output = builder.encode(&block)
-      headers['status'] =  "404 Not Found" if output == {}
+      headers['status'] = "404 Not Found" if output == {}
     rescue Exception => exception
-      headers['status'] =  "531 Internal Server Error"
+      headers['status'] = Wunderbar::ServerError.text
       builder._! Hash.new unless builder.target? Hash
       builder._exception exception
     ensure
@@ -23,9 +23,9 @@ module Wunderbar
       headers = {'type' => 'text/plain', 'charset' => 'UTF-8'}
       builder = TextBuilder.new(scope)
       output = builder.encode(&block)
-      headers['status'] =  "404 Not Found" if output == ''
+      headers['status'] = "404 Not Found" if output == ''
     rescue Exception => exception
-      headers['status'] =  "531 Internal Server Error"
+      headers['status'] = Wunderbar::ServerError.text
       builder._exception exception
     ensure
       out?(scope, headers) { builder.target! }
@@ -101,7 +101,7 @@ module Wunderbar
           output = x.html *args, &block
         end
       rescue ::Exception => exception
-        headers['status'] =  "531 Internal Server Error"
+        headers['status'] = Wunderbar::ServerError.text
         x.clear!
         output = x.html(*args) do
           _h1 'Internal Server Error'
