@@ -10,9 +10,7 @@ require 'ruby2js/filter/react'
 require 'execjs'
 require 'nokogumbo'
 
-react = Dir[File.expand_path('../vendor/react-with-*.min.js', __FILE__)].
-  sort_by {|name| name[/-([.\d]*)(-rc\d+)?\.min.js$/,1].split('.').map(&:to_i)}.
-  last
+react = File.expand_path('../vendor/react-with-addons.min.js', __FILE__)
 
 Wunderbar::Asset.script name: 'react-min.js', file: react, react: true
 
