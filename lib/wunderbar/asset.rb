@@ -10,6 +10,7 @@
 #
 
 require 'fileutils'
+require 'thread'
 
 module Wunderbar
   class Asset
@@ -58,8 +59,10 @@ module Wunderbar
 
     clear
 
-    @path = '../' * ENV['PATH_INFO'].to_s.count('/') + 'assets'
-    @root = File.dirname(ENV['SCRIPT_FILENAME']) if ENV['SCRIPT_FILENAME']
+    env = Thread.current[:env] || ENV
+
+    @path = '../' * env['PATH_INFO'].to_s.count('/') + 'assets'
+    @root = File.dirname(env['SCRIPT_FILENAME']) if env['SCRIPT_FILENAME']
     @root = File.expand_path((@root || Dir.pwd) + "/assets").untaint
 
     # Options: typically :name plus either :file or :contents
