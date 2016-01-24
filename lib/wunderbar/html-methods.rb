@@ -133,15 +133,19 @@ module Wunderbar
         # * Proxied Rack server.  Document base may be relate to the
         #   HTTP_X_WUNDERBAR_BASE 
         #
+        cwd = File.realpath(Dir.pwd.untaint)
         base = @_scope.env['DOCUMENT_ROOT'] if @_scope.env.respond_to? :[]
-        base ||= Dir.pwd
+        base ||= cwd
         href = (head.children[1].attrs[:href] || '')
-        _base = @_scope.env['HTTP_X_WUNDERBAR_BASE']
-        href = href[_base.length-1..-1] if _base and href.start_with? _base
+        _base = @_scope.env['HTTP_X_WUNDERBAR_BASE'] ||
+          @_scope.env['SCRIPT_NAME']
+        if _base and not _base.empty? and href.start_with? _base
+          href = href[_base.length-1..-1]
+        end
         base += href
         base += 'index.html' if base.end_with? '/'
         base = Pathname.new(base).parent
-        prefix = Pathname.new(Dir.pwd).relative_path_from(base).to_s + '/'
+        prefix = Pathname.new(cwd).relative_path_from(base).to_s + '/'
         prefix = nil unless prefix.start_with? '..'
       elsif @_scope.respond_to? :env and @_scope.env['PATH_INFO'].to_s.length>1
         prefix = '../' * (@_scope.env['PATH_INFO'].count('/') - 1)

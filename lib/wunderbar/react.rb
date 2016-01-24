@@ -93,6 +93,7 @@ class Wunderbar::XmlMarkup
           end 
           src = File.join(path.join('/'), src) unless path.empty?
         end
+        src.untaint
 
         name = File.expand_path(src, @_scope.settings.public_folder.untaint)
         name.untaint unless src.tainted?
