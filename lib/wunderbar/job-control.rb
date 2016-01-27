@@ -26,12 +26,8 @@ module Wunderbar
         ENV.delete method.to_s.upcase
       end
 
-      # setup environment
-      ENV['USER'] ||= $USER
-      ENV['HOME'] ||= $HOME
-
       # run cmd and/or block
-      system cmd if cmd
+      system({'USER' => $USER, 'HOME' => $HOME}, cmd) if cmd
       yield if block_given?
     end
   end
