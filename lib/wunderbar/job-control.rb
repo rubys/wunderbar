@@ -1,4 +1,5 @@
 require 'wunderbar'
+require 'rbconfig'
 
 # run command/block as a background daemon
 module Wunderbar
@@ -14,7 +15,11 @@ module Wunderbar
 
       # close open files
       STDIN.reopen '/dev/null'
-      STDOUT.reopen '/dev/null', 'a'
+      if RbConfig::CONFIG['host_os'] =~ /darwin|mac os/
+        STDOUT.reopen '/dev/null'
+      else
+        STDOUT.reopen '/dev/null', 'a'
+      end
       STDERR.reopen STDOUT
 
       # clear environment of cgi cruft
