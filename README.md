@@ -198,7 +198,7 @@ Methods provided to Wunderbar.html
 
 Invoking methods that start with a Unicode 
 [low line](http://www.fileformat.info/info/unicode/char/5f/index.htm) 
-character ("_") will generate a HTML tag.  As with builder on which this
+character ("_") will generate an HTML tag.  As with builder, on which this
 library is based, these tags can have text content and attributes.  Tags can
 also be nested.  Logic can be freely intermixed.
 
@@ -215,7 +215,7 @@ Suffixes after the tag name will modify the processing.
 
 The "`_`" method serves a number of purposes.  Calling it with a single
 argument inserts markup, respecting indendation.  Inserting markup without
-reguard to indendatation is done using "`_ << text`".  A number of other
+regard to indendatation is done using "`_ << text`".  A number of other
 convenience methods are defined:
 
 * `_`: insert text with indentation matching the current output
