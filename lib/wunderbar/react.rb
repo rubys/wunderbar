@@ -43,12 +43,12 @@ class Wunderbar::XmlMarkup
     _base = @_scope.env['HTTP_X_WUNDERBAR_BASE']
     base = base[_base.length..-1] if _base and base.start_with? _base
 
+    if base == '..' or base.end_with? '/..'
+      base = (Pathname.new(@_scope.env['REQUEST_URI']) + '../' + base).to_s
+    end
+
     script = @_scope.env['SCRIPT_NAME']
     base = base[script.length..-1] if script and base.start_with? script
-
-    if base == '..' or base.end_with? '/..'
-      base = (Pathname.new(@_scope.env['REQUEST_URI']) + base).to_s
-    end
 
     base = base[1..-1] if base.start_with? '/'
 
@@ -80,19 +80,7 @@ class Wunderbar::XmlMarkup
       if script.attrs[:src]
         src = script.attrs[:src]
 
-        if not base.empty?
-          src = File.join(base, src)
-        elsif @_scope.env['PATH_INFO']
-          # evaluate src relative to PATH_INFO
-          path = @_scope.env['PATH_INFO'].split('/')
-          path.shift
-          path.pop
-          while src.start_with? '../' and not path.empty?
-            src = src.sub('../', '')
-            path.pop
-          end 
-          src = File.join(path.join('/'), src) unless path.empty?
-        end
+        src = File.join(base, src) if not base.empty?
         src.untaint
 
         name = File.expand_path(src, @_scope.settings.public_folder.untaint)
