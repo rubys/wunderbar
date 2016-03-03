@@ -74,7 +74,7 @@ module Wunderbar
               out_line = pout.readline.chomp
               semaphore.synchronize do
                 if patterns.any? {|pattern| out_line =~ pattern}
-                  yield :hilight, out_line
+                  yield :hilite, out_line
                 else
                   yield :stdout, out_line
                 end
