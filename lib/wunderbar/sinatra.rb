@@ -266,6 +266,26 @@ get "/#{Wunderbar::Asset.path}/:name" do |name|
   end
 end
 
+unless Wunderbar.queue.empty?
+  queue = Wunderbar.queue.dup
+
+  get '/' do
+    xhr_json = (env['HTTP_ACCEPT'].to_s =~ /json/)
+    xhr_json ||= (env['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest')
+
+    task = queue.find {|type, args, block| (type!=:json) ^ xhr_json}
+    pass unless task
+
+    if xhr_json
+      _json *task[1], &task[2]
+    else
+      _html *task[1], &task[2]
+    end
+  end
+
+  Wunderbar.queue.clear
+end
+
 # Monkeypatch to address https://github.com/sinatra/sinatra/pull/907
 module Rack
   class ShowExceptions
