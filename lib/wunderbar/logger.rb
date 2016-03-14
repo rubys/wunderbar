@@ -29,6 +29,10 @@ module Wunderbar
     end
   end
 
+  def self.default_log_level=(level)
+    self.log_level = level unless @logger
+  end
+
   def self.log_level
     return 'debug' if logger.level == Logger::DEBUG
     return 'info'  if logger.level == Logger::INFO

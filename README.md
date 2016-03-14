@@ -407,6 +407,7 @@ Logging:
 * `_.error`: error messages
 * `_.fatal`: fatal error messages
 * `_.log_level`=: set logging level (default: `:warn`)
+* `_.default_log_level`=: set, but don't override, log level
 * `_.logger`: return [Logger](http://www.ruby-doc.org/stdlib-1.9.3/libdoc/logger/rdoc/Logger.html) instance
 
 Command line options
