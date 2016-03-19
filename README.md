@@ -228,6 +228,7 @@ convenience methods are defined:
 Access to all of the builder _defined_ methods (typically these end in an esclamation mark) and all of the Wunderbar module methods can be accessed in this way.  Examples:
 
 * `_.tag! :foo`: insert elements where the name can be dynamic
+* `_.comment! "text"`: add a comment
 * `_.error 'Log message'`: write a message to the server log
 
 Underscores in element and attribute names are converted to dashes.  To
@@ -364,9 +365,10 @@ Secure by default
 
 Wunderbar will properly escape all HTML and JSON output, eliminating problems
 of HTML or JavaScript injection.  This includes calls to `_` to insert text
-directly.  Even calls to insert markup (`_{...}`) will escape the markup if
-the input is `tainted` and not explicitly marked as `html-safe?`
-(when using Rails).
+directly.  Unless `nokogiri` was previously required (see [optional
+dependencies](#optional-dependencies) below), even calls to insert markup
+(`_{...}`) will escape the markup if the input is `tainted` and not explicitly
+marked as `html-safe?` (when using Rails).
 
 For all environments other than Rails, unless you call `Wunderbar.unsafe!` at
 the top of your script, Wunderbar will also set
@@ -444,9 +446,9 @@ The following gems are required by extensions of the same name:
 
 The following gems, if installed, will produce cleaner and prettier output:
 
-* `nokogiri` cleans up HTML fragments inserted via `<<`
-* `nokogumbo` also cleans up HTML fragments inserted via `<<`.  If this is
-  available, it will be preferred over direct usage of `nokogiri`.
+* `nokogiri` cleans up HTML fragments inserted via `<<` and `_{}`.
+* `nokogumbo` also cleans up HTML fragments inserted via `<<` and `_{}`.  If
+  this gem is available, it will be preferred over direct usage of `nokogiri`.
 * `escape` prettier quoting of `system` commands
 * `sanitize` will remove unsafe markup from tainted input
 
