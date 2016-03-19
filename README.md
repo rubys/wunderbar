@@ -366,7 +366,7 @@ Secure by default
 Wunderbar will properly escape all HTML and JSON output, eliminating problems
 of HTML or JavaScript injection.  This includes calls to `_` to insert text
 directly.  Unless `nokogiri` was previously required (see [optional
-dependencies](#optional-dependencies) below), even calls to insert markup
+dependencies](#optional-dependencies) below), calls to insert markup
 (`_{...}`) will escape the markup if the input is `tainted` and not explicitly
 marked as `html-safe?` (when using Rails).
 
