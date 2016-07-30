@@ -124,7 +124,8 @@ module Wunderbar
         nodes = []
         @@scripts.each do |script|
           if script.path
-            nodes << Node.new(:script, src: "#{path}/#{script.path}")
+            nodes << Node.new(:script, src:
+              "#{path}/#{script.path}?#{script.mtime.to_i}")
           elsif script.contents
             nodes << ScriptNode.new(:script, script.contents)
           end
@@ -147,7 +148,7 @@ module Wunderbar
         @@stylesheets.each do |stylesheet|
           if stylesheet.path
             nodes << Node.new(:link, rel: "stylesheet", type: "text/css",
-              href: "#{path}/#{stylesheet.path}")
+              href: "#{path}/#{stylesheet.path}?#{stylesheet.mtime.to_i}")
           elsif stylesheet.contents
             nodes << StyleNode.new(:style, stylesheet.contents)
           end
