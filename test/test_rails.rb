@@ -34,6 +34,10 @@ begin
     end
   end
 
+  if ActiveSupport::TestCase.respond_to? :test_order
+    ActiveSupport::TestCase.test_order = :sorted
+  end
+
 rescue LoadError =>  exception
   ActionController = Module.new do
     const_set :TestCase, Class.new(Minitest::Test) {
@@ -43,10 +47,6 @@ rescue LoadError =>  exception
       end
     }
   end
-end
-
-if ActiveSupport::TestCase.respond_to? :test_order
-  ActiveSupport::TestCase.test_order = :sorted
 end
 
 class WunderbarOnRailsTest < ActionController::TestCase
