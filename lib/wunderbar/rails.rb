@@ -5,7 +5,7 @@ module Wunderbar
   module Rails
     class HtmlHandler
       cattr_accessor :default_format
-      self.default_format = Mime::HTML
+      self.default_format = Mime[:html]
 
       def self.call(template)
         %{
@@ -14,7 +14,7 @@ module Wunderbar
           instance_variables.each do |var|
             x.instance_variable_set var, instance_variable_get(var)
           end
-          x.instance_eval &compiled
+          x.instance_eval(&compiled)
           x._.target!
         }.strip # take care to preserve line numbers in original source
       end
@@ -22,7 +22,7 @@ module Wunderbar
 
     class JsonHandler
       cattr_accessor :default_format
-      self.default_format = Mime::JSON
+      self.default_format = Mime[:json]
 
       def self.call(template)
         %{
@@ -31,7 +31,7 @@ module Wunderbar
           instance_variables.each do |var|
             x.instance_variable_set var, instance_variable_get(var)
           end
-          x.instance_eval &compiled
+          x.instance_eval(&compiled)
           x.target!
         }.strip # take care to preserve line numbers in original source
       end

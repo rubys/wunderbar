@@ -126,7 +126,7 @@ class RackTest < MiniTest::Test
 
     assert_equal 404, last_response.status
     assert_equal 'application/json; charset=UTF-8', last_response.content_type
-    assert_match /^\{\s*\}\s*$/, last_response.body
+    assert_match(/^\{\s*\}\s*$/, last_response.body)
   end
 
   def test_json_failure

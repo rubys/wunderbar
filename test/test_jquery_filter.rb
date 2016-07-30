@@ -26,12 +26,12 @@ class JqueryFilterTest < MiniTest::Test
       to_js('_p.class.id! "text"')
   end
 
-  def test_id_attr
+  def test_id_attr1
     assert_equal '$("<span></span>").attr({id: "id", title: "title"})',
       to_js('_span.id! title: "title"')
   end
 
-  def test_id_attr
+  def test_id_attr2
     assert_equal '$("<ul></ul>").attr({id: "id"}).' +
       'each(function(_index, _parent) ' +
       '{$("<li></li>").text("item").appendTo($(_parent))})',

@@ -52,7 +52,7 @@ class AddonTest < MiniTest::Test
     end
   rescue LoadError => exception3
     unless instance_methods.grep(/^skip$/).empty?
-      define_method(:test_coderay) {skip exception2.inspect}
+      define_method(:test_coderay) {skip exception3.inspect}
     end
   end
 end

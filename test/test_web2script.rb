@@ -99,11 +99,6 @@ class Web2ScriptTest < MiniTest::Test
       convert("<ul>\n<li>one\n<li><b>two</b>\n</ul>")
   end
 
-  def test_items_with_single_child
-    assert_equal "_ul do\n  _li 'one'\n  _li { _b 'two' }\nend",
-      convert("<ul>\n<li>one\n<li><b>two</b>\n</ul>")
-  end
-
   def test_attribute_order
     assert_equal "_div :itemscope, itemtype: 'http://schema.org/Blog'",
       convert("<div itemscope='' itemtype='http://schema.org/Blog'></div>")

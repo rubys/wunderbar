@@ -11,10 +11,11 @@ module Wunderbar
 
   class BuilderBase
     def set_variables_from_params(locals={})
-      params = @_scope.params.map do |key, value|
+      params = []
+      @_scope.params.each_pair do |key, value|
         value = value.first if Array === value
         value.gsub! "\r\n", "\n" if String === value
-        ["@#{key}", value]
+        params << ["@#{key}", value]
       end
 
       Hash[params].merge(locals).each do |key,value|
@@ -403,7 +404,7 @@ module Wunderbar
     end
 
     def _(*args)
-      @_target.puts *args if args.length > 0 
+      @_target.puts(*args) if args.length > 0 
       self
     end
 

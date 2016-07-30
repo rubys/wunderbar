@@ -5,10 +5,15 @@ gem 'json'
 group :test do
   gem 'rake'
   gem 'actionpack'
-  gem 'sinatra'
+  if RUBY_VERSION =~ /^1|^2.[01]/
+    gem 'sinatra'
+  else
+    gem 'sinatra', github: 'sinatra/sinatra'
+    gem 'rack-protection', github: 'sinatra/rack-protection'
+  end
   gem 'nokogumbo'
   gem 'ruby2js'
-  gem 'rails', '4.2.0'
+  gem 'rails', '5.0.0'
   gem 'sourcify'
   gem 'coffee-script'
   gem 'kramdown'

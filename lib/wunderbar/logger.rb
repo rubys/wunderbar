@@ -2,6 +2,7 @@ require 'logger'
 
 module Wunderbar
   def self.logger
+    @logger ||= nil
     return @logger if @logger
     @logger = Logger.new($stderr)
     @logger.level = Logger::WARN
@@ -43,23 +44,23 @@ module Wunderbar
 
   # convenience methods
   def self.debug(*args, &block)
-    logger.debug *args, &block
+    logger.debug(*args, &block)
   end
 
   def self.info(*args, &block)
-    logger.info *args, &block
+    logger.info(*args, &block)
   end
 
   def self.warn(*args, &block)
-    logger.warn *args, &block
+    logger.warn(*args, &block)
   end
 
   def self.error(*args, &block)
-    logger.error *args, &block
+    logger.error(*args, &block)
   end
 
   def self.fatal(*args, &block)
-    logger.fatal *args, &block
+    logger.fatal(*args, &block)
   end
 end
 

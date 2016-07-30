@@ -8,6 +8,11 @@ require 'net/http'
 $header = true
 
 $option_parser = OptionParser.new do |opts|
+  $width = nil
+  $xhtml = nil
+  $fragment = nil
+  $group = nil
+
   opts.banner = "#{File.basename(__FILE__)} [-o output] [-w width] URLs..."
   opts.on '-o', '--output FILE', 'Send Output to FILE' do |file|
     $stdout = File.open(file, 'w')
@@ -92,7 +97,7 @@ def flow_text(line, text, indent)
   line = "#{line} #{text}"
   while $width and line.length>$width
     join = "#{text[0]} +\n  #{indent}#{text[-1]}"
-    line.sub! /(.{#{join.length},#{$width-4}})(\s+|\Z)/, "\\1 #{join}"
+    line.sub!(/(.{#{join.length},#{$width-4}})(\s+|\Z)/, "\\1 #{join}")
     break unless line.include? "\n"
     q line.split("\n").first
     line = line[/\n(.*)/,1]
@@ -192,7 +197,7 @@ def web2script(element, indent='', flat=false)
 
     # do any of the text nodes need special processing to preserve spacing?
     flatten = flat || Wunderbar::HtmlMarkup.flatten?(element.children)
-    line.sub! /(\w)( |\.|$)/, '\1!\2' if flatten and not flat
+    line.sub!(/(\w)( |\.|$)/, '\1!\2') if flatten and not flat
 
     skip = $fragment
     skip = false unless %w(html head body).include? element_name
@@ -228,7 +233,7 @@ def web2script(element, indent='', flat=false)
 
       # insert a blank line if either this or the previous block was large
       if $group and start + $group < $q.length
-        $q[start].sub! /^(\s+_\w+)([! .])/, '\1_\2' if breakable
+        $q[start].sub!(/^(\s+_\w+)([! .])/, '\1_\2') if breakable
         $q.insert(start,'') if not first
         blank = !child.text?
       else
@@ -262,7 +267,7 @@ def web2script(element, indent='', flat=false)
 
     q "#{indent}_#{element.name} <<-EOD.gsub(/^\\s{#{after.length}}/,'')" +
       attributes.map {|attr| ", #{attr}"}.join
-    data.split("\n").each { |line| q line }
+    data.split("\n").each { |dline| q dline }
     q "#{indent}EOD"
 
   # element has text but no attributes or children
@@ -294,7 +299,7 @@ def web2script(element, indent='', flat=false)
             end
 
             q "#{line} %#{open}"
-            script.split("\n").each { |line| q line }
+            script.split("\n").each { |sline| q sline }
             q "#{indent}#{close}"
             break
           end
@@ -302,7 +307,7 @@ def web2script(element, indent='', flat=false)
           mark = element.name.upcase
           mark = ('A'..'Z').to_a.shuffle.join while script.include? "_#{mark}_"
           q "#{line} <<-_#{mark}_"
-          script.split("\n").each { |line| q line }
+          script.split("\n").each { |sline| q sline }
           q "#{indent}_#{mark}_"
         end
       end
@@ -319,7 +324,7 @@ def web2script(element, indent='', flat=false)
 
     q "#{line} do"
     q "#{indent}  _! <<-EOD"
-    data.split("\n").each {|line| q line}
+    data.split("\n").each {|dline| q dline}
     q "#{indent}  EOD"
     q "#{indent}end"
 
@@ -355,7 +360,7 @@ if __FILE__ == $0
     if RUBY_VERSION =~ /^1\.8/
       puts "require 'rubygems'"
     elsif RUBY_VERSION =~ /^1/
-      puts '# encoding: utf-8' if $q.any? {|line| line.match /[^\x20-\x7f]/}
+      puts '# encoding: utf-8' if $q.any? {|line| line.match(/[^\x20-\x7f]/)}
     end
 
     puts "require 'wunderbar'\n\n"

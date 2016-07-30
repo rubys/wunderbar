@@ -109,8 +109,14 @@ $SERVER = ENV['HTTP_HOST'] || Socket::gethostname
 
 # set encoding to UTF-8
 ENV['LANG'] ||= "en_US.UTF-8"
-Encoding.default_external = Encoding::UTF_8
-Encoding.default_internal = Encoding::UTF_8
+begin
+  verbose = $VERBOSE
+  $VERBOSE = nil
+  Encoding.default_external = Encoding::UTF_8 
+  Encoding.default_internal = Encoding::UTF_8
+ensure
+  $VERBOSE = verbose
+end
 
 # Add methods to the 'main' object
 if self.to_s == 'main'

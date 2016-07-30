@@ -8,6 +8,11 @@ module Wunderbar
     module JQuery
       include Ruby2JS::Filter::SEXP
 
+      def initialize(*args)
+        @_jqchild = nil
+        super
+      end
+
       def on_send(node)
         return super if @react
 
@@ -94,7 +99,7 @@ module Wunderbar
                   s(:str, node.children[1].to_s[0..-2].gsub('_','-')))
 
                 # if a hash argument is already passed, merge in id value
-                hash = children.find_index {|node| node.type == :hash}
+                hash = children.find_index {|cnode| cnode.type == :hash}
                 if hash
                   children[hash] = s(:hash, pair, *children[hash].children)
                 else

@@ -174,7 +174,7 @@ class CGITest < Minitest::Test
 
     assert_equal '404 Not Found', @cgi.headers['status']
     assert_equal 'application/json', @cgi.headers['type']
-    assert_match /^\{\s*\}\s*$/, @cgi.body
+    assert_match(/^\{\s*\}\s*$/, @cgi.body)
   end
 
   def test_json_failure

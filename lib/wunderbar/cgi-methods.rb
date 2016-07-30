@@ -96,9 +96,9 @@ module Wunderbar
         if @pdf
           x._.pdf = true if @pdf
           headers = { 'type' => 'application/pdf' }
-          output = html2pdf {x.html *args, &block}
+          output = html2pdf {x.html(*args, &block)}
         else
-          output = x.html *args, &block
+          output = x.html(*args, &block)
         end
       rescue ::Exception => exception
         headers['status'] = Wunderbar::ServerError.text
@@ -159,9 +159,9 @@ module Wunderbar
 
       # disable conneg if only one handler is provided
       if Wunderbar.queue.length == 1
-        type = Wunderbar.queue.first.first
-        xhr_json = (type == :json)
-        text     = (type == :text)
+        htype = Wunderbar.queue.first.first
+        xhr_json = (htype == :json)
+        text     = (htype == :text)
       end
 
       Wunderbar.queue.each do |type, args, block|

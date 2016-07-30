@@ -95,7 +95,7 @@ module Wunderbar
             reflowed = IndentedTextNode.reflow(indent, line, width,
               options[:indent])
             line = reflowed.pop
-            result.push *reflowed
+            result.push(*reflowed)
           end
         end
       elsif CompactNode === self and not CompactNode === parent
@@ -278,9 +278,8 @@ module Wunderbar
       unindent = data.sub(/s+\Z/,'').scan(/^ *\S/).map(&:length).min || 0
 
       before  = ::Regexp.new('^'.ljust(unindent))
-      node = @node
       data.gsub! before, indent
-      data.gsub! /^#{indent}$/, '' if unindent == 0
+      data.gsub!(/^#{indent}$/, '') if unindent == 0
       data
     end
 
@@ -342,8 +341,8 @@ module Wunderbar
         text = @text
       end
 
-      result.push *IndentedTextNode.reflow(indent, 
-        text.to_s.gsub(/[&<>\u00A0]/,ESCAPE), options[:width], '')
+      result.push(*IndentedTextNode.reflow(indent,
+        text.to_s.gsub(/[&<>\u00A0]/,ESCAPE), options[:width], ''))
     end
   end
 

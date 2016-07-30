@@ -188,7 +188,7 @@ module Wunderbar
 	  sock1.send('x',0)
 	  sock1.close
 	end
-	channel.instance_eval &block
+	channel.instance_eval(&block)
       rescue Exception => exception
 	channel._ :type=>:stderr, :line=>exception.inspect
 	exception.backtrace.each do |frame| 
@@ -209,7 +209,7 @@ module Wunderbar
       instance_eval &proc
     else
       sock1, sock2 = UNIXSocket.pair
-      submit &proc
+      submit(&proc)
       sleep 0.3 while sock2.recv(1) != 'x'
       sock2.close
     end

@@ -35,7 +35,7 @@ module Wunderbar
         hash = args.pop.to_hash 
         if attrs[:class] and hash[:class]
           hash[:class] = "#{attrs[:class]} #{hash[:class]}"
-       end
+        end
         attrs.merge! hash
       end
       args.push(attrs)

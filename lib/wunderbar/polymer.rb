@@ -27,7 +27,7 @@ if self.to_s == 'main'
 
         begin
            element = x._polymer_element *args do
-            x.instance_eval &block
+            x.instance_eval(&block)
           end
           output = element.serialize.join("\n") + "\n"
         rescue ::Exception => exception
@@ -49,7 +49,7 @@ module Wunderbar
   module SinatraHelpers
     def _polymer_element(*args, &block)
       Wunderbar::Template::Html.evaluate('_polymer_element', self) do
-        _polymer_element(*args) { instance_eval &block }
+        _polymer_element(*args) { instance_eval(&block) }
       end
     end
   end

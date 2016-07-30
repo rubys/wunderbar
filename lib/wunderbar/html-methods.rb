@@ -216,14 +216,14 @@ module Wunderbar
           x.instance_variable_set ivar, instance_variable_get(ivar)
         end
         if Hash === args.last
-          args.last.each do |name, value|
-            x.instance_variable_set "@#{name}", value
+          args.last.each do |attrname, value|
+            x.instance_variable_set "@#{attrname}", value
           end
         end
         save_yield = Wunderbar.templates['yield']
         begin
           Wunderbar.templates['yield'] = block if block
-          x.instance_eval &Wunderbar.templates[name]
+          x.instance_eval(&Wunderbar.templates[name])
         ensure
           Wunderbar.templates['yield'] = save_yield
           Wunderbar.templates.delete 'yield' unless save_yield
@@ -371,7 +371,7 @@ module Wunderbar
         return @_x
       end
 
-      children = instance_eval &block
+      children = instance_eval(&block)
 
       if String === children
         safe = !children.tainted?
@@ -425,7 +425,7 @@ module Wunderbar
         @_x.indented_text! text
       elsif block
         @_x.spaced!
-        _ &block
+        _(&block)
       else
         @_x.text! ""
       end

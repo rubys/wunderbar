@@ -62,6 +62,7 @@ module Wunderbar
     env = Thread.current[:env] || ENV
 
     @path = '../' * env['PATH_INFO'].to_s.count('/') + 'assets'
+    @root ||= nil
     @root = File.dirname(env['SCRIPT_FILENAME']) if env['SCRIPT_FILENAME']
     @root = File.expand_path((@root || Dir.pwd) + "/assets").untaint
 

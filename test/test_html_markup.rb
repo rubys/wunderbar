@@ -396,7 +396,7 @@ class HtmlMarkupTest < MiniTest::Test
       _p 'two'
     end
 
-    @x.html {_ &content}
+    @x.html {_(&content)}
     assert_match %r[^( +)<p>one</p>\n\n\1<p>two</p>], target
   end
 
@@ -463,21 +463,21 @@ class HtmlMarkupTest < MiniTest::Test
     @x.html :_width => 80 do
       _p ('a'..'z').map {|l| l*5}.join(' ')
     end
-    assert_match /lllll\n {6}mmmmm/, target
+    assert_match(/lllll\n {6}mmmmm/, target)
   end
 
   def test_width_nl
     @x.html :_width => 80 do
       _p {_b "a\nb"}
     end
-    assert_match /<b>\s*a b\s*<\/b>/, target
+    assert_match(/<b>\s*a b\s*<\/b>/, target)
   end
 
   def test_width_indented_text
     @x.html :_width => 80 do
       _ ('a'..'z').map {|l| l*5}.join(' ')
     end
-    assert_match /lllll\n {4}mmmmm/, target
+    assert_match(/lllll\n {4}mmmmm/, target)
   end
 
   def test_width_cdata
@@ -487,7 +487,7 @@ class HtmlMarkupTest < MiniTest::Test
         #{data}
       }
     end
-    assert_match /#{data}/, target
+    assert_match(/#{data}/, target)
   end
 
   def test_width_pre
@@ -497,7 +497,7 @@ class HtmlMarkupTest < MiniTest::Test
         #{data}
       }
     end
-    assert_match /#{data}/, target
+    assert_match(/#{data}/, target)
   end
 
   def test_width_compact_elements
@@ -506,8 +506,8 @@ class HtmlMarkupTest < MiniTest::Test
         5.times {|i| _a i, :href=>i; _ ', '}
       end
     end
-    assert_match /<a href="1">1<\/a>, <a href="2">2<\/a>,\n {6}<a href="3">/, 
-      target
+    assert_match(/<a href="1">1<\/a>, <a href="2">2<\/a>,\n {6}<a href="3">/, 
+      target)
   end
 
   def test_width_compact_text
@@ -519,20 +519,20 @@ class HtmlMarkupTest < MiniTest::Test
         _span { _span words.join(' ') }
       end
     end
-    assert_match /<div><span><span>one/, target
-    assert_match /eleven\n +twelve thirteen/, target
-    assert_match %r{\n {6}twenty</span></span></div>}, target
+    assert_match(/<div><span><span>one/, target)
+    assert_match(/eleven\n +twelve thirteen/, target)
+    assert_match(%r{\n {6}twenty</span></span></div>}, target)
   end
 
   def test_implicit_elements
     @x.html do
       _h1 'title'
     end
-    assert_match /^  <head>/, target
-    assert_match /^    <title>title<\/title>/, target
-    assert_match /^  <\/head>\n\n/, target
-    assert_match /^  <body>/, target
-    assert_match /^    <h1>title<\/h1>/, target
+    assert_match(/^  <head>/, target)
+    assert_match(/^    <title>title<\/title>/, target)
+    assert_match(/^  <\/head>\n\n/, target)
+    assert_match(/^  <body>/, target)
+    assert_match(/^    <h1>title<\/h1>/, target)
   end
 
   def test_head_reordering_title
@@ -540,7 +540,7 @@ class HtmlMarkupTest < MiniTest::Test
       _script 'alert("Yo!")'
       _h1 'title'
     end
-    assert_match /<meta.*>\s*<title>title<\/title>\s*<script/, target
+    assert_match(/<meta.*>\s*<title>title<\/title>\s*<script/, target)
   end
 
   def test_null_base
@@ -579,10 +579,10 @@ class HtmlMarkupTest < MiniTest::Test
       _div 'data_foo' => 'bar'
       _.tag! 'under_bar'
     end
-    assert_match /<span data-foo="bar">/, target
-    assert_match /<x-element>/, target
-    assert_match /<div data_foo="bar">/, target
-    assert_match /<under_bar>/, target
+    assert_match(/<span data-foo="bar">/, target)
+    assert_match(/<x-element>/, target)
+    assert_match(/<div data_foo="bar">/, target)
+    assert_match(/<under_bar>/, target)
   end
 
   def test_template

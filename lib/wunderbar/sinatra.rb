@@ -15,7 +15,7 @@ module Wunderbar
 
       if block
         Wunderbar::Template::Html.evaluate('html.rb', self) do
-          _html(*args) { instance_eval &block }
+          _html(*args) { instance_eval(&block) }
         end
       else
         Wunderbar::Template::Html.evaluate('html.rb', self, *args)
@@ -31,7 +31,7 @@ module Wunderbar
 
       if block
         Wunderbar::Template::Xhtml.evaluate('xhtml.rb', self) do
-          _xhtml(*args) { instance_eval &block }
+          _xhtml(*args) { instance_eval(&block) }
         end
       else
         Wunderbar::Template::Xhtml.evaluate('xhtml.rb', self, *args)
@@ -277,9 +277,9 @@ unless Wunderbar.queue.empty?
     pass unless task
 
     if xhr_json
-      _json *task[1], &task[2]
+      _json(*task[1], &task[2])
     else
-      _html *task[1], &task[2]
+      _html(*task[1], &task[2])
     end
   end
 

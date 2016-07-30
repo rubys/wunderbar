@@ -9,6 +9,7 @@ module Wunderbar
   class ScriptNode
     attr_accessor :block, :binding
     def serialize(options, result, indent)
+      @block ||= nil
       if @block and @children.empty? and not @text
         width = options[:width]
         width -= indent.to_s.length if width
@@ -45,8 +46,8 @@ module Wunderbar
   end
 
   def self.ruby2js(*args, &block)
-    callback = Proc.new do |scope, args, block| 
-      ruby2js(scope, *args, &block)
+    callback = Proc.new do |scope, callback_args, callback_block| 
+      ruby2js(scope, *callback_args, &callback_block)
     end
     @queue << [callback, args, block]
   end

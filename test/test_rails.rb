@@ -21,7 +21,7 @@ begin
 
   WunderbarTestRoutes.draw do
     resources :products
-    match ':controller(/:action(/:id(.:format)))', :via => [:get, :post]
+    get :index, controller: 'rails_test'
   end
 
   # http://stackoverflow.com/questions/3546107/testing-view-helpers#answer-3802286
@@ -52,8 +52,8 @@ end
 class WunderbarOnRailsTest < ActionController::TestCase
 
   def setup
-    @request = ActionController::TestRequest.new
-    @response = ActionController::TestResponse.new
+    @request = ActionDispatch::TestRequest.create
+    @response = ActionDispatch::TestResponse.create
     @controller = RailsTestController.new
     @routes = WunderbarTestRoutes
   end

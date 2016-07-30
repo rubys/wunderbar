@@ -56,7 +56,7 @@ class JsonTest < MiniTest::Test
       _! [1,2,3]
     end
 
-    assert_match /^\[1,2,3\]$/, @j.target!.gsub(/\s/,'')
+    assert_match(/^\[1,2,3\]$/, @j.target!.gsub(/\s/,''))
   end
 
   def test_array_shift
@@ -66,7 +66,7 @@ class JsonTest < MiniTest::Test
       _ 3
     end
 
-    assert_match /^\[1,2,3\]$/, @j.target!.gsub(/\s/,'')
+    assert_match(/^\[1,2,3\]$/, @j.target!.gsub(/\s/,''))
   end
 
   def test_array_methods
@@ -79,7 +79,7 @@ class JsonTest < MiniTest::Test
       _.sort!
     end
 
-    assert_match /^\[1,2,3\]$/, @j.target!.gsub(/\s/,'')
+    assert_match(/^\[1,2,3\]$/, @j.target!.gsub(/\s/,''))
   end
 
   def test_enumerable
@@ -89,7 +89,7 @@ class JsonTest < MiniTest::Test
       end
     end
 
-    assert_match /^\[1,4,9\]$/, @j.target!.gsub(/\s/,'')
+    assert_match(/^\[1,4,9\]$/, @j.target!.gsub(/\s/,''))
   end
 
   def test_argument_multiple_arguments_with_block

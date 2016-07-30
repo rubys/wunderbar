@@ -7,7 +7,7 @@ module CodeRay::PluginHost
   alias_method :old_plugin_path, :plugin_path
   def plugin_path *args
     args.first.untaint if args.first == CodeRay::CODERAY_PATH
-    old_plugin_path *args
+    old_plugin_path(*args)
   end
 end
 
