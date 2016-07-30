@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'json'
+gem 'json', ('~> 1.8' if RUBY_VERSION < '2')
 
 group :test do
   gem 'rake'
