@@ -8,8 +8,7 @@ group :test do
     gem 'sinatra', '~> 1.4'
   else
     gem 'actionpack'
-    gem 'sinatra', github: 'sinatra/sinatra'
-    gem 'rack-protection', github: 'sinatra/rack-protection'
+    gem 'sinatra', '>= 2.0.0.beta2'
     gem 'rails', '5.0.0'
   end
   gem 'nokogumbo'
