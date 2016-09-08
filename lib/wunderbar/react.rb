@@ -38,7 +38,8 @@ class Wunderbar::XmlMarkup
 
     # compute base
     base = root.at('base')
-    base = (base ? base.attrs[:href] : '') || '/'
+    base = base && base.attrs[:href]
+    base ||= File.dirname(@_scope.env['REQUEST_URI']).chomp('/') + '/'
 
     _base = @_scope.env['HTTP_X_WUNDERBAR_BASE']
     base = base[_base.length..-1] if _base and base.start_with? _base
