@@ -200,6 +200,16 @@ class SintraTest < MiniTest::Test
     assert_match %r{\[\s*"\$ echo hi\",\s*"hi\"\s*\]}, last_response.body
   end
 
+  def test_json_system!
+    get '/json/system!' do
+      _json do
+        _.system! 'false'
+      end
+    end
+
+    assert_match %r{^\s*"exception": "#<RuntimeError}, last_response.body
+  end
+
   def test_json_system_failure
     get '/json/system_failure' do
       _json do

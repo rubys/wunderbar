@@ -585,6 +585,15 @@ module Wunderbar
       end
     end
 
+    # execute a system command, ensuring the result is a success
+    def system!(*args)
+      rc = system(args)
+      
+      raise RuntimeError.new("exit code: #{rc}") if rc != 0
+
+      rc
+    end
+
     def target!
       begin
         JSON.pretty_generate(@_target)+ "\n"
