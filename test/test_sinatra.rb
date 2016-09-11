@@ -192,7 +192,7 @@ class SintraTest < MiniTest::Test
   def test_json_system
     get '/json/system' do
       _json do
-        _.system ['echo', 'hi']
+        _.system 'echo', 'hi'
       end
     end
 

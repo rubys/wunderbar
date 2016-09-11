@@ -40,7 +40,12 @@ module Wunderbar
     end
 
     # execute a system command, echoing stdin, stdout, and stderr
-    def system(command, opts={})
+    def system(*args)
+      opts = {}
+      opts = args.pop if Hash === args.last
+      command = args
+      command = args.first if args.length == 1 and Array === args.first
+
       if command.respond_to? :flatten
         flat = command.flatten
         secret = command - flat
@@ -282,7 +287,12 @@ module Wunderbar
     end
 
     # execute a system command, echoing stdin, stdout, and stderr
-    def system(command, opts={})
+    def system(*args)
+      opts = {}
+      opts = args.pop if Hash === args.last
+      command = args
+      command = args.first if args.length == 1 and Array === args.first
+
       tag  = opts[:tag]  || 'pre'
       output_class = opts[:class] || {}
       output_class[:stdin]  ||= '_stdin'
@@ -438,7 +448,12 @@ module Wunderbar
     end
 
     # execute a system command, echoing stdin, stdout, and stderr
-    def system(command, opts={})
+    def system(*args)
+      opts = {}
+      opts = args.pop if Hash === args.last
+      command = args
+      command = args.first if args.length == 1 and Array === args.first
+
       output_prefix = opts[:prefix] || {}
       output_prefix[:stdin]  ||= '$ '
 
@@ -554,7 +569,12 @@ module Wunderbar
     end
 
     # execute a system command, echoing stdin, stdout, and stderr
-    def system(command, opts={})
+    def system(*args)
+      opts = {}
+      opts = args.pop if Hash === args.last
+      command = args
+      command = args.first if args.length == 1 and Array === args.first
+
       transcript = opts[:transcript]  || 'transcript'
       output_prefix = opts[:prefix] || {}
       output_prefix[:stdin]  ||= '$ '
