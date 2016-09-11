@@ -578,7 +578,12 @@ module Wunderbar
       transcript = opts[:transcript]  || 'transcript'
       output_prefix = opts[:prefix] || {}
       output_prefix[:stdin]  ||= '$ '
-      @_target[transcript] ||= []
+
+      if @_target[transcript]
+        @_target[transcript] << ''
+      else
+        @_target[transcript] = []
+      end
 
       super do |kind, line|
         @_target[transcript] << "#{output_prefix[kind]}#{line}"
