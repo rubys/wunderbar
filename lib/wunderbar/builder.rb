@@ -73,7 +73,8 @@ module Wunderbar
       yield :stdin, echo unless opts[:echo] == false
 
       semaphore = Mutex.new
-      Open3.popen3(*command) do |pin, pout, perr, wait|
+      env = {'LC_CTYPE' => 'en_US.UTF-8'}
+      Open3.popen3(env, *command) do |pin, pout, perr, wait|
         [
           Thread.new do
             until pout.eof?
