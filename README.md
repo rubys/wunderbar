@@ -191,7 +191,8 @@ as instance variables (e.g., `@name`).  Host environment (CGI, Rack, Sinatra)
 values are accessible as methods of the `_` object: for example `_.headers`
 (CGI), `_.set_cookie` (Rack), `_.redirect` (Sinatra).
 
-To append to the output produced, use the `_` methods described below.  
+To append to the output produced, use the `_` methods described below. 
+Example applications are in the [tutorial](docs/README.md).
 
 Methods provided to Wunderbar.html
 ---
@@ -401,7 +402,7 @@ Also, the following environment variables are set if they aren't already:
 
 Finally, the default external and internal encodings are set to UTF-8.
 
-Logging:
+Logging
 ---
 * `_.debug`: debug messages
 * `_.info`: informational messages
@@ -426,7 +427,7 @@ Additionally, the following options are supported:
 * `--install=`path: produce an suexec-callable wrapper script
 * `--rescue` or `--backtrace` cause wrapper script to capture errors
 
-Optional dependencies:
+Optional dependencies
 ---
 
 The following gems are needed based on what functions you use:
@@ -452,7 +453,7 @@ The following gems, if installed, will produce cleaner and prettier output:
 * `escape` prettier quoting of `system` commands
 * `sanitize` will remove unsafe markup from tainted input
 
-Related efforts:
+Related efforts
 ---
 * [Builder](https://github.com/jimweirich/builder#readme)
 * [JBuilder](https://github.com/rails/jbuilder)

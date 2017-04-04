@@ -142,3 +142,5 @@ angular.module("PhonecatServices", ["ngResource"]).factory("Phone", [
   }
 ])
 ```
+
+There are a number of ways to [extend Wunderbar itself](Extensions.md) as well.

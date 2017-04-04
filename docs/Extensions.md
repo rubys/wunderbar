@@ -171,3 +171,6 @@ gem to be installed.
 Demos:
 * [chat](https://github.com/rubys/wunderbar/blob/master/demo/chat.rb)
 * [diskusage](https://github.com/rubys/wunderbar/blob/master/demo/diskusage.rb)
+
+As a bonus for following along this far, there is a 
+[demo Calendar application](../demo/calendar/README.md) implemented with Wunderbar. 
