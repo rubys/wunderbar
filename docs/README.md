@@ -13,6 +13,7 @@ way and leads new users through some tutorials implemented with Wunderbar.
 - Implementing the [AngularJS tutorial](AngularJS.md)
 - Defining [Extensions](Extensions.md) to Wunderbar itself
 - [Basic Calendar app](../demo/calendar/README.md) implemented in Wunderbar
+- [_Suffix And Options CheatSheet](Suffix.md)
 
 Wunderbar Code
 ---
@@ -21,7 +22,7 @@ Wunderbar features include [globals and environment vars](../README.md#globals-p
 [command line options](../README.md#command-line-options), and app [logging](../README.md#logging). 
 
 - Wunderbar in `lib/wunderbar` is documented in the code
-- Helper `tools` like `[web2script.rb](tools/web2script.rb)`
+- Helper `tools` like [`web2script.rb`](tools/web2script.rb)
 - Basic `test` scripts for core behavior in Wunderbar
 
 Special Characters
