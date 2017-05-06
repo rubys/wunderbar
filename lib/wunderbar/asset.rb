@@ -133,7 +133,7 @@ module Wunderbar
 
         nodes.each {|node| node.parent = parent}
         index = parent.children.index(before) || -1
-        parent.children.insert(index, *nodes) if before
+        parent.children.insert(index, *nodes)
       end
 
       unless @@stylesheets.empty?

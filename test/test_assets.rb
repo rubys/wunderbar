@@ -20,13 +20,14 @@ class AssetTest < Minitest::Test
   def test_jquery
     load 'wunderbar/jquery.rb'
     @x.html {_head {_script}}
-    assert_match %r{<script src="assets/jquery-min.js\?\d+"}, target
+    assert_match %r{<script\ssrc="assets/jquery-min.js\?\d+"></script>\s*
+      <script.*?></script>\s*</head>}x, target
   end
 
   def test_noscript
     load 'wunderbar/jquery.rb'
     @x.html {_head}
-    refute_match %r{<script src="assets/jquery-min.js\?\d+"}, target
+    assert_match %r{<body>\s+<script src="assets/jquery-min.js\?\d+"}, target
   end
 
   def test_path_info_file
