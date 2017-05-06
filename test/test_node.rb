@@ -21,7 +21,7 @@ class NodeTest < Minitest::Test
     end
 
     root = @nodes[:div].root 
-    assert_equal nil, root.name
+    assert_nil root.name
     assert_equal 2, root.children.length
     assert_equal :DOCTYPE, root.children.first.declare
     assert_equal :html, root.children.last.name

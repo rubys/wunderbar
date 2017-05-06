@@ -301,7 +301,7 @@ module Wunderbar
       output_class[:stderr] ||= '_stderr'
       output_class[:hilite] ||= '_stdout _hilite'
 
-      super *args, opts do |kind, line|
+      super(*args, opts) do |kind, line|
         tag! tag, line, class: output_class[kind]
       end
     end

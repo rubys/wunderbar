@@ -32,7 +32,7 @@ class JbuilderTest < MiniTest::Test
     end
 
     assert parsed.has_key?("content")
-    assert_equal nil, parsed["content"]
+    assert_nil parsed["content"]
   end
 
   def test_multiple_keys
