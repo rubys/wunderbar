@@ -143,7 +143,7 @@ class Ruby2JS::Serializer
   end
 end
 
-get %r{^/([-\w]+)\.js$} do |script|
+get %r{/([-\w]+)\.js} do |script|
   file = File.join(settings.views, "#{script}.js.rb")
   begin
     js = Wunderbar::Asset.convert(file)
@@ -162,13 +162,13 @@ get %r{^/([-\w]+)\.js$} do |script|
   js.to_s
 end
 
-get %r{^/((?:\w+\/)*[-\w]+)\.js.rb$} do |script|
+get %r{/((?:\w+\/)*[-\w]+)\.js.rb} do |script|
   file = File.join(settings.views, "#{script}.js.rb")
   pass unless File.exist? file
   send_file file
 end
 
-get %r{^/([-\w]+)\.js.map$} do |script|
+get %r{/([-\w]+)\.js.map} do |script|
   file = File.join(settings.views, "#{script}.js.rb")
   js = Wunderbar::Asset.convert(file)
   pass unless js
