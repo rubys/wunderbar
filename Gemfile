@@ -11,7 +11,7 @@ group :test do
     gem 'sinatra', '~> 1.4'
   else
     gem 'actionpack'
-    gem 'sinatra', '>= 2.0.0.beta2'
+    gem 'sinatra', '~> 2.0'
     gem 'rails', '~> 5.0'
   end
   gem 'nokogumbo'
