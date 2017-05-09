@@ -26,7 +26,52 @@ module Wunderbar
     end
 
     # asset file location
-    attr_reader :path
+    def path
+      return @path if @path or @contents
+
+      if @options[:name]
+        source = (@options[:file] || __FILE__).untaint
+        @mtime = File.mtime(source)
+        @path = @options[:name]
+
+        # look for asset in site
+        if ENV['DOCUMENT_ROOT']
+          root = File.join(ENV['DOCUMENT_ROOT'], 'assets').untaint
+          dest = File.expand_path(@path, root).untaint
+          if 
+            File.exist?(dest) and File.mtime(dest) >= @mtime and
+            File.size(dest) == File.size(source)
+          then
+            @path = "/assets/#{@path}"
+            return @path
+          end
+        end
+
+        # look for asset in app
+        dest = File.expand_path(@path, Asset.root).untaint
+        if 
+          File.exist?(dest) and File.mtime(dest) >= @mtime and
+          File.size(dest) == File.size(source)
+        then
+          return @path
+        end
+
+        # try to make one
+        begin
+          FileUtils.mkdir_p File.dirname(dest)
+          if @options[:file]
+            FileUtils.cp source, dest, :preserve => true
+          else
+            open(dest, 'w') {|file| file.write @contents}
+          end
+        rescue
+          @path = nil unless Asset.virtual
+          @contents ||= File.read(source)
+        end
+      end
+
+      @path
+    end
 
     # asset contents
     attr_reader :contents
@@ -72,30 +117,9 @@ module Wunderbar
     #   :contents => contents of the asset
     def initialize(options)
       @options = options
-      source = options[:file] || __FILE__
       @contents = options[:contents]
 
-      options[:name] ||= File.basename(options[:file]) if source
-
-      if options[:name]
-        @mtime = File.mtime(source)
-        @path = options[:name]
-        dest = File.expand_path(@path, Asset.root)
-
-        if not File.exist?(dest) or File.mtime(dest) < @mtime
-          begin
-            FileUtils.mkdir_p File.dirname(dest)
-            if options[:file]
-              FileUtils.cp source, dest, :preserve => true
-            else
-              open(dest, 'w') {|file| file.write @contents}
-            end
-          rescue
-            @path = nil unless Asset.virtual
-            @contents ||= File.read(source)
-          end
-        end
-      end
+      options[:name] ||= File.basename(options[:file])
     end
 
     def self.script(options)
@@ -111,7 +135,7 @@ module Wunderbar
     end
 
     def self.declarations(root, prefix)
-      path = prefix.to_s + Asset.path
+      base = prefix.to_s + Asset.path
 
       unless @@scripts.empty?
         before = root.at('script')
@@ -124,8 +148,9 @@ module Wunderbar
         nodes = []
         @@scripts.each do |script|
           if script.path
-            nodes << Node.new(:script, src:
-              "#{path}/#{script.path}?#{script.mtime.to_i}")
+            path = script.path
+            path = "#{base}/#{path}" unless path.start_with? '/'
+            nodes << Node.new(:script, src: "#{path}?#{script.mtime.to_i}")
           elsif script.contents
             nodes << ScriptNode.new(:script, script.contents)
           end
@@ -147,8 +172,10 @@ module Wunderbar
         nodes = []
         @@stylesheets.each do |stylesheet|
           if stylesheet.path
+            path = stylesheet.path
+            path = "#{base}/#{path}" unless path.start_with? '/'
             nodes << Node.new(:link, rel: "stylesheet", type: "text/css",
-              href: "#{path}/#{stylesheet.path}?#{stylesheet.mtime.to_i}")
+              href: "#{path}?#{stylesheet.mtime.to_i}")
           elsif stylesheet.contents
             nodes << StyleNode.new(:style, stylesheet.contents)
           end
