@@ -11,8 +11,11 @@ require 'execjs'
 require 'nokogumbo'
 
 react = File.expand_path('../vendor/react-with-addons.min.js', __FILE__)
-
 Wunderbar::Asset.script name: 'react-min.js', file: react, react: true
+
+reactdom = File.expand_path('../vendor/react-dom.min.js', __FILE__)
+Wunderbar::Asset.script name: 'react-dom.min.js', file: reactdom, react: true,
+  server: File.expand_path('../vendor/react-dom-server.min.js', __FILE__)
 
 class Wunderbar::Asset
   @@cached_scripts = {}
@@ -70,8 +73,8 @@ class Wunderbar::XmlMarkup
 
     # build client and server scripts
     common = Ruby2JS.convert(block, scope: @_scope, react: true)
-    server = "React.renderToString(#{common})"
-    client = "React.render(#{common}, #{element})"
+    server = "ReactDOMServer.renderToString(#{common})"
+    client = "ReactDOM.render(#{common}, #{element})"
 
     # extract content of scripts
     scripts.map! do |script|
@@ -115,7 +118,7 @@ class Wunderbar::XmlMarkup
           else
             path = File.expand_path(script.path, Wunderbar::Asset.root)
           end
-          scripts.unshift File.read(path)
+          setup << File.read(script.options[:server] || path)
         end
       end
 
