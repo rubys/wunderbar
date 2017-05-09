@@ -118,6 +118,7 @@ module Wunderbar
     def initialize(options)
       @options = options
       @contents = options[:contents]
+      @path = nil
 
       options[:name] ||= File.basename(options[:file])
     end
