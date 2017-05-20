@@ -38,10 +38,7 @@ module Wunderbar
         if ENV['DOCUMENT_ROOT']
           root = File.join(ENV['DOCUMENT_ROOT'], 'assets').untaint
           dest = File.expand_path(@path, root).untaint
-          if 
-            File.exist?(dest) and File.mtime(dest) >= @mtime and
-            File.size(dest) == File.size(source)
-          then
+          if File.exist?(dest) and File.size(dest) == File.size(source)
             @path = "/assets/#{@path}"
             return @path
           end
@@ -49,10 +46,7 @@ module Wunderbar
 
         # look for asset in app
         dest = File.expand_path(@path, Asset.root).untaint
-        if 
-          File.exist?(dest) and File.mtime(dest) >= @mtime and
-          File.size(dest) == File.size(source)
-        then
+        if File.exist?(dest) and File.size(dest) == File.size(source)
           return @path
         end
 
@@ -133,6 +127,10 @@ module Wunderbar
 
     def self.scripts
       @@scripts
+    end
+
+    def self.stylesheets
+      @@stylesheets
     end
 
     def self.declarations(root, prefix)
