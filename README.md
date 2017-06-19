@@ -388,6 +388,7 @@ block.
 Globals provided
 ---
 * `$USER`   - Host user id
+* `$PASSWORD` - Host password (if CGI and HTTP_AUTHORIZATION is passed through)
 * `$HOME`   - Home directory
 * `$SERVER` - Server name
 * `$HOME`   - user's home directory
