@@ -99,10 +99,9 @@ else
 
   $HOME = ENV['HOME']
   $HOME = nil if $HOME == '/var/empty' or $HOME == ENV['DOCUMENT_ROOT']
-  if $HOME.nil? and $USER == user
-    $HOME ||= Dir.home($USER) rescue nil
-    $HOME ||= File.expand_path("~#{$USER}") rescue nil
-  end
+  $HOME ||= Etc.getpwuid.dir
+  $HOME ||= Dir.home(user) rescue nil
+  $HOME ||= File.expand_path("~#{user}") rescue nil
   $HOME = ENV['DOCUMENT_ROOT'] if $HOME.nil? or not File.exist? $HOME
   ENV['HOME'] = $HOME
 
