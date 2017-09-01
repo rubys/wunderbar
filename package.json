@@ -1,0 +1,16 @@
+{
+  "package": "wunderbar-vendor",
+  "version": "0.0.0",
+  "license": "MIT",
+
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rubys/wunderbar"
+  },
+
+  "devDependencies": {
+    "vue": ">0",
+    "vue-server-renderer": ">0"
+  }
+}
+

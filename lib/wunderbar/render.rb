@@ -63,10 +63,10 @@ class Wunderbar::XmlMarkup
     end
 
     # build client and server scripts
-    common = Ruby2JS.convert(block, 
-      Wunderbar::Render::RUBY2JS_OPTIONS.merge(scope: @_scope))
+    options = Wunderbar::Render::RUBY2JS_OPTIONS.merge(scope: @_scope)
+    common = Ruby2JS.convert(block, options)
     server = Wunderbar::Render.server(common)
-    client = Wunderbar::Render.client(common, element)
+    client = Wunderbar::Render.client(common, element, target)
 
     # extract content of scripts
     scripts.map! do |script|
@@ -116,6 +116,7 @@ class Wunderbar::XmlMarkup
     # concatenate and execute scripts on server
     scripts.unshift *setup.uniq
     html = Wunderbar::Render.eval(scripts, server)
+    html.untaint
 
     # insert results into target
     nodes = builder._ { html }
@@ -176,18 +177,4 @@ get %r{/([-\w]+)\.js.map} do |script|
   sourcemap[:file] = sourcemap[:file].sub base, ''
   sourcemap[:sources].map! {|source| source.sub base, ''}
   JSON.pretty_generate sourcemap
-end
-
-# Monkeypatch to address https://github.com/sstephenson/execjs/pull/180
-require 'execjs'
-class ExecJS::ExternalRuntime::Context
-  alias_method :w_write_to_tempfile, :write_to_tempfile
-  def write_to_tempfile(*args)
-    tmpfile = w_write_to_tempfile(*args).path.untaint
-    tmpfile = Struct.new(:path, :to_str).new(tmpfile, tmpfile)
-    def tmpfile.unlink
-      File.unlink path
-    end
-    tmpfile
-  end
 end

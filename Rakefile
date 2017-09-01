@@ -69,6 +69,20 @@ task :gemspec do
   File.open(file, "w") {|f| f << spec.to_ruby }
 end
 
+namespace :vendor do
+  task :vue do
+    # [sudo] npm install -g browserify
+    # [sudo] npm install -g uglify-es
+    sh 'npm install'
+    sh 'curl -s -S https://vuejs.org/js/vue.min.js > ' +
+      'lib/wunderbar/vendor/vue.min.js'
+    sh 'browserify -r vue -r ./data/vue-render.js:vue-server | uglifyjs >' +
+      'lib/wunderbar/vendor/vue-server.min.js'
+    sh %{echo "Vue=require('vue');VueServer=require('vue-server');" >> \
+      lib/wunderbar/vendor/vue-server.min.js}
+  end
+end
+
 # If you don't want to generate the .gemspec file, just remove this line. Reasons
 # why you might want to generate a gemspec:
 #  - using bundler with a git source
