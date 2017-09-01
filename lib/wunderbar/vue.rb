@@ -8,6 +8,14 @@ Wunderbar::Asset.script name: 'vue.min.js', file: vue, render: true,
 class Wunderbar::Render
   RUBY2JS_OPTIONS = {vue_h: '$h'}
 
+  def self.nodejs
+    return @nodejs if @nodejs
+    @nodejs = `which nodejs`.chomp
+    @nodejs = `which node`.chomp if @nodejs.empty?
+    raise RuntimeError.new('Unable to locate nodejs') if @nodejs.empty?
+    @nodejs.untaint
+  end
+
   def self.server(common)
     "VueServer.renderToString(new Vue({render: function($h) {return #{common}}}))"
   end
@@ -20,7 +28,7 @@ class Wunderbar::Render
   end
 
   def self.eval(scripts, server)
-    output, status = Open3.capture3 'nodejs',
+    output, status = Open3.capture3 self.nodejs,
       stdin_data: scripts.compact.join(";\n") + ";\n" + server
     output.untaint
   rescue => e
