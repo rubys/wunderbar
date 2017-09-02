@@ -172,7 +172,7 @@ module Wunderbar
 
     def text! text
       text = TextNode.new(text)
-      @node.children << TextNode.new(text)
+      @node.children << text
       text
     end
 
