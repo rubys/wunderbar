@@ -116,12 +116,23 @@ class Wunderbar::XmlMarkup
     # concatenate and execute scripts on server
     scripts.unshift *setup.uniq
     html = Wunderbar::Render.eval(scripts, server)
-    html.untaint
 
     # insert results into target
     nodes = builder._ { html }
-    nodes.each {|node| node.parent = target}
-    target.children += nodes
+    begin
+      nodes.each {|node| node.parent = target}
+      target.children += nodes
+    rescue => e
+      div = Wunderbar::Node.new('span',
+        style: 'background-color:#ff0; margin: 1em 0; padding: 1em; ' +
+               'border: 4px solid red; border-radius: 1em')
+      div.children << Wunderbar::Node.new('pre', e.to_s)
+      div.children << Wunderbar::Node.new('pre', e.backtrace)
+      div.children << Wunderbar::Node.new('pre', html)
+      div.children << Wunderbar::Node.new('pre', nodes.inspect)
+      div.children.each {|node| node.parent = div}
+      target.children << div
+    end
 
     # add client side script
     tag! 'script', Wunderbar::ClientScriptNode, client

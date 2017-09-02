@@ -171,15 +171,21 @@ module Wunderbar
     end
 
     def text! text
+      text = TextNode.new(text)
       @node.children << TextNode.new(text)
+      text
     end
 
     def declare! *args
-      @node.children << DocTypeNode.new(*args)
+      doctype = DocTypeNode.new(*args)
+      @node.children << doctype
+      doctype
     end
 
     def comment! text
-      @node.children << CommentNode.new(text)
+      comment = CommentNode.new(text)
+      @node.children << comment
+      comment
     end
 
     def indented_text!(text)
@@ -188,6 +194,7 @@ module Wunderbar
       text.extend SpacedNode if @spaced
       @node.children << text
       @spaced = false
+      text
     end
 
     def target!
