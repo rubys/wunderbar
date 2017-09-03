@@ -78,8 +78,6 @@ namespace :vendor do
       'lib/wunderbar/vendor/vue.min.js'
     sh 'browserify -r vue -r ./data/vue-render.js:vue-server | uglifyjs >' +
       'lib/wunderbar/vendor/vue-server.min.js'
-    sh %{echo "Vue=require('vue');VueServer=require('vue-server');" >> \
-      lib/wunderbar/vendor/vue-server.min.js}
   end
 end
 

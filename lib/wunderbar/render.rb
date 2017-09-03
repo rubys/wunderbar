@@ -97,9 +97,13 @@ class Wunderbar::XmlMarkup
 
     builder = Wunderbar::HtmlMarkup.new({})
     setup = []
+    requires = {}
+    browserify = false
     Wunderbar::Asset.scripts.each do |script|
       next unless script.options[:render]
       setup += script.options[:render] if Array === script.options[:render]
+      requires.merge! script.options[:require] if script.options[:require]
+      browserify = true if script.options[:browserify]
 
       if script.contents
         scripts.unshift script.contents
@@ -114,7 +118,12 @@ class Wunderbar::XmlMarkup
     end
 
     # concatenate and execute scripts on server
+    if browserify
+      setup << requires.map {|key, value| "#{key}=require(#{value.inspect})"}.
+        join(';')
+    end
     scripts.unshift *setup.uniq
+    File.write('/home/rubys/tmp/scripts', scripts.join(";\n") + ";\n" + server)
     html = Wunderbar::Render.eval(scripts, server)
 
     # insert results into target

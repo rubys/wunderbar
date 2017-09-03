@@ -3,7 +3,8 @@ require 'ruby2js/filter/vue'
 
 vue = File.expand_path('../vendor/vue.min.js', __FILE__)
 Wunderbar::Asset.script name: 'vue.min.js', file: vue, render: true,
-  server: File.expand_path('../vendor/vue-server.min.js', __FILE__)
+  server: File.expand_path('../vendor/vue-server.min.js', __FILE__),
+  require: {Vue: 'vue', VueServer: 'vue-server'}, browserify: true
 
 class Wunderbar::Render
   RUBY2JS_OPTIONS = {vue_h: '$h'}
