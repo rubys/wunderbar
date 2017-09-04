@@ -123,7 +123,6 @@ class Wunderbar::XmlMarkup
         join(';')
     end
     scripts.unshift *setup.uniq
-    File.write('/home/rubys/tmp/scripts', scripts.join(";\n") + ";\n" + server)
     html = Wunderbar::Render.eval(scripts, server)
 
     # insert results into target
