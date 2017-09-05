@@ -31,7 +31,12 @@ class Wunderbar::Render
   def self.eval(scripts, server)
     stdout, stderr, status = Open3.capture3 self.nodejs,
       stdin_data: scripts.compact.join(";\n") + ";\n" + server
-    stdout += "\n<pre>#{CGI.escapeHTML(stderr)}</pre>" unless stderr.empty?
+
+    unless stderr.empty?
+      Wunderbar.err stderr
+      stdout += "\n<pre>#{CGI.escapeHTML(stderr)}</pre>"
+    end
+
     stdout.untaint
   rescue => e
     Wunderbar.error e
