@@ -119,14 +119,17 @@ class Wunderbar::XmlMarkup
 
     # concatenate and execute scripts on server
     if browserify
-      setup << requires.map {|key, value| "#{key}=require(#{value.inspect})"}.
-        join(';')
+      setup += requires.map {|key, value| 
+        "const #{key}=module.exports.#{key} || require(#{value.inspect})"
+        "const #{key}=require(#{value.inspect})"
+      }
     end
     scripts.unshift *setup.uniq
     html = Wunderbar::Render.eval(scripts, server)
 
     # insert results into target
     nodes = builder._ { html }
+
     begin
       nodes.each {|node| node.parent = target}
       target.children += nodes
