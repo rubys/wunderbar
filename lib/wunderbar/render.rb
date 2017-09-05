@@ -138,7 +138,7 @@ class Wunderbar::XmlMarkup
         style: 'background-color:#ff0; margin: 1em 0; padding: 1em; ' +
                'border: 4px solid red; border-radius: 1em')
       div.children << Wunderbar::Node.new('pre', e.to_s)
-      div.children << Wunderbar::Node.new('pre', e.backtrace)
+      div.children << Wunderbar::Node.new('pre', e.backtrace.join("\n"))
       div.children << Wunderbar::Node.new('pre', html)
       div.children << Wunderbar::Node.new('pre', nodes.inspect)
       div.children.each {|node| node.parent = div}
