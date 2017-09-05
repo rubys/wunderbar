@@ -33,7 +33,7 @@ class Wunderbar::Render
       stdin_data: scripts.compact.join(";\n") + ";\n" + server
 
     unless stderr.empty?
-      Wunderbar.err stderr
+      Wunderbar.error stderr
       stdout += "\n<pre>#{CGI.escapeHTML(stderr)}</pre>"
     end
 

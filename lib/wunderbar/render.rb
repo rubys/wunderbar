@@ -121,7 +121,6 @@ class Wunderbar::XmlMarkup
     if browserify
       setup += requires.map {|key, value| 
         "const #{key}=module.exports.#{key} || require(#{value.inspect})"
-        "const #{key}=require(#{value.inspect})"
       }
     end
     scripts.unshift *setup.uniq
