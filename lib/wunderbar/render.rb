@@ -130,18 +130,25 @@ class Wunderbar::XmlMarkup
     nodes = builder._ { html }
 
     begin
-      nodes.each {|node| node.parent = target}
-      target.children += nodes
+      if nodes.length == 1
+        nodes.each {|node| node.parent = target}
+        target.children += nodes
+      else
+        span = Wunderbar::Node.new('span')
+        nodes.each {|node| node.parent = span}
+        span.children += nodes
+        target.children << span
+      end
     rescue => e
-      div = Wunderbar::Node.new('span',
+      span = Wunderbar::Node.new('span',
         style: 'background-color:#ff0; margin: 1em 0; padding: 1em; ' +
                'border: 4px solid red; border-radius: 1em')
-      div.children << Wunderbar::Node.new('pre', e.to_s)
-      div.children << Wunderbar::Node.new('pre', e.backtrace.join("\n"))
-      div.children << Wunderbar::Node.new('pre', html)
-      div.children << Wunderbar::Node.new('pre', nodes.inspect)
-      div.children.each {|node| node.parent = div}
-      target.children << div
+      span.children << Wunderbar::Node.new('pre', e.to_s)
+      span.children << Wunderbar::Node.new('pre', e.backtrace.join("\n"))
+      span.children << Wunderbar::Node.new('pre', html)
+      span.children << Wunderbar::Node.new('pre', nodes.inspect)
+      span.children.each {|node| node.parent = span}
+      target.children << span
     end
 
     # add client side script
