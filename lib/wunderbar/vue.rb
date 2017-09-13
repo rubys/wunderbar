@@ -24,7 +24,7 @@ class Wunderbar::Render
   def self.client(common, element, target)
     wrap = "$h(#{target.name.inspect}, " +
       "{attrs: {#{target.attrs.map {|name, value|
-      "#{name}: #{value.inspect}"}.join(' ')}}}, [#{common}])"
+      "#{name}: #{value.inspect}"}.join(', ')}}}, [#{common}])"
     "new Vue({el: #{element}, render: function($h) {return #{wrap}}})"
   end
 
