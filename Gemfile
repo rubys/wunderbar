@@ -18,7 +18,11 @@ group :test do
   gem 'ruby2js'
   gem 'sourcify'
   gem 'coffee-script'
-  gem 'kramdown'
+  if RUBY_VERSION =~ /^1/
+    gem 'kramdown', '~> 1.14.0'
+  else
+    gem 'kramdown'
+  end
   gem 'coderay'
   gem 'sanitize'
   gem 'minitest'
