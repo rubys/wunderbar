@@ -126,8 +126,7 @@ To use, add the following to your `Gemfile`:
 
 Depending on what other features you use, you may need to add additional lines
 to your Gemfile (example: `gem 'ruby2js'`), or create a
-`config/initializes/wunderbar.rb` with additional requires (e.g., `require
-ruby2js
+`config/initializers/wunderbar.rb` with additional requires (e.g., `require 'ruby2js'`).
 
 
 script
