@@ -11,10 +11,10 @@ class Wunderbar::Render
 
   def self.nodejs
     return @nodejs if @nodejs
-    @nodejs = `which nodejs`.chomp
-    @nodejs = `which node`.chomp if @nodejs.empty?
-    raise RuntimeError.new('Unable to locate nodejs') if @nodejs.empty?
-    @nodejs.untaint
+    path = `which nodejs`.chomp
+    path = `which node`.chomp if path.empty?
+    raise RuntimeError.new('Unable to locate nodejs') if path.empty?
+    @nodejs = path.untaint
   end
 
   def self.server(common)
