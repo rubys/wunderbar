@@ -176,9 +176,15 @@ get %r{/([-\w]+)\.js} do |script|
     return [500, {'Content-type' => 'text/plain'}, "*** ERROR ***\n\n#{e}"]
   end
 
+  etag js.etag
+
   response.headers['SourceMap'] = "#{script}.js.map"
 
-  etag js.etag
+  # if query string is passed, mark as immutable and expiring in a year
+  if env['QUERY_STRING']
+    expires 31536000
+    cache_control :public, :immutable, max_age: 31536000
+  end
 
   content_type 'application/javascript; charset=utf-8'
 
