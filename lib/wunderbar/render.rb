@@ -77,7 +77,7 @@ class Wunderbar::XmlMarkup
         src = script.attrs[:src]
 
         src = File.join(base, src) if not base.empty?
-        src.sub!(/\?.*$/, '') # strip queries (typically mtimes)
+        src = src.sub(/\?.*$/, '') # strip queries (typically mtimes)
         src.untaint
 
         name = File.expand_path(src, @_scope.settings.public_folder.untaint)
