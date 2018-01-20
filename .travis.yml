@@ -9,3 +9,10 @@ rvm:
 os:
   - osx
   - linux
+
+matrix:
+  exclude:
+  - os: osx
+    rvm: 1.9
+  - os: osx
+    rvm: 2.0
