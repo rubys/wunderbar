@@ -63,7 +63,8 @@ class Wunderbar::XmlMarkup
     end
 
     # build client and server scripts
-    options = Wunderbar::Render::RUBY2JS_OPTIONS.merge(scope: @_scope)
+    options = Wunderbar::Render::RUBY2JS_OPTIONS.merge(scope: @_scope,
+      strict: false)
     common = Ruby2JS.convert(block, options)
     server = Wunderbar::Render.server(common)
     client = Wunderbar::Render.client(common, element, target)
