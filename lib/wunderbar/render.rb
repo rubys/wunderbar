@@ -11,10 +11,13 @@ require 'nokogumbo'
 class Wunderbar::Asset
   @@cached_scripts = {}
   def self.convert(file)
+    basename = file.sub(/-es5\.js\.rb$/, '.js.rb')
+    options = {file: basename}
+    options.merge!(eslevel: 5, strict: false) unless basename == file
     cached = @@cached_scripts[file]
     return cached if cached and cached.uptodate?
-    return nil unless File.exist? file
-    @@cached_scripts[file] = Ruby2JS.convert(File.read(file), file: file)
+    return nil unless File.exist? basename
+    @@cached_scripts[file] = Ruby2JS.convert(File.read(basename), options)
   end
 end
 
