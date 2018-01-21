@@ -1,6 +1,5 @@
 # Redefine backtic in HTML templates to do a Ruby => JS conversion.  Useful
-# when there is a substantial amount of embedded JavaScript, for example
-# when using Angular.js
+# when there is a substantial amount of embedded JavaScript.
 
 require 'ruby2js'
 

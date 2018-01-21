@@ -10,7 +10,6 @@ way and leads new users through some tutorials implemented with Wunderbar.
 - [System commands](DiskUsage.md) can be directly output
 - A simple [Wiki](Wiki.md) with previews
 - Adding [modularity](Modularity.md) with common runtimes (Sinatra, polymer, etc.)
-- Implementing the [AngularJS tutorial](AngularJS.md)
 - Defining [Extensions](Extensions.md) to Wunderbar itself
 - [Basic Calendar app](../demo/calendar/README.md) implemented in Wunderbar
 - [_Suffix And Options CheatSheet](Suffix.md)

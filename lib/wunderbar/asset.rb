@@ -5,7 +5,7 @@
 # <script src> or <link rel="stylesheet"> lines to the <head> section of your
 # HTML.
 #
-# For examples, see angularjs.rb, jquery.rb, opal.rb, pagedown.rb, or
+# For examples, see jquery.rb, opal.rb, pagedown.rb, or
 # polymer.rb.
 #
 

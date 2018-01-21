@@ -116,6 +116,3 @@ end
 
 Note that Wunderbar templates can reference values provided as attributes and
 can yield back to the caller to get additional content.
-
-Next up, an [Angular.js demo](AngularJS.md) that takes modularity a step
-further.
