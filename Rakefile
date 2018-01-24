@@ -73,7 +73,7 @@ namespace :vendor do
   task :vue do
     # [sudo] npm install -g browserify
     # [sudo] npm install -g uglify-es
-    sh 'npm install'
+    sh 'npm update --no-save'
     sh 'curl -s -S https://vuejs.org/js/vue.min.js > ' +
       'lib/wunderbar/vendor/vue.min.js'
     sh 'browserify -r vue -r ./data/vue-render.js:vue-server | uglifyjs >' +
