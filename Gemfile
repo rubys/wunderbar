@@ -4,11 +4,7 @@ gem 'json', ('~> 1.8' if RUBY_VERSION < '2')
 
 group :test do
   gem 'rake'
-  if RUBY_VERSION =~ /^1|^2\.0/
-    gem 'nokogiri', '~> 1.6.8'
-  else
-    gem 'nokogiri'
-  end
+  gem 'nokogiri', ('~> 1.6.8' if RUBY_VERSION =~ /^1|^2\.0/)
 
   if RUBY_VERSION =~ /^1|^2\.[01]/
     gem 'sinatra', '~> 1.4'
