@@ -298,8 +298,6 @@ module Wunderbar
     def system(*args)
       opts = {}
       opts = args.pop if Hash === args.last
-      command = args
-      command = args.first if args.length == 1 and Array === args.first
 
       tag  = opts[:tag]  || 'pre'
       output_class = opts[:class] || {}
@@ -459,8 +457,6 @@ module Wunderbar
     def system(*args)
       opts = {}
       opts = args.pop if Hash === args.last
-      command = args
-      command = args.first if args.length == 1 and Array === args.first
 
       output_prefix = opts[:prefix] || {}
       output_prefix[:stdin]  ||= '$ '
@@ -580,8 +576,6 @@ module Wunderbar
     def system(*args)
       opts = {}
       opts = args.pop if Hash === args.last
-      command = args
-      command = args.first if args.length == 1 and Array === args.first
 
       transcript = opts[:transcript]  || 'transcript'
       output_prefix = opts[:prefix] || {}
