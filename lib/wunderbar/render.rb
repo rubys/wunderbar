@@ -117,7 +117,7 @@ class Wunderbar::XmlMarkup
         else
           path = File.expand_path(script.path, Wunderbar::Asset.root).untaint
         end
-        setup << File.read((script.options[:server].untaint || path)
+        setup << File.read(script.options[:server].untaint || path)
       end
     end
 
