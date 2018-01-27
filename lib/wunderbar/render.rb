@@ -115,9 +115,9 @@ class Wunderbar::XmlMarkup
         if script.path.start_with? '/'
           path = (ENV['DOCUMENT_ROOT'] + script.path).untaint
         else
-          path = File.expand_path(script.path, Wunderbar::Asset.root)
+          path = File.expand_path(script.path, Wunderbar::Asset.root).untaint
         end
-        setup << File.read(script.options[:server] || path)
+        setup << File.read((script.options[:server].untaint || path)
       end
     end
 
