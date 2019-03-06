@@ -53,7 +53,11 @@ class SintraTest < MiniTest::Test
       end
     end
 
-    assert_match %r{^\s+<p>1</p>$}, last_response.body
+    if Wunderbar.safe?
+      assert_match %r{^\s+<p>1</p>$}, last_response.body
+    else
+      assert_match %r{^\s+<p>0</p>$}, last_response.body
+    end
   end
 
   def test_html_params

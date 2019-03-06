@@ -38,9 +38,17 @@ class CGITest < Minitest::Test
       _p $SAFE
     end
 
-    Proc.new { $SAFE=1 if $SAFE==0; Wunderbar::CGI.call(@cgi) }.call
+    if Wunderbar.safe? and $SAFE==0
+      Proc.new { $SAFE=1 if $SAFE==0; Wunderbar::CGI.call(@cgi) }.call
+    else
+      Wunderbar::CGI.call(@cgi)
+    end
 
-    assert_match %r{^\s+<p>1</p>$}, @cgi.body
+    if Wunderbar.safe?
+      assert_match %r{^\s+<p>1</p>$}, @cgi.body
+    else
+      assert_match %r{^\s+<p>0</p>$}, @cgi.body
+    end
   end
 
   def test_html_params
