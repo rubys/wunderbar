@@ -380,12 +380,12 @@ For Ruby version < 2.6.0:
 > [`untaint`](ruby-doc.org/core/Object.html#method-i-untaint) all inputs
 > received from external sources before you make system calls or access the file
 > system.
->
-> A special feature that effectively is only available in the Rails environment:
-> if the first argument to call that creates an element is `html_safe?`, then
-> that argument will be treated as a markup instead of as text.  This allows one
-> to make calls like `_td link_to...` without placing the call to `link_to` in a
-> block.
+
+A special feature that effectively is only available in the Rails environment:
+if the first argument to call that creates an element is `html_safe?`, then
+that argument will be treated as a markup instead of as text.  This allows one
+to make calls like `_td link_to...` without placing the call to `link_to` in a
+block.
 
 Globals provided
 ---
