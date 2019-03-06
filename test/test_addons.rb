@@ -32,6 +32,11 @@ class AddonTest < MiniTest::Test
     require 'wunderbar/markdown'
 
     def test_markdown
+      # Avoid error only seen with Ruby 2.0:
+      # TypeError: no implicit conversion of String into Integer
+      # .../kramdown-1.17.0/lib/kramdown/parser/kramdown/header.rb:48:in `[]'
+      skip if RUBY_VERSION.start_with? '2.0'
+
       @x.html {_markdown "test\n=\n\nHello world!"}
       assert_match %r[<h1 id="test">test</h1>\n\n +<p>Hello world!</p>],
         target
