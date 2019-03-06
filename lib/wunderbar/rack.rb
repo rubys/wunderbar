@@ -9,7 +9,14 @@ module Wunderbar
       @_request = Rack::Request.new(env)
       @_response = Rack::Response.new
       Wunderbar.logger = @_request.logger
-      if Wunderbar.safe? and $SAFE==0
+      file = Wunderbar.files[env['PATH_INFO']]
+
+      if file
+        mime = file[:mime] ||
+          Rack::Mime::MIME_TYPES[File.extname(env['PATH_INFO'])]
+        @_response.set_header('Content-Type', mime) if mime
+        @_response.write(file[:content] || file[:source].call)
+      elsif Wunderbar.safe? and $SAFE==0
         Proc.new { $SAFE=1; Wunderbar::CGI.call(self) }.call
       else
         Wunderbar::CGI.call(self)
@@ -42,6 +49,12 @@ module Wunderbar
 
     def response
       @_response
+    end
+
+    %w(delete get head options post put trace).each do |http_method|
+      define_method "#{http_method}?" do
+        @_env['REQUEST_METHOD'].to_s.downcase == http_method
+      end
     end
   end
 end

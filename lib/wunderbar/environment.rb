@@ -47,9 +47,14 @@ module Wunderbar
   end
 
   @@templates = {}
+  @@files = {}
 
   def self.templates
     @@templates
+  end
+
+  def self.files
+    @@files
   end
 
   module API
@@ -76,6 +81,11 @@ module Wunderbar
 
     def _template(name, &block)
       Wunderbar.templates[name.to_s.gsub('_','-')] = block
+    end
+
+    def _file(name, options={}, &block)
+      options[:source] = block if block
+      Wunderbar.files[name] = options
     end
   end
 
