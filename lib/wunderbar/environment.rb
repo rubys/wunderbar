@@ -5,7 +5,10 @@ module Wunderbar
     TEXT      = ARGV.delete('--text')
   end
 
-  @@unsafe = false
+  # Ruby 2.6.0 gets rid of $SAFE > 1; unfortunately in the process it
+  # treats $SAFE = 1 as a higher level; @FAFE = 1 no longer is limited
+  # to taintness checks, it not treats all File operations as unsafe
+  @@unsafe = (RUBY_VERSION.split('.').map(&:to_i) <=> [2, 6, 0]) == 1
 
   def self.unsafe!(mode=true)
     @@unsafe=mode

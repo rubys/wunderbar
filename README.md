@@ -371,19 +371,21 @@ dependencies](#optional-dependencies) below), calls to insert markup
 (`_{...}`) will escape the markup if the input is `tainted` and not explicitly
 marked as `html-safe?` (when using Rails).
 
-For all environments other than Rails, unless you call `Wunderbar.unsafe!` at
-the top of your script, Wunderbar will also set
-[`$SAFE=1`](http://www.ruby-doc.org/docs/ProgrammingRuby/html/taint.html)
-before processing requests.  This means that you will need to
-[`untaint`](ruby-doc.org/core/Object.html#method-i-untaint) all inputs
-received from external sources before you make system calls or access the file
-system.
+For Ruby version < 2.6.0:
 
-A special feature that effectively is only available in the Rails environment:
-if the first argument to call that creates an element is `html_safe?`, then
-that argument will be treated as a markup instead of as text.  This allows one
-to make calls like `_td link_to...` without placing the call to `link_to` in a
-block.
+> For all environments other than Rails, unless you call `Wunderbar.unsafe!` at
+> the top of your script, Wunderbar will also set
+> [`$SAFE=1`](http://www.ruby-doc.org/docs/ProgrammingRuby/html/taint.html)
+> before processing requests.  This means that you will need to
+> [`untaint`](ruby-doc.org/core/Object.html#method-i-untaint) all inputs
+> received from external sources before you make system calls or access the file
+> system.
+>
+> A special feature that effectively is only available in the Rails environment:
+> if the first argument to call that creates an element is `html_safe?`, then
+> that argument will be treated as a markup instead of as text.  This allows one
+> to make calls like `_td link_to...` without placing the call to `link_to` in a
+> block.
 
 Globals provided
 ---
