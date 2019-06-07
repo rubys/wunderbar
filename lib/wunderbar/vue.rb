@@ -18,13 +18,26 @@ class Wunderbar::Render
   end
 
   def self.server(common)
-    "VueServer.renderToString(new Vue({render: function($h) {return #{common}}}))"
+    "VueServer.renderToString(new Vue({render: function($h) {
+      return $h('div', #{common})}}))"
+  end
+
+  # unwrap children from div wrapper inserted by self.server
+  def self.extract(nodes)
+    if 
+      nodes.length == 1 and nodes.first.name == 'div' and
+      nodes.first.attrs['data-server-rendered'].to_s == 'true'
+    then
+      nodes.first.children
+    else
+      nodes
+    end
   end
 
   def self.client(common, element, target)
     wrap = "$h(#{target.name.inspect}, " +
       "{attrs: {#{target.attrs.map {|name, value|
-      "#{name}: #{value.inspect}"}.join(', ')}}}, [#{common}])"
+      "#{name}: #{value.inspect}"}.join(', ')}}}, #{common})"
     "new Vue({el: #{element}, render: function($h) {return #{wrap}}})"
   end
 

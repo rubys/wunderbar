@@ -16,6 +16,12 @@ class Wunderbar::Render
     "ReactDOMServer.renderToString(#{common})"
   end
 
+  # return all nodes on server rendering, as there is no wrapper element
+  # like there is for vue
+  def self.extract(nodes)
+    nodes
+  end
+
   def self.client(common, element, target)
     "ReactDOM.render(#{common}, #{element})"
   end

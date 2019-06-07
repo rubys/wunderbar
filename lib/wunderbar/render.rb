@@ -131,7 +131,7 @@ class Wunderbar::XmlMarkup
     html = Wunderbar::Render.eval(scripts, server)
 
     # insert results into target
-    nodes = builder._ { html }
+    nodes = Wunderbar::Render.extract(builder._ { html })
 
     begin
       if nodes.length == 1
