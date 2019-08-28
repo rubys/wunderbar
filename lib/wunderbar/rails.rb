@@ -7,7 +7,7 @@ module Wunderbar
       cattr_accessor :default_format
       self.default_format = Mime[:html]
 
-      def self.call(template)
+      def self.call(template, source)
         %{
           compiled = Proc.new {#{template.source}}
           x = Wunderbar::HtmlMarkup.new(self);
@@ -24,7 +24,7 @@ module Wunderbar
       cattr_accessor :default_format
       self.default_format = Mime[:json]
 
-      def self.call(template)
+      def self.call(template, source)
         %{
           compiled = Proc.new {#{template.source}}
           x = Wunderbar::JsonBuilder.new(self);
