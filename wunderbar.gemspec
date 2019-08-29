@@ -15,7 +15,7 @@ Gem::Specification.new do |s|
   s.homepage = "http://github.com/rubys/wunderbar".freeze
   s.licenses = ["MIT".freeze]
   s.required_ruby_version = Gem::Requirement.new(">= 1.9.3".freeze)
-  s.rubygems_version = "2.7.6".freeze
+  s.rubygems_version = "3.0.6".freeze
   s.summary = "HTML Generator and CGI application support".freeze
 
   if s.respond_to? :specification_version then
