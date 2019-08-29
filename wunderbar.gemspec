@@ -1,9 +1,11 @@
 # -*- encoding: utf-8 -*-
-# stub: wunderbar 1.3.2 ruby lib
+lib = File.expand_path('../lib/', __FILE__)
+$:.unshift lib unless $:.include?(lib)
+require 'wunderbar/version'
 
 Gem::Specification.new do |s|
   s.name = "wunderbar".freeze
-  s.version = "1.3.2"
+  s.version = Wunderbar::VERSION::STRING
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0".freeze) if s.respond_to? :required_rubygems_version=
   s.require_paths = ["lib".freeze]
