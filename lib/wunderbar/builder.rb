@@ -461,8 +461,14 @@ module Wunderbar
       output_prefix = opts[:prefix] || {}
       output_prefix[:stdin]  ||= '$ '
 
-      super do |kind, line|
-        @_target.puts "#{output_prefix[kind]}#{line}"
+      if Hash === args.last # support original code which needed two hashes
+        super do |kind, line|
+          @_target.puts "#{output_prefix[kind]}#{line}"
+        end
+      else
+        super(*args, opts) do |kind, line|
+          @_target.puts "#{output_prefix[kind]}#{line}"
+        end
       end
     end
 
@@ -587,8 +593,14 @@ module Wunderbar
         @_target[transcript] = []
       end
 
-      super do |kind, line|
-        @_target[transcript] << "#{output_prefix[kind]}#{line}"
+      if Hash === args.last # support original code which needed two hashes
+        super do |kind, line|
+          @_target[transcript] << "#{output_prefix[kind]}#{line}"
+        end
+      else
+        super(*args, opts) do |kind, line|
+          @_target[transcript] << "#{output_prefix[kind]}#{line}"
+        end
       end
     end
 
