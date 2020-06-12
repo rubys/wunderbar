@@ -76,7 +76,9 @@ class WunderbarOnRailsTest < ActionController::TestCase
     assert_equal 1_000, response['products'][0]['quantity']
   end
 
-  if superclass.superclass == Minitest::Test
+  if not defined? Rails
+    define_method(:test_rails) { skip 'Rails not supported' }
+  elsif superclass.superclass == Minitest::Test
     remove_method :setup
     attr_accessor :default_test
     public_instance_methods.grep(/^test_/).each do |method|
