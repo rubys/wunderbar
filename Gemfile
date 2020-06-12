@@ -11,7 +11,7 @@ group :test do
   else
     gem 'actionpack'
     gem 'sinatra', '~> 2.0'
-    if RUBY_VERSION =~ /^2\.[2345]/
+    if RUBY_VERSION =~ /^2\.[5]/
       gem 'rails', '~> 5.0'
     elsif RUBY_VERSION =~ /^2\.[67]/
       gem 'rails', '~> 6.0'
