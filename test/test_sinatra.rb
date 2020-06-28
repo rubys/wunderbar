@@ -301,7 +301,7 @@ class SintraTest < MiniTest::Test
       end
     end
 
-    assert_equal "_FATAL oh, dear\n", $stderr.string
+    assert_match /^_FATAL oh, dear\n/, $stderr.string
   end
 
   def test_text_system
