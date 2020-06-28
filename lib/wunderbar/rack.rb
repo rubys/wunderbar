@@ -1,5 +1,6 @@
 require 'wunderbar'
 require 'rack'
+require 'rack/media_type'
 
 module Wunderbar
   class RackApp
