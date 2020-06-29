@@ -15,7 +15,7 @@ module Wunderbar
   end
 
   def self.safe?
-    if $SAFE == 0 and not @@unsafe
+    if not @@unsafe and $SAFE == 0
       # some gems (e.g. em-websocket-0.3.6) insert unsafe entries into the
       # path, and that prevents requires from succeeding.  If it looks like
       # we are about to make a transition to $SAFE=1, clean up that mess

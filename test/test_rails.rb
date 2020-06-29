@@ -52,6 +52,7 @@ end
 class WunderbarOnRailsTest < ActionController::TestCase
 
   def setup
+    return unless defined? Rails
     @request = ActionDispatch::TestRequest.create
     @response = ActionDispatch::TestResponse.create
     @controller = RailsTestController.new
