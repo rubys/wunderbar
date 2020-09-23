@@ -30,14 +30,14 @@ module Wunderbar
       return @path if @path or @contents
 
       if @options[:name]
-        source = (@options[:file] || __FILE__).untaint
+        source = @options[:file] || __FILE__
         @mtime = File.mtime(source)
         @path = @options[:name]
 
         # look for asset in site
         if ENV['DOCUMENT_ROOT']
-          root = File.join(ENV['DOCUMENT_ROOT'], 'assets').untaint
-          dest = File.expand_path(@path, root).untaint
+          root = File.join(ENV['DOCUMENT_ROOT'], 'assets')
+          dest = File.expand_path(@path, root)
           if File.exist?(dest) and File.size(dest) == File.size(source)
             @path = "/assets/#{@path}"
             return @path
@@ -45,7 +45,7 @@ module Wunderbar
         end
 
         # look for asset in app
-        dest = File.expand_path(@path, Asset.root).untaint
+        dest = File.expand_path(@path, Asset.root)
         if File.exist?(dest) and File.size(dest) == File.size(source)
           return @path
         end
@@ -103,7 +103,7 @@ module Wunderbar
     @path = '../' * env['PATH_INFO'].to_s.count('/') + 'assets'
     @root ||= nil
     @root = File.dirname(env['SCRIPT_FILENAME']) if env['SCRIPT_FILENAME']
-    @root = File.expand_path((@root || Dir.pwd) + "/assets").untaint
+    @root = File.expand_path((@root || Dir.pwd) + "/assets")
 
     # Options: typically :name plus either :file or :contents
     #   :name => name to be used for the asset

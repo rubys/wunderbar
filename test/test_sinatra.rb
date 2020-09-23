@@ -46,20 +46,6 @@ class SintraTest < MiniTest::Test
     assert_match %r{^\s+<p>From the view</p>$}, last_response.body
   end
 
-  def test_html_safe
-    get '/html/safe' do
-      _html do
-        _p $SAFE
-      end
-    end
-
-    if Wunderbar.safe?
-      assert_match %r{^\s+<p>1</p>$}, last_response.body
-    else
-      assert_match %r{^\s+<p>0</p>$}, last_response.body
-    end
-  end
-
   def test_html_params
     get '/html/params', {'foo' => 'bar'} do
       _html do
@@ -301,7 +287,7 @@ class SintraTest < MiniTest::Test
       end
     end
 
-    assert_match /^_FATAL oh, dear\n/, $stderr.string
+    assert_match(/^_FATAL oh, dear\n/, $stderr.string)
   end
 
   def test_text_system

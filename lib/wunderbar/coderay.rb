@@ -2,15 +2,6 @@ require 'wunderbar'
 require 'coderay'
 require 'nokogiri'
 
-# workaround for https://github.com/rubychan/coderay/pull/159
-module CodeRay::PluginHost
-  alias_method :old_plugin_path, :plugin_path
-  def plugin_path *args
-    args.first.untaint if args.first == CodeRay::CODERAY_PATH
-    old_plugin_path(*args)
-  end
-end
-
 module Wunderbar
   class HtmlMarkup
     def _coderay(*args)

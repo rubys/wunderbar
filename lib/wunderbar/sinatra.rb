@@ -82,22 +82,14 @@ module Wunderbar
         builder.set_variables_from_params(locals)
 
         if not block
-          builder.instance_eval(data.untaint, eval_file)
+          builder.instance_eval(data, eval_file)
         elsif not data
           builder.instance_eval(&block)
         else
           context = builder.get_binding do
             builder.instance_eval {_(&block)}
           end
-          context.eval(data.untaint, eval_file)
-        end
-      end
-
-      def _evaluate_safely(*args, &block)
-        if Wunderbar.safe? and $SAFE==0
-          Proc.new { $SAFE=1; _evaluate(*args, &block) }.call
-        else
-          _evaluate(*args, &block)
+          context.eval(data, eval_file)
         end
       end
     end
@@ -108,7 +100,7 @@ module Wunderbar
       def evaluate(scope, locals, &block)
         builder = HtmlMarkup.new(scope)
         begin
-          _evaluate_safely(builder, scope, locals, &block)
+          _evaluate(builder, scope, locals, &block)
         rescue Exception => exception
           scope.response.status = Wunderbar::ServerError.status
           builder.clear!
@@ -132,7 +124,7 @@ module Wunderbar
       def evaluate(scope, locals, &block)
         builder = JsonBuilder.new(scope)
         begin
-          result = _evaluate_safely(builder, scope, locals, &block)
+          result = _evaluate(builder, scope, locals, &block)
 
           # if no output was produced, use the result
           builder._! result if builder.target? == {} and result
@@ -154,7 +146,7 @@ module Wunderbar
       def evaluate(scope, locals, &block)
         builder = TextBuilder.new(scope)
         begin
-          result = _evaluate_safely(builder, scope, locals, &block)
+          result = _evaluate(builder, scope, locals, &block)
 
           # if no output was produced, use the result
           builder._ result.to_s if builder.target!.empty? and result
@@ -240,13 +232,12 @@ Tilt.register 'xhtml.rb', Wunderbar::Template::Xhtml
 helpers Wunderbar::SinatraHelpers
 
 if Dir.exist? settings.public_folder
-  Wunderbar::Asset.root = File.join(settings.public_folder, 'assets').untaint
+  Wunderbar::Asset.root = File.join(settings.public_folder, 'assets')
 end
 
 Wunderbar::Asset.virtual = true
 
 get "/#{Wunderbar::Asset.path}/:name" do |name|
-  name.untaint if name =~ /^([-\w]\.?)+$/
   file = "#{Wunderbar::Asset.root}/#{name}"
   _text do
     if File.exist? file

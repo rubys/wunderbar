@@ -23,20 +23,6 @@ class RackTest < MiniTest::Test
     assert_match %r{^\s+<p>success</p>$}, last_response.body
   end
 
-  def test_html_safe
-    Wunderbar.html do
-      _p $SAFE
-    end
-
-    get '/'
-
-    if Wunderbar.safe?
-      assert_match %r{^\s+<p>1</p>$}, last_response.body
-    else
-      assert_match %r{^\s+<p>0</p>$}, last_response.body
-    end
-  end
-
   def test_html_params
     Wunderbar.html do
       _body do

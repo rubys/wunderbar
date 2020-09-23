@@ -120,7 +120,7 @@ module Wunderbar
       # asset support for Rack
       request = (scope.respond_to? :request) ? scope.request : nil
       if request and request.path =~ %r{/assets/\w[-.\w]+}
-        path = ('.' + scope.request.path).untaint
+        path = '.' + scope.request.path
         headers = {'type' => 'text/plain'}
         headers['type'] = 'application/javascript' if path =~ /\.js$/
         out?(scope, headers) { File.read path if File.exist? path }

@@ -51,14 +51,14 @@ module Wunderbar
         secret = command - flat
         begin
           # if available, use escape as it does prettier quoting
-          raise LoadError if $SAFE > 0 and not defined? Escape
+          raise LoadError if not defined? Escape
           require 'escape'
           echo = Escape.shell_command(command.compact - secret)
         rescue LoadError
           # std-lib function that gets the job done
           echo = Shellwords.join(command.compact - secret)
         end
-        command = flat.compact.map(&:dup).map(&:untaint)
+        command = flat.compact
       else
         echo = command
         command = [command]

@@ -194,11 +194,6 @@ class HtmlMarkupTest < MiniTest::Test
     assert_match %r[<textarea></textarea>], target
   end
 
-  def test_import_tainted
-    @x.html {_div {_ {"<unknown><br></unknown>".taint}}}
-    assert_match %r[<br/>], target
-  end
-
   begin
     require 'nokogiri'
 

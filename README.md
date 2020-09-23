@@ -366,26 +366,7 @@ Secure by default
 
 Wunderbar will properly escape all HTML and JSON output, eliminating problems
 of HTML or JavaScript injection.  This includes calls to `_` to insert text
-directly.  Unless `nokogiri` was previously required (see [optional
-dependencies](#optional-dependencies) below), calls to insert markup
-(`_{...}`) will escape the markup if the input is `tainted` and not explicitly
-marked as `html-safe?` (when using Rails).
-
-For Ruby version < 2.6.0:
-
-> For all environments other than Rails, unless you call `Wunderbar.unsafe!` at
-> the top of your script, Wunderbar will also set
-> [`$SAFE=1`](http://www.ruby-doc.org/docs/ProgrammingRuby/html/taint.html)
-> before processing requests.  This means that you will need to
-> [`untaint`](ruby-doc.org/core/Object.html#method-i-untaint) all inputs
-> received from external sources before you make system calls or access the file
-> system.
-
-A special feature that effectively is only available in the Rails environment:
-if the first argument to call that creates an element is `html_safe?`, then
-that argument will be treated as a markup instead of as text.  This allows one
-to make calls like `_td link_to...` without placing the call to `link_to` in a
-block.
+directly. 
 
 Globals provided
 ---
@@ -454,7 +435,6 @@ The following gems, if installed, will produce cleaner and prettier output:
 * `nokogumbo` also cleans up HTML fragments inserted via `<<` and `_{}`.  If
   this gem is available, it will be preferred over direct usage of `nokogiri`.
 * `escape` prettier quoting of `system` commands
-* `sanitize` will remove unsafe markup from tainted input
 
 Related efforts
 ---

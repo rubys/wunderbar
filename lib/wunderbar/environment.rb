@@ -5,40 +5,6 @@ module Wunderbar
     TEXT      = ARGV.delete('--text')
   end
 
-  # Ruby 2.6.0 gets rid of $SAFE > 1; unfortunately in the process it
-  # treats $SAFE = 1 as a higher level; @FAFE = 1 no longer is limited
-  # to taintness checks, it not treats all File operations as unsafe
-  @@unsafe = (RUBY_VERSION.split('.').map(&:to_i) <=> [2, 6, 0]) == 1
-
-  def self.unsafe!(mode=true)
-    @@unsafe=mode
-  end
-
-  def self.safe?
-    if not @@unsafe and $SAFE == 0
-      # some gems (e.g. em-websocket-0.3.6) insert unsafe entries into the
-      # path, and that prevents requires from succeeding.  If it looks like
-      # we are about to make a transition to $SAFE=1, clean up that mess
-      # before proceeding.
-      #
-      # the goal of $SAFE is not to protect us against software which was
-      # installed by the owner of the site, but from injection attacks
-      # contained within data provided by users of the site.
-      $:.each_with_index do |path, index|
-        if path.tainted?
-          $:[index] = File.expand_path(path.dup.untaint).untaint
-        end
-      end
-
-      # avoid: "Insecure PATH - (SecurityError)" when using Bundler
-      if defined? Bundler
-        ENV['PATH'] = ENV['PATH'].dup.untaint
-      end
-    end
-
-    not @@unsafe
-  end
-
   class Scope
     attr_accessor :env
     def initialize(env)

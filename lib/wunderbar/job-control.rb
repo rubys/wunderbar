@@ -25,7 +25,7 @@ module Wunderbar
       # clear environment of cgi cruft
       require 'cgi'
       ENV.keys.select {|key| key =~ /^HTTP_/}.each do |key|
-        ENV.delete key.dup.untaint
+        ENV.delete key
       end
       ::CGI::QueryExtension.public_instance_methods.each do |method|
         ENV.delete method.to_s.upcase

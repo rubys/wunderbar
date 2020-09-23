@@ -33,24 +33,6 @@ class CGITest < Minitest::Test
     assert_match %r{^\s+<p>success</p>$}, @cgi.body
   end
 
-  def test_html_safe
-    Wunderbar.html do
-      _p $SAFE
-    end
-
-    if Wunderbar.safe? and $SAFE==0
-      Proc.new { $SAFE=1 if $SAFE==0; Wunderbar::CGI.call(@cgi) }.call
-    else
-      Wunderbar::CGI.call(@cgi)
-    end
-
-    if Wunderbar.safe?
-      assert_match %r{^\s+<p>1</p>$}, @cgi.body
-    else
-      assert_match %r{^\s+<p>0</p>$}, @cgi.body
-    end
-  end
-
   def test_html_params
     Wunderbar.html do
       _body do

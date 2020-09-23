@@ -14,7 +14,7 @@ class Wunderbar::Render
     path = `which nodejs`.chomp
     path = `which node`.chomp if path.empty?
     raise RuntimeError.new('Unable to locate nodejs') if path.empty?
-    @nodejs = path.untaint
+    @nodejs = path
   end
 
   def self.server(common)
@@ -50,7 +50,7 @@ class Wunderbar::Render
       stdout += "\n<pre>#{CGI.escapeHTML(stderr)}</pre>"
     end
 
-    stdout.untaint
+    stdout
   rescue => e
     Wunderbar.error e
     "<pre>#{CGI.escapeHTML(e.message)}</pre>"

@@ -133,7 +133,7 @@ module Wunderbar
         # * Proxied Rack server.  Document base may be relate to the
         #   HTTP_X_WUNDERBAR_BASE 
         #
-        cwd = File.realpath(Dir.pwd.untaint)
+        cwd = File.realpath(Dir.pwd)
         base = @_scope.env['DOCUMENT_ROOT'] if @_scope.env.respond_to? :[]
         base ||= cwd
         href = (head.children[1].attrs[:href] || '')
@@ -189,8 +189,8 @@ module Wunderbar
       name = name.to_s.gsub('_', '-')
 
       if flag != '!'
-        if String === args.first and args.first.respond_to? :html_safe?
-          if args.first.html_safe? and not block and args.first =~ /[>&]/
+        if String === args.first
+          if not block and args.first =~ /[>&]/
             markup = args.shift
             block = Proc.new {_ {markup}}
           end
@@ -362,11 +362,7 @@ module Wunderbar
     def _(text=nil, &block)
       unless block
         if text
-          if text.respond_to? :html_safe? and text.html_safe?
-            _ {text}
-          else
-            @_x.indented_text! text.to_s
-          end
+          _ {text}
         end
         return @_x
       end
@@ -374,20 +370,13 @@ module Wunderbar
       children = instance_eval(&block)
 
       if String === children
-        safe = !children.tainted?
-        safe ||= children.html_safe? if children.respond_to? :html_safe?
-        safe &&= defined? Nokogiri
-        ok = safe || defined? Sanitize
-        safe = true
-
-        if ok and (children.include? '<' or children.include? '&')
+        if children.include? '<' or children.include? '&'
           if defined? Nokogiri::HTML5.fragment
             doc = Nokogiri::HTML5.fragment(children.to_s)
           else
             doc = Nokogiri::HTML.fragment(children.to_s)
           end
 
-          Sanitize.new.clean_node! doc.dup.untaint if not safe
           children = doc.children.to_a
 
           # ignore leading whitespace

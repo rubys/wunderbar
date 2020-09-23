@@ -35,17 +35,3 @@ class Wunderbar::Render
       "</pre>"
   end
 end
-
-# Monkeypatch to address https://github.com/sstephenson/execjs/pull/180
-require 'execjs'
-class ExecJS::ExternalRuntime::Context
-  alias_method :w_write_to_tempfile, :write_to_tempfile
-  def write_to_tempfile(*args)
-    tmpfile = w_write_to_tempfile(*args).path.untaint
-    tmpfile = Struct.new(:path, :to_str).new(tmpfile, tmpfile)
-    def tmpfile.unlink
-      File.unlink path
-    end
-    tmpfile
-  end
-end

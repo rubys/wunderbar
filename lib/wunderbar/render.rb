@@ -82,14 +82,12 @@ class Wunderbar::XmlMarkup
 
         src = File.join(base, src) if not base.empty?
         src = src.sub(/\?.*$/, '') # strip queries (typically mtimes)
-        src.untaint
 
-        name = File.expand_path(src, @_scope.settings.public_folder.untaint)
-        name.untaint unless src.tainted?
+        name = File.expand_path(src, @_scope.settings.public_folder)
         if File.exist? name
           result = File.read(name)
         else
-          file = File.expand_path(src+'.rb', @_scope.settings.views.untaint)
+          file = File.expand_path(src+'.rb', @_scope.settings.views)
           result = Wunderbar::Asset.convert(file)
         end
       else
@@ -113,11 +111,11 @@ class Wunderbar::XmlMarkup
         scripts.unshift script.contents
       elsif script.path
         if script.path.start_with? '/'
-          path = (ENV['DOCUMENT_ROOT'] + script.path).untaint
+          path = ENV['DOCUMENT_ROOT'] + script.path
         else
-          path = File.expand_path(script.path, Wunderbar::Asset.root).untaint
+          path = File.expand_path(script.path, Wunderbar::Asset.root)
         end
-        setup << File.read(script.options[:server].untaint || path)
+        setup << File.read(script.options[:server] || path)
       end
     end
 
