@@ -128,15 +128,6 @@ class HtmlMarkupTest < MiniTest::Test
       a:before\s\{content:\s"<"\}\s+/\*\]\]>\*/</style>]x, target
   end
 
-  def test_safe_markup
-    markup = "<b>bold</b>"
-    def markup.html_safe?
-      true
-    end
-    @x.html {_p markup}
-    assert_match %r[<p>\n {6}<b>bold</b>\n {4}</p>], target
-  end
-
   def test_disable_indent
     @x.html {_div! {_ "one "; _strong "two"; _ " three"}}
     assert_match %r[<div>one <strong>two</strong> three</div>], target
