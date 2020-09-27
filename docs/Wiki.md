@@ -32,7 +32,7 @@ _html do
 end
 ```
 
-Untainting and shell escaping of arguments is a common requirement, and will
+Shell escaping of arguments is a common requirement, and will
 be handled automatically by Wunderbar if the argument to `_.system` is an
 array:
 
