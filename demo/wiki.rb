@@ -12,8 +12,6 @@ Dir.chdir WIKIDATA
 %r{/(?<file>\w[-\w]+)((?<flag>/)(?<rev>\w*))?$} =~ env['PATH_INFO']
 flag ||= '?' if env['REQUEST_URI'].to_s.include? '?'
 file ||= 'index'
-file.untaint
-rev.untaint
 
 _html _width: $WIDTH do
   _head_ do

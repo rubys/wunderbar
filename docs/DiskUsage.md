@@ -83,19 +83,13 @@ The directory itself is extracted from CGI/rack environment variables:
 
 ```ruby
 # directory is DOCUMENT_ROOT + PATH_INFO
-$ROOT ||= ARGV.map {|arg| arg[/^--root=(.*)/i, 1]}.compact.first.untaint
-dir = ($ROOT || env['DOCUMENT_ROOT'] || Dir.pwd).dup.untaint
+$ROOT ||= ARGV.map {|arg| arg[/^--root=(.*)/i, 1]}.compact.first
+dir = ($ROOT || env['DOCUMENT_ROOT'] || Dir.pwd)
 prefix = "#{env['REQUEST_URI']}/" if not env['PATH_INFO'].to_s.end_with?  '/'
 if env['PATH_INFO'].to_s =~ %r{(/\w[-.\w]*)+/?}
-  dir = File.expand_path(env['PATH_INFO'][1..-1].untaint, dir).untaint
+  dir = File.expand_path(env['PATH_INFO'][1..-1], dir)
 end
 ```
-
-What's notable here is that data from environment variables comes from the
-outside world, and therefore is considered
-[tainted](http://ruby-doc.com/docs/ProgrammingRuby/html/taint.html) and, as
-Wunderbar runs scripts with `$SAFE=1`, cannot be used to access the filesystem
-until [untainted](http://ruby-doc.org/core-1.9.3/Object.html#method-i-untaint).
 
 As an alternative, the directory to be used may be specified using `$ROOT`,
 which can be provided via the command line or by wrappers that call this

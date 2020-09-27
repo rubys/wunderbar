@@ -26,11 +26,11 @@ _html do
     _fieldset.msg! {_legend 'error log'}
 
     # directory is DOCUMENT_ROOT + PATH_INFO
-    $ROOT ||= ARGV.map {|arg| arg[/^--root=(.*)/i, 1]}.compact.first.untaint
-    dir = ($ROOT || env['DOCUMENT_ROOT'] || Dir.pwd).dup.untaint
+    $ROOT ||= ARGV.map {|arg| arg[/^--root=(.*)/i, 1]}.compact.first
+    dir = ($ROOT || env['DOCUMENT_ROOT'] || Dir.pwd)
     prefix = "#{env['REQUEST_URI']}/" if not env['PATH_INFO'].to_s.end_with? '/'
     if env['PATH_INFO'].to_s =~ %r{(/\w[-.\w]*)+/?}
-      dir = File.expand_path(env['PATH_INFO'][1..-1].untaint, dir).untaint
+      dir = File.expand_path(env['PATH_INFO'][1..-1], dir)
     end
 
     _h1 "Disk Usage: #{dir}"
@@ -50,11 +50,11 @@ _html do
           Dir['*'].sort.each do |name|
             _tr_ do
               href = nil
-              href = "#{prefix}#{name}/" if File.directory? name.untaint
+              href = "#{prefix}#{name}/" if File.directory? name
               _td {_a name, href: href}
               _td
               begin
-                _td File.stat(File.join(dir, name.untaint)).mtime
+                _td File.stat(File.join(dir, name)).mtime
               rescue Errno::ENOENT
                 _td '*** missing ***'
               end
