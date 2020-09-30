@@ -128,6 +128,31 @@ class HtmlMarkupTest < MiniTest::Test
       a:before\s\{content:\s"<"\}\s+/\*\]\]>\*/</style>]x, target
   end
 
+  def test_safe_markup
+    markup = "<b>bold</b>"
+    def markup.html_safe?
+      true
+    end
+    @x.html {_p markup}
+    assert_match %r[<p>\n {6}<b>bold</b>\n {4}</p>], target
+  end
+
+  def test_safe_markup_unsafe
+    markup = "<b>bold</b>"
+    def markup.html_safe?
+      false
+    end
+    @x.html {_p markup}
+    assert_match %r[<p>&lt;b&gt;bold&lt;/b&gt;</p>], target
+  end
+
+  def test_safe_markup_undefined
+    markup = "<b>bold</b>"
+    @x.html {_p markup}
+    assert_match %r[<p>&lt;b&gt;bold&lt;/b&gt;</p>], target
+  end
+
+
   def test_disable_indent
     @x.html {_div! {_ "one "; _strong "two"; _ " three"}}
     assert_match %r[<div>one <strong>two</strong> three</div>], target
@@ -373,6 +398,11 @@ class HtmlMarkupTest < MiniTest::Test
   def test_literal_markup
     @x.html {_{"<p>one</p>\n\n<p>two</p>\n"}}
     assert_match %r[^( +)<p>one</p>\n\n\1<p>two</p>], target
+  end
+
+  def test_markup
+    @x.html { _ '<3' } # as per README
+    assert_match %r{^( +)&lt;3}, target
   end
 
   def test_proc
