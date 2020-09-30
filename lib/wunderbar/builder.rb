@@ -1,6 +1,5 @@
 require 'shellwords'
 require 'open3'
-require 'thread'
 
 module Wunderbar
   @@options = {indent: 2}
