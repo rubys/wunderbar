@@ -700,4 +700,12 @@ class HtmlMarkupTest < MiniTest::Test
     end
     assert_match %r{<p>A&#xA0;B</p>}, target
   end
+
+  def test_issue_16
+    h3 = 'email "Some One" <someone@gmail.com>'
+    @x.html do
+      _h3 h3
+    end
+    assert_match %r{<h3>email "Some One" &lt;someone@gmail.com&gt;</h3>}, target
+  end
 end
