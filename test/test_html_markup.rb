@@ -446,6 +446,19 @@ class HtmlMarkupTest < MiniTest::Test
     assert_match %r[<pre class=\"_stdout\">hi</pre>], target
   end
 
+  def test_system_opts
+    @x.html {_.system ['umask', '-S'], { system_opts: { umask: 033} }}
+    assert_match %r[<pre class=\"_stdout\">u=rwx,g=r,o=r</pre>], target
+    # check that the above was not a fluke
+    @x.html {_.system ['umask', '-S'], { system_opts: { umask: 077} }}
+    assert_match %r[<pre class=\"_stdout\">u=rwx,g=,o=</pre>], target
+  end
+
+  def test_system_env
+    @x.html {_.system ['printenv', 'XXTEST'], { system_env: { 'XXTEST' => 'The quick brown fox' } }}
+    assert_match %r[<pre class=\"_stdout\">The quick brown fox</pre>], target
+  end
+
   def test_svg
     @x.html {_svg}
     assert_match %r[^ +<svg xmlns="http://www.w3.org/2000/svg"/?>], target

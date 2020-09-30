@@ -73,7 +73,10 @@ module Wunderbar
 
       semaphore = Mutex.new
       env = {'LC_CTYPE' => 'en_US.UTF-8'}
-      Open3.popen3(env, *command) do |pin, pout, perr, wait|
+      sys_env = opts[:system_env] || {}
+      env.merge! sys_env unless sys_env.empty?
+      sys_opts = opts[:system_opts] || {}
+      Open3.popen3(env, *command, sys_opts) do |pin, pout, perr, wait|
         [
           Thread.new do
             until pout.eof?
