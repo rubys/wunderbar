@@ -428,7 +428,6 @@ The following gems are required by extensions of the same name:
 * `coderay` - syntax highlighting
 * `opal` - ruby to javascript compiler
 * `rack` - webserver interface
-* `rails` - web application framework
 * `sinatra` - DSL for creating web applications
 
 The following gems, if installed, will produce cleaner and prettier output:

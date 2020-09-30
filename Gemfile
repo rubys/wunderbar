@@ -10,9 +10,6 @@ group :test do
     gem 'sinatra', '~> 1.4'
   else
     gem 'sinatra', '~> 2.0'
-    unless RUBY_VERSION =~ /^2\.[2345]/
-      gem 'rails', '~> 6.0'
-    end
   end
 
   gem 'nokogumbo'

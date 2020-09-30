@@ -102,20 +102,6 @@ with a wide (and growing) list of
 Demo:
 * [config.ru](https://github.com/rubys/wunderbar/blob/master/demo/config.ru)
 
-rails
----
-
-Adds `_html`, `_json`, and `_text` as template languages for Rails.
-
-To use, add the following to your `Gemfile`:
-
-    gem 'wunderbar', require: 'wunderbar/rails'
-
-Depending on what other features you use, you may need to add additional lines
-to your Gemfile (example: `gem 'ruby2js'`), or create a
-`config/initializers/wunderbar.rb` with additional requires (e.g., `require 'ruby2js'`).
-
-
 script
 ---
 
