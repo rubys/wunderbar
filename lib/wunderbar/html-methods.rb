@@ -188,15 +188,6 @@ module Wunderbar
 
       name = name.to_s.gsub('_', '-')
 
-      if flag != '!'
-        if String === args.first and args.first.respond_to? :html_safe?
-          if args.first.html_safe? and not block and args.first =~ /[>&]/
-            markup = args.shift
-            block = Proc.new {_ {markup}}
-          end
-        end
-      end
-
       if flag == '!'
         @_x.compact! { tag! name, *args, &block }
       elsif flag == '?'
@@ -362,11 +353,7 @@ module Wunderbar
     def _(text=nil, &block)
       unless block
         if text
-          if text.respond_to? :html_safe? and text.html_safe?
-            _ {text}
-          else
-            @_x.indented_text! text.to_s
-          end
+          @_x.indented_text! text.to_s
         end
         return @_x
       end
@@ -374,8 +361,7 @@ module Wunderbar
       children = instance_eval(&block)
 
       if String === children
-        safe ||= children.html_safe? if children.respond_to? :html_safe?
-        safe &&= defined? Nokogiri
+        safe = defined? Nokogiri
         ok = safe || defined? Sanitize
         safe = true
 

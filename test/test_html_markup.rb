@@ -128,24 +128,6 @@ class HtmlMarkupTest < MiniTest::Test
       a:before\s\{content:\s"<"\}\s+/\*\]\]>\*/</style>]x, target
   end
 
-  def test_safe_markup
-    markup = "<b>bold</b>"
-    def markup.html_safe?
-      true
-    end
-    @x.html {_p markup}
-    assert_match %r[<p>\n {6}<b>bold</b>\n {4}</p>], target
-  end
-
-  def test_safe_markup_unsafe
-    markup = "<b>bold</b>"
-    def markup.html_safe?
-      false
-    end
-    @x.html {_p markup}
-    assert_match %r[<p>&lt;b&gt;bold&lt;/b&gt;</p>], target
-  end
-
   def test_safe_markup_undefined
     markup = "<b>bold</b>"
     @x.html {_p markup}
