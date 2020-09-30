@@ -357,8 +357,8 @@ module Wunderbar
       end
 
       # remove leading and trailing space
-      if children.first.text? and children.first.text.strip.empty?
-        children.shift
+      if not children.empty? 
+        children.shift if children.first.text? and children.first.text.strip.empty?
       end
 
       if not children.empty?
