@@ -366,7 +366,9 @@ Secure by default
 
 Wunderbar will properly escape all HTML and JSON output, eliminating problems
 of HTML or JavaScript injection.  This includes calls to `_` to insert text
-directly.
+directly.  Unless `nokogiri` was previously required (see [optional
+dependencies](#optional-dependencies) below), calls to insert markup
+(`_{...}`) will escape the markup.
 
 Globals provided
 ---
@@ -426,7 +428,6 @@ The following gems are required by extensions of the same name:
 * `coderay` - syntax highlighting
 * `opal` - ruby to javascript compiler
 * `rack` - webserver interface
-* `rails` - web application framework
 * `sinatra` - DSL for creating web applications
 
 The following gems, if installed, will produce cleaner and prettier output:
@@ -435,6 +436,7 @@ The following gems, if installed, will produce cleaner and prettier output:
 * `nokogumbo` also cleans up HTML fragments inserted via `<<` and `_{}`.  If
   this gem is available, it will be preferred over direct usage of `nokogiri`.
 * `escape` prettier quoting of `system` commands
+* `sanitize` will remove unsafe markup from tainted input
 
 Related efforts
 ---

@@ -188,15 +188,6 @@ module Wunderbar
 
       name = name.to_s.gsub('_', '-')
 
-      if flag != '!'
-        if String === args.first
-          if not block and args.first =~ /[>&]/
-            markup = args.shift
-            block = Proc.new {_ {markup}}
-          end
-        end
-      end
-
       if flag == '!'
         @_x.compact! { tag! name, *args, &block }
       elsif flag == '?'
@@ -362,7 +353,7 @@ module Wunderbar
     def _(text=nil, &block)
       unless block
         if text
-          _ {text}
+          @_x.indented_text! text.to_s
         end
         return @_x
       end
@@ -370,13 +361,18 @@ module Wunderbar
       children = instance_eval(&block)
 
       if String === children
-        if children.include? '<' or children.include? '&'
+        safe = defined? Nokogiri
+        ok = safe || defined? Sanitize
+        safe = true
+
+        if ok and (children.include? '<' or children.include? '&')
           if defined? Nokogiri::HTML5.fragment
             doc = Nokogiri::HTML5.fragment(children.to_s)
           else
             doc = Nokogiri::HTML.fragment(children.to_s)
           end
 
+          Sanitize.new.clean_node! doc if not safe
           children = doc.children.to_a
 
           # ignore leading whitespace
