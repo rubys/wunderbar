@@ -366,7 +366,7 @@ Secure by default
 
 Wunderbar will properly escape all HTML and JSON output, eliminating problems
 of HTML or JavaScript injection.  This includes calls to `_` to insert text
-directly. 
+directly.
 
 Globals provided
 ---
