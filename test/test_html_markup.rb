@@ -447,11 +447,10 @@ class HtmlMarkupTest < MiniTest::Test
   end
 
   def test_system_opts
-    @x.html {_.system ['umask', '-S'], { system_opts: { umask: 033} }}
-    assert_match %r[<pre class=\"_stdout\">u=rwx,g=r,o=r</pre>], target
-    # check that the above was not a fluke
-    @x.html {_.system ['umask', '-S'], { system_opts: { umask: 077} }}
-    assert_match %r[<pre class=\"_stdout\">u=rwx,g=,o=</pre>], target
+    Dir.mktmpdir do |dir|
+      @x.html {_.system ['pwd'], { system_opts: { chdir: dir} }}
+      assert_includes target, dir
+    end
   end
 
   def test_system_env
