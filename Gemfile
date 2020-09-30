@@ -1,32 +1,22 @@
 source 'https://rubygems.org'
 
-gem 'json', ('~> 1.8' if RUBY_VERSION < '2')
+gem 'json'
 
 group :test do
   gem 'rake'
-  gem 'nokogiri', ('~> 1.6.8' if RUBY_VERSION =~ /^1|^2\.0/)
+  gem 'nokogiri'
 
-  if RUBY_VERSION =~ /^1|^2\.[01]/
-    gem 'sinatra', '~> 1.4'
-  else
-    gem 'sinatra', '~> 2.0'
-  end
+  gem 'sinatra', '~> 2.0'
 
   gem 'nokogumbo'
   gem 'ruby2js'
   gem 'sourcify'
   gem 'coffee-script'
 
-  if RUBY_VERSION =~ /^1/
-    gem 'kramdown', '~> 1.14.0'
-  else
-    gem 'kramdown'
-  end
+  gem 'kramdown'
 
   gem 'coderay'
   gem 'sanitize'
   gem 'minitest'
 
-  gem 'execjs', '<2.5.1' if RUBY_VERSION =~ /^1/
-  gem 'tins', '~> 1.6.0' if RUBY_VERSION =~ /^1/
 end
