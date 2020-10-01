@@ -226,7 +226,12 @@ convenience methods are defined:
 * `_.submit` -- runs command (or block) as a deamon process
 * `_.xhtml?` -- output as XHTML?
 
-Access to all of the builder _defined_ methods (typically these end in an esclamation mark) and all of the Wunderbar module methods can be accessed in this way.  Examples:
+The `_.system` method takes an optional hash as its last parameter. This can be used to provide settings for the underlying 
+[Process.spawn](https://www.rubydoc.info/stdlib/core/Process.spawn) method.
+For example: `._system('pwd',{ system_opts: { chdir: dir } , system_env: { 'FOO' => 'BAR' } })`
+Note that environment variable names must be provided as strings, not symbols.
+
+Access to all of the builder _defined_ methods (typically these end in an exclamation mark) and all of the Wunderbar module methods can be accessed in this way.  Examples:
 
 * `_.tag! :foo`: insert elements where the name can be dynamic
 * `_.comment! "text"`: add a comment
