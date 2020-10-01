@@ -436,7 +436,6 @@ The following gems, if installed, will produce cleaner and prettier output:
 * `nokogumbo` also cleans up HTML fragments inserted via `<<` and `_{}`.  If
   this gem is available, it will be preferred over direct usage of `nokogiri`.
 * `escape` prettier quoting of `system` commands
-* `sanitize` will remove unsafe markup from tainted input
 
 Related efforts
 ---

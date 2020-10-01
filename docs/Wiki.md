@@ -70,8 +70,6 @@ end
 Use of the Markdown feature requires
 [kramdown](http://rubygems.org/gems/kramdown),
 [nokogiri](http://rubygems.org/gems/nokogiri), and
-[sanitize](http://rubygems.org/gems/sanitize), the latter being used if the
-input is tainted (which is the case in this wiki application).
 
 This wiki will autosave changes every 5 seconds using _Ajax_ calls back to
 the same page on the server:
