@@ -16,7 +16,6 @@ group :test do
   gem 'kramdown'
 
   gem 'coderay'
-  gem 'sanitize'
   gem 'minitest'
 
 end

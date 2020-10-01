@@ -361,9 +361,7 @@ module Wunderbar
       children = instance_eval(&block)
 
       if String === children
-        safe = defined? Nokogiri
-        ok = safe || defined? Sanitize
-        safe = true
+        ok = defined? Nokogiri
 
         if ok and (children.include? '<' or children.include? '&')
           if defined? Nokogiri::HTML5.fragment
@@ -372,7 +370,6 @@ module Wunderbar
             doc = Nokogiri::HTML.fragment(children.to_s)
           end
 
-          Sanitize.new.clean_node! doc if not safe
           children = doc.children.to_a
 
           # ignore leading whitespace
