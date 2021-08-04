@@ -6,7 +6,12 @@ end
 
 require 'wunderbar/sinatra'
 require 'wunderbar/script'
-require 'nokogumbo'
+
+if RUBY_VERSION =~ /^1|^2\.0/
+  require 'nokogumbo'
+else
+  require 'nokogiri'
+end
 
 class Wunderbar::Asset
   @@cached_scripts = {}

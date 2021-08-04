@@ -47,7 +47,11 @@ end
 # prefer nokogumbo / gumbo-parser, fallback to nokogiri / lixml2
 begin
   $namespaced = {}
-  require 'nokogumbo'
+  if RUBY_VERSION =~ /^1|^2\.0/
+    require 'nokogumbo'
+  else
+    require 'nokogiri'
+  end
 rescue LoadError 
   require 'nokogiri'
   module Nokogiri
