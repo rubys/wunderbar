@@ -13,7 +13,9 @@ module Wunderbar
       if @block and @children.empty? and not @text
         width = options[:width]
         width -= indent.to_s.length if width
-        @text = Ruby2JS.convert(@block, binding: @binding, width: width).to_s
+        opts = {binding: @binding, width: width}
+        opts = {**@attrs.delete(:options), **opts} if @attrs[:options]
+        @text = Ruby2JS.convert(@block, opts).to_s
       end
       super
     end
