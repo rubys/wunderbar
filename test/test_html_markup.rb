@@ -446,6 +446,18 @@ class HtmlMarkupTest < MiniTest::Test
     assert_match %r[<pre class=\"_stdout\">hi</pre>], target
   end
 
+  def test_system_opts
+    Dir.mktmpdir do |dir|
+      @x.html {_.system ['pwd'], { system_opts: { chdir: dir} }}
+      assert_includes target, dir
+    end
+  end
+
+  def test_system_env
+    @x.html {_.system ['printenv', 'XXTEST'], { system_env: { 'XXTEST' => 'The quick brown fox' } }}
+    assert_match %r[<pre class=\"_stdout\">The quick brown fox</pre>], target
+  end
+
   def test_svg
     @x.html {_svg}
     assert_match %r[^ +<svg xmlns="http://www.w3.org/2000/svg"/?>], target

@@ -1,0 +1,33 @@
+name: CI Test
+
+on:
+  schedule:
+    - cron: '0 0 * * 5'
+  push:
+  pull_request:
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu, macos]
+        ruby: [2.2, 2.3, 2.4, 2.5, 2.6, 2.7]
+        exclude:
+        - os: macos
+          ruby: 2.2
+        - os: macos
+          ruby: 2.3
+    runs-on: ${{ matrix.os }}-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: ${{ matrix.ruby }}
+        bundler-cache: true
+
+    - name: Run tests
+      run: bundle exec rake test
