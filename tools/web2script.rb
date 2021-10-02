@@ -58,16 +58,6 @@ rescue LoadError
     def self.HTML5(string)
       HTML(string)
     end
-
-    module HTML5
-      def self.get(uri)
-        doc = Net::HTTP.get(uri)
-        $namespaced = Hash[doc.scan(/<\/(\w+):(\w+)>/).uniq.
-          map {|p,n| [n, ".tag! #{"#{p}:#{n}".enquote}"]}]
-        $namespaced.delete_if {|name, value| doc =~ /<#{name}[ >]/}
-        Nokogiri::HTML(doc)
-      end
-    end
   end
 end
 
@@ -346,7 +336,11 @@ if __FILE__ == $0
   ARGV.each do |arg|
     if arg =~ %r{^https?://}
       $uri = URI.parse arg
-      web2script Nokogiri::HTML5.get($uri).root
+      doc = Net::HTTP.get($uri)
+      $namespaced = Hash[doc.scan(/<\/(\w+):(\w+)>/).uniq.
+        map {|p,n| [n, ".tag! #{"#{p}:#{n}".enquote}"]}]
+      $namespaced.delete_if {|name, value| doc =~ /<#{name}[ >]/}
+      web2script Nokogiri::HTML5(doc).root
     else
       $uri = "file://#{arg}"
       web2script Nokogiri::HTML5(File.read(arg)).root
