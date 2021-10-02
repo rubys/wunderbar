@@ -5,7 +5,7 @@ gem 'json'
 group :test do
   gem 'rake'
 
-  if RUBY_VERSION =~ /^1|^2\.0/
+  if RUBY_VERSION =~ /^1|^2\.[0-4]/
     gem 'nokogiri', '~> 1.6.8'
     gem 'nokogumbo'
   else
