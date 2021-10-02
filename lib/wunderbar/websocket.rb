@@ -183,25 +183,25 @@ module Wunderbar
 
     proc = Proc.new do
       begin
-	channel = Wunderbar::Channel.new(port, buffer, opts[:locals])
-	if sock1
-	  sock1.send('x',0)
-	  sock1.close
-	end
-	channel.instance_eval(&block)
+        channel = Wunderbar::Channel.new(port, buffer, opts[:locals])
+        if sock1
+          sock1.send('x',0)
+          sock1.close
+        end
+        channel.instance_eval(&block)
       rescue Exception => exception
-	channel._ :type=>:stderr, :line=>exception.inspect
-	exception.backtrace.each do |frame| 
-	  next if Wunderbar::CALLERS_TO_IGNORE.any? {|re| frame =~ re}
-	  channel._ :type=>:stderr, :line=>"  #{frame}"
-	end
+        channel._ :type=>:stderr, :line=>exception.inspect
+        exception.backtrace.each do |frame| 
+          next if Wunderbar::CALLERS_TO_IGNORE.any? {|re| frame =~ re}
+          channel._ :type=>:stderr, :line=>"  #{frame}"
+        end
       ensure
-	if channel
-	  channel.complete = true
-	  sleep 5
-	  sleep 60 unless channel.connected or opts[:sync]
-	  channel.close
-	end
+        if channel
+          channel.complete = true
+          sleep 5
+          sleep 60 unless channel.connected or opts[:sync]
+          channel.close
+        end
       end
     end
 
