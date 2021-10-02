@@ -47,7 +47,7 @@ end
 # prefer nokogumbo / gumbo-parser, fallback to nokogiri / lixml2
 begin
   $namespaced = {}
-  if RUBY_VERSION =~ /^1|^2\.0/
+  if RUBY_VERSION =~ /^1|^2\.[0-4]/
     require 'nokogumbo'
   else
     require 'nokogiri'

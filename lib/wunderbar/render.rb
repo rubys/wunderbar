@@ -7,7 +7,7 @@ end
 require 'wunderbar/sinatra'
 require 'wunderbar/script'
 
-if RUBY_VERSION =~ /^1|^2\.0/
+if RUBY_VERSION =~ /^1|^2\.[0-4]/
   require 'nokogumbo'
 else
   require 'nokogiri'
