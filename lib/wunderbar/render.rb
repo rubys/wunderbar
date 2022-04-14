@@ -30,7 +30,7 @@ class Wunderbar::ClientScriptNode < Wunderbar::ScriptNode
 end
 
 class Wunderbar::XmlMarkup
-  def render(container, &block)
+  def render(container, timeout: nil, &block)
     csspath = Wunderbar::Node.parse_css_selector(container)
     root = @node.root
 
@@ -122,6 +122,15 @@ class Wunderbar::XmlMarkup
         end
         setup << File.read(script.options[:server] || path)
       end
+    end
+
+    # add timeout, if requested
+    # 
+    # useful if the rendering itself is inherently synchronous, but may make
+    # use of a library routines that set up event handlers that will never fire.
+    #
+    if timeout
+      server +=  ";\nsetTimeout(() => {process.exit()}, #{timeout})"
     end
 
     # concatenate and execute scripts on server
