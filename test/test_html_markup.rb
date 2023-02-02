@@ -447,40 +447,52 @@ class HtmlMarkupTest < MiniTest::Test
   end
 
   def test_system_multiline_pre_default
-    @x.html {_.system ['ls', '-d1', '.', '..']} # generate two lines of output
+    rc = nil
+    @x.html {rc = _.system ['ls', '-d1', '.', '..']} # generate two lines of output
+    assert_equal rc, 0
     assert_match %r[<pre class="_stdin">ls -d1 . ..</pre>], target
     assert_match %r[<pre class="_stdout">.\n..</pre>], target
   end
 
   def test_system_multiline_pre_true
-    @x.html {_.system ['ls', '-d1', '.', '..'], {bundlelines: true}} # generate two lines of output
+    rc = nil
+    @x.html {rc = _.system ['ls', '-d1', '.', '..'], {bundlelines: true}} # generate two lines of output
+    assert_equal rc, 0
     assert_match %r[<pre class="_stdin">ls -d1 . ..</pre>], target
     assert_match %r[<pre class="_stdout">.\n..</pre>], target
   end
 
   def test_system_multiline_pre_false
-    @x.html {_.system ['ls', '-d1', '.', '..'], {bundlelines: false}}
+    rc = nil
+    @x.html {rc = _.system ['ls', '-d1', '.', '..'], {bundlelines: false}}
+    assert_equal rc, 0
     assert_match %r[<pre class="_stdin">ls -d1 . ..</pre>], target
     assert_match %r[<pre class="_stdout">.</pre>], target
     assert_match %r[<pre class="_stdout">..</pre>], target
   end
 
   def test_system_multiline_code_default
-    @x.html {_.system ['ls', '-d1', '.', '..'], {tag: 'code'}}
+    rc = nil
+    @x.html {rc = _.system ['ls', '-d1', '.', '..'], {tag: 'code'}}
+    assert_equal rc, 0
     assert_match %r[<code class="_stdin">ls -d1 . ..</code>], target
     assert_match %r[<code class="_stdout">.</code>], target
     assert_match %r[<code class="_stdout">..</code>], target
   end
 
   def test_system_multiline_code_false
-    @x.html {_.system ['ls', '-d1', '.', '..'], {tag: 'code', bundlelines: false}}
+    rc = nil
+    @x.html {rc = _.system ['ls', '-d1', '.', '..'], {tag: 'code', bundlelines: false}}
+    assert_equal rc, 0
     assert_match %r[<code class="_stdin">ls -d1 . ..</code>], target
     assert_match %r[<code class="_stdout">.</code>], target
     assert_match %r[<code class="_stdout">..</code>], target
   end
 
   def test_system_multiline_code_true
-    @x.html {_.system ['ls', '-d1', '.', '..'], {tag: 'code', bundlelines: true}}
+    rc = nil
+    @x.html {rc = _.system ['ls', '-d1', '.', '..'], {tag: 'code', bundlelines: true}}
+    assert_equal rc, 0
     assert_match %r[<code class="_stdin">ls -d1 . ..</code>], target
     assert_match %r[<code class="_stdout">.\n..</code>], target
   end
