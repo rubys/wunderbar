@@ -446,6 +446,45 @@ class HtmlMarkupTest < MiniTest::Test
     assert_match %r[<pre class=\"_stdout\">hi</pre>], target
   end
 
+  def test_system_multiline_pre_default
+    @x.html {_.system ['ls', '-d1', '.', '..']} # generate two lines of output
+    assert_match %r[<pre class="_stdin">ls -d1 . ..</pre>], target
+    assert_match %r[<pre class="_stdout">.\n..</pre>], target
+  end
+
+  def test_system_multiline_pre_true
+    @x.html {_.system ['ls', '-d1', '.', '..'], {bundlelines: true}} # generate two lines of output
+    assert_match %r[<pre class="_stdin">ls -d1 . ..</pre>], target
+    assert_match %r[<pre class="_stdout">.\n..</pre>], target
+  end
+
+  def test_system_multiline_pre_false
+    @x.html {_.system ['ls', '-d1', '.', '..'], {bundlelines: false}}
+    assert_match %r[<pre class="_stdin">ls -d1 . ..</pre>], target
+    assert_match %r[<pre class="_stdout">.</pre>], target
+    assert_match %r[<pre class="_stdout">..</pre>], target
+  end
+
+  def test_system_multiline_code_default
+    @x.html {_.system ['ls', '-d1', '.', '..'], {tag: 'code'}}
+    assert_match %r[<code class="_stdin">ls -d1 . ..</code>], target
+    assert_match %r[<code class="_stdout">.</code>], target
+    assert_match %r[<code class="_stdout">..</code>], target
+  end
+
+  def test_system_multiline_code_false
+    @x.html {_.system ['ls', '-d1', '.', '..'], {tag: 'code', bundlelines: false}}
+    assert_match %r[<code class="_stdin">ls -d1 . ..</code>], target
+    assert_match %r[<code class="_stdout">.</code>], target
+    assert_match %r[<code class="_stdout">..</code>], target
+  end
+
+  def test_system_multiline_code_true
+    @x.html {_.system ['ls', '-d1', '.', '..'], {tag: 'code', bundlelines: true}}
+    assert_match %r[<code class="_stdin">ls -d1 . ..</code>], target
+    assert_match %r[<code class="_stdout">.\n..</code>], target
+  end
+
   def test_system_opts
     Dir.mktmpdir do |dir|
       @x.html {_.system ['pwd'], { system_opts: { chdir: dir} }}

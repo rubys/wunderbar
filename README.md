@@ -230,6 +230,9 @@ The `_.system` method takes an optional hash as its last parameter. This can be 
 [Process.spawn](https://www.rubydoc.info/stdlib/core/Process.spawn) method.
 For example: `._system('pwd',{ system_opts: { chdir: dir } , system_env: { 'FOO' => 'BAR' } })`
 Note that environment variable names must be provided as strings, not symbols.
+Additional options that can be used with `_.system` include:
+* `:tag` - the HTML tag to be used for input/output; defaults to `pre`
+* `:bundlelines` - whether to process all the lines for a given output type (stderr, stdout, etc ) as part of single tag. If not specified, defaults to `true` for `pre` tags and `false` otherwise. If `false`, each line of output is processed separately.
 
 Access to all of the builder _defined_ methods (typically these end in an exclamation mark) and all of the Wunderbar module methods can be accessed in this way.  Examples:
 
