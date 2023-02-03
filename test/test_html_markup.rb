@@ -446,6 +446,57 @@ class HtmlMarkupTest < MiniTest::Test
     assert_match %r[<pre class=\"_stdout\">hi</pre>], target
   end
 
+  def test_system_multiline_pre_default
+    rc = nil
+    @x.html {rc = _.system ['ls', '-d1', '.', '..']} # generate two lines of output
+    assert_equal rc, 0
+    assert_match %r[<pre class="_stdin">ls -d1 . ..</pre>], target
+    assert_match %r[<pre class="_stdout">.\n..</pre>], target
+  end
+
+  def test_system_multiline_pre_true
+    rc = nil
+    @x.html {rc = _.system ['ls', '-d1', '.', '..'], {bundlelines: true}} # generate two lines of output
+    assert_equal rc, 0
+    assert_match %r[<pre class="_stdin">ls -d1 . ..</pre>], target
+    assert_match %r[<pre class="_stdout">.\n..</pre>], target
+  end
+
+  def test_system_multiline_pre_false
+    rc = nil
+    @x.html {rc = _.system ['ls', '-d1', '.', '..'], {bundlelines: false}}
+    assert_equal rc, 0
+    assert_match %r[<pre class="_stdin">ls -d1 . ..</pre>], target
+    assert_match %r[<pre class="_stdout">.</pre>], target
+    assert_match %r[<pre class="_stdout">..</pre>], target
+  end
+
+  def test_system_multiline_code_default
+    rc = nil
+    @x.html {rc = _.system ['ls', '-d1', '.', '..'], {tag: 'code'}}
+    assert_equal rc, 0
+    assert_match %r[<code class="_stdin">ls -d1 . ..</code>], target
+    assert_match %r[<code class="_stdout">.</code>], target
+    assert_match %r[<code class="_stdout">..</code>], target
+  end
+
+  def test_system_multiline_code_false
+    rc = nil
+    @x.html {rc = _.system ['ls', '-d1', '.', '..'], {tag: 'code', bundlelines: false}}
+    assert_equal rc, 0
+    assert_match %r[<code class="_stdin">ls -d1 . ..</code>], target
+    assert_match %r[<code class="_stdout">.</code>], target
+    assert_match %r[<code class="_stdout">..</code>], target
+  end
+
+  def test_system_multiline_code_true
+    rc = nil
+    @x.html {rc = _.system ['ls', '-d1', '.', '..'], {tag: 'code', bundlelines: true}}
+    assert_equal rc, 0
+    assert_match %r[<code class="_stdin">ls -d1 . ..</code>], target
+    assert_match %r[<code class="_stdout">.\n..</code>], target
+  end
+
   def test_system_opts
     Dir.mktmpdir do |dir|
       @x.html {_.system ['pwd'], { system_opts: { chdir: dir} }}

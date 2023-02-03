@@ -39,6 +39,8 @@ module Wunderbar
     end
 
     # execute a system command, echoing stdin, stdout, and stderr
+    # options:
+    # - :hilite - patterns to check in stdout; will flag such lines with :hilite rather than :stdout
     def system(*args)
       opts = {}
       opts = args.pop if Hash === args.last
@@ -297,20 +299,43 @@ module Wunderbar
     end
 
     # execute a system command, echoing stdin, stdout, and stderr
+    # options:
+    # - :tag - tag to be used for HTML; default 'pre'
+    # - :hilite - class to be used for :hilite lines; default '_stdout _hilite'
+    # - :bundlelines - if true, will bundle lines of the same type together; default true for 'pre' tag
     def system(*args)
       opts = {}
       opts = args.pop if Hash === args.last
 
-      tag  = opts[:tag]  || 'pre'
+      tag = opts[:tag] || 'pre'
+      # whether to bundle lines of the same type
+      bundlelines = opts.delete(:bundlelines) # user-override
+      bundlelines = (tag == 'pre') if bundlelines.nil? # if not user-specified, set for pre
       output_class = opts[:class] || {}
       output_class[:stdin]  ||= '_stdin'
       output_class[:stdout] ||= '_stdout'
       output_class[:stderr] ||= '_stderr'
       output_class[:hilite] ||= '_stdout _hilite'
 
-      super(*args, opts) do |kind, line|
-        tag! tag, line, class: output_class[kind]
+      out = [] # collect output lines
+      okind = nil
+      rc = super(*args, opts) do |kind, line|
+        if bundlelines
+          if okind && kind != okind && !out.empty? # change of kind
+            tag! tag, out.join("\n"), class: output_class[okind]
+            out = []
+          end
+          out << line
+        else # normal; no accumulation of lines
+          tag! tag, line, class: output_class[kind]
+        end
+        okind = kind
       end
+      # Output last line(s)
+      unless out.empty?
+        tag! tag, out.join("\n"), class: output_class[okind]
+      end
+      return rc
     end
 
     # insert verbatim
@@ -456,6 +481,9 @@ module Wunderbar
     end
 
     # execute a system command, echoing stdin, stdout, and stderr
+    # options:
+    # - :prefix - hash to be used for identifying the 3 types
+    #             defaults to {stdin: '$ '}
     def system(*args)
       opts = {}
       opts = args.pop if Hash === args.last
@@ -581,6 +609,10 @@ module Wunderbar
     end
 
     # execute a system command, echoing stdin, stdout, and stderr
+    # options:
+    # - :prefix - hash to be used for identifying the 3 types
+    #             defaults to {stdin: '$ '}
+    # - :transcript - name of transcript key in JSON output; default 'transcript'
     def system(*args)
       opts = {}
       opts = args.pop if Hash === args.last
