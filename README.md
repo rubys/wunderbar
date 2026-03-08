@@ -228,7 +228,7 @@ convenience methods are defined:
 
 The `_.system` method takes an optional hash as its last parameter. This can be used to provide settings for the underlying 
 [Process.spawn](https://www.rubydoc.info/stdlib/core/Process.spawn) method.
-For example: `._system('pwd',{ system_opts: { chdir: dir } , system_env: { 'FOO' => 'BAR' } })`
+For example: `_.system('pwd',{ system_opts: { chdir: dir } , system_env: { 'FOO' => 'BAR' } })`
 Note that environment variable names must be provided as strings, not symbols.
 Additional options that can be used with `_.system` include:
 * `:tag` - the HTML tag to be used for input/output; defaults to `pre`
